@@ -1,0 +1,177 @@
+/* ======================================================
+   LAYOUT INJECTOR
+
+   Responsável por injetar automaticamente a sidebar
+   e o header em todas as páginas internas.
+
+   Uso: <script src="../shared/layout.js"></script>
+
+   Estrutura esperada no HTML:
+   - <div id="sidebar"></div>
+   - <div id="header"></div>
+
+====================================================== */
+
+const Layout = (() => {
+  /**
+   * Carrega um componente HTML de forma segura
+   * @param {string} selector - Seletor CSS do container
+   * @param {string} filePath - Caminho do arquivo HTML
+   */
+  const loadComponent = async (selector, filePath) => {
+    try {
+      const container = document.querySelector(selector);
+
+      if (!container) {
+        console.warn(`Container não encontrado: ${selector}`);
+        return;
+      }
+
+      const response = await fetch(filePath);
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      container.innerHTML = await response.text();
+    } catch (error) {
+      console.error(`Erro ao carregar ${filePath}:`, error);
+
+      const container = document.querySelector(selector);
+      if (container) {
+        container.innerHTML = `
+          <div style="padding: 1rem; color: #f85149; background: rgba(248, 81, 73, 0.1); border-radius: 4px;">
+            ⚠️ Erro ao carregar componente
+          </div>
+        `;
+      }
+    }
+  };
+
+  /**
+   * Injeta os estilos CSS globais
+   */
+  const injectStyles = async () => {
+    try {
+      const stylePaths = [
+        "../shared/css/global.css",
+        "../shared/css/components.css",
+        "../shared/css/roles.css",
+      ];
+
+      const existingLinks = document.querySelectorAll('link[rel="stylesheet"]');
+      const existingHrefs = Array.from(existingLinks).map((l) => l.getAttribute("href") || "");
+
+      stylePaths.forEach((path) => {
+        const file = path.split("/").pop();
+        const alreadyLoaded = existingHrefs.some((href) => href.includes(file));
+        if (!alreadyLoaded) {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = path;
+          link.type = "text/css";
+          document.head.appendChild(link);
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao injetar estilos:", error);
+    }
+  };
+
+  /**
+   * Carrega o layout (sidebar e header)
+   */
+  const loadLayout = async () => {
+    await injectStyles();
+
+    // Carregar componentes em paralelo
+    await Promise.all([
+      loadComponent("#sidebar", "../shared/components/sidebar.html"),
+      loadComponent("#header", "../shared/components/header.html"),
+    ]);
+
+    // Depois que sidebar/header existem, sincroniza com App
+    syncWithApp();
+  };
+
+  /**
+   * Sincroniza UI com o estado global (App)
+   * Evita race condition entre Layout e App.
+   */
+  const syncWithApp = () => {
+    if (!window.App) return;
+
+    // aplica role no body (role-ceo etc)
+    window.App.applyRoleStyles?.();
+
+    // preenche header (user, avatar, role)
+    window.App.updateUserUI?.();
+
+    // configura logout (importante: header foi injetado agora)
+    window.App.setupLogout?.();
+
+    // monta o menu dinâmico por role
+    window.App.buildSidebar?.();
+
+    // marca ativo (fallback se necessário)
+    setActiveLinkByUrl();
+  };
+
+  /**
+   * Marca o item ativo baseado na URL atual
+   * (Funciona bem com <a href="notes.html"> etc.)
+   */
+  const setActiveLinkByUrl = () => {
+    const nav = document.getElementById("nav");
+    if (!nav) return;
+
+    const current = window.location.pathname.split("/").pop() || "index.html";
+    const links = nav.querySelectorAll("a[href]");
+
+    links.forEach((a) => {
+      const href = a.getAttribute("href");
+      if (!href) return;
+      a.classList.toggle("active", href === current);
+    });
+  };
+
+  /**
+   * (LEGADO) Se você ainda usa .sidebar-nav-item em algum lugar,
+   * isso não vai quebrar. Mas não é mais o padrão.
+   */
+  const setupLegacyNavigation = () => {
+    const navItems = document.querySelectorAll(".sidebar-nav-item");
+    if (!navItems.length) return;
+
+    navItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        navItems.forEach((nav) => nav.classList.remove("active"));
+        item.classList.add("active");
+      });
+    });
+  };
+
+  /**
+   * Inicializa o layout
+   */
+  const init = async () => {
+    const boot = async () => {
+      await loadLayout();
+      setupLegacyNavigation(); // não atrapalha, só fallback
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      await boot();
+    }
+  };
+
+  return {
+    init,
+    loadLayout,
+    loadComponent,
+  };
+})();
+
+Layout.init();

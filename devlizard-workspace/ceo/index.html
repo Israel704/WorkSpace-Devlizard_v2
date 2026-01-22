@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <h1>Visão Geral</h1>
+        <p style="color: var(--muted); margin-top: 8px;">
+          Atalhos rápidos para as ferramentas do CEO.
+        </p>
+
+        <div class="cards" style="margin-top: 20px;">
+          <a class="card" href="notes.html" style="text-decoration:none; color:inherit;">
+            <h3>Notas Estratégicas</h3>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Registrar, editar e acompanhar notas.
+            </p>
+          </a>
+
+          <a class="card" href="decisions.html" style="text-decoration:none; color:inherit;">
+            <h3>Decisões</h3>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Decisões com impacto, status e histórico.
+            </p>
+          </a>
+
+          <a class="card" href="risks.html" style="text-decoration:none; color:inherit;">
+            <h3>Riscos</h3>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Registro e acompanhamento de riscos.
+            </p>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="ceo.js"></script>
+</body>
+</html>

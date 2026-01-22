@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CFO • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cfo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <h1>Visão Geral</h1>
+        <p style="color: var(--muted); margin-top: 8px;">
+          Dashboard financeiro e ferramentas do CFO.
+        </p>
+
+        <div class="cards" style="margin-top: 20px;">
+          <div class="card">
+            <h3>Receita</h3>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Indicadores de receita e despesas.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Projetos</h3>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Controle de orçamentos.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Riscos</h3>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Riscos financeiros.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cfo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="cfo.js"></script>
+</body>
+</html>

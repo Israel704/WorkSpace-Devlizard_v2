@@ -1,0 +1,252 @@
+/* ======================================================
+   IDENTIDADE VISUAL POR CARGO
+   
+   Uso: Adicione a classe .role-ceo, .role-cfo etc. no <body>
+   Todos os temas usam variáveis CSS sem duplicar layout
+====================================================== */
+
+/* ======================================================
+   TEMA CEO - Líder Geral (Verde/Aguamarina)
+====================================================== */
+
+body.role-ceo {
+  --accent-primary: #3cff8f;
+  --accent-secondary: #2dd4bf;
+}
+
+body.role-ceo .sidebar-brand {
+  color: #3cff8f;
+}
+
+body.role-ceo .btn-primary {
+  background: #3cff8f;
+}
+
+body.role-ceo .sidebar-nav-item.active {
+  border-left-color: #3cff8f;
+  color: #3cff8f;
+}
+
+/* ======================================================
+   TEMA CFO - Financeiro (Azul)
+====================================================== */
+
+body.role-cfo {
+  --accent-primary: #58a6ff;
+  --accent-secondary: #79c0ff;
+}
+
+body.role-cfo .sidebar-brand {
+  color: #58a6ff;
+}
+
+body.role-cfo .btn-primary {
+  background: #58a6ff;
+  color: var(--bg-primary);
+}
+
+body.role-cfo .btn-primary:hover:not(:disabled) {
+  background: #79c0ff;
+}
+
+body.role-cfo .sidebar-nav-item.active {
+  border-left-color: #58a6ff;
+  color: #58a6ff;
+  background: rgba(88, 166, 255, 0.1);
+}
+
+/* ======================================================
+   TEMA CTO - Tecnologia (Roxo)
+====================================================== */
+
+body.role-cto {
+  --accent-primary: #bc8ef4;
+  --accent-secondary: #d0a8ff;
+}
+
+body.role-cto .sidebar-brand {
+  color: #bc8ef4;
+}
+
+body.role-cto .btn-primary {
+  background: #bc8ef4;
+  color: var(--bg-primary);
+}
+
+body.role-cto .btn-primary:hover:not(:disabled) {
+  background: #d0a8ff;
+}
+
+body.role-cto .sidebar-nav-item.active {
+  border-left-color: #bc8ef4;
+  color: #bc8ef4;
+  background: rgba(188, 142, 244, 0.1);
+}
+
+/* ======================================================
+   TEMA CMO - Marketing (Laranja/Rosa)
+====================================================== */
+
+body.role-cmo {
+  --accent-primary: #fb8500;
+  --accent-secondary: #ff9e64;
+}
+
+body.role-cmo .sidebar-brand {
+  color: #fb8500;
+}
+
+body.role-cmo .btn-primary {
+  background: #fb8500;
+  color: var(--bg-primary);
+}
+
+body.role-cmo .btn-primary:hover:not(:disabled) {
+  background: #ff9e64;
+}
+
+body.role-cmo .sidebar-nav-item.active {
+  border-left-color: #fb8500;
+  color: #fb8500;
+  background: rgba(251, 133, 0, 0.1);
+}
+
+/* ======================================================
+   TEMA COO - Operações (Teal)
+====================================================== */
+
+body.role-coo {
+  --accent-primary: #13b0f5;
+  --accent-secondary: #06d6d0;
+}
+
+body.role-coo .sidebar-brand {
+  color: #13b0f5;
+}
+
+body.role-coo .btn-primary {
+  background: #13b0f5;
+  color: var(--bg-primary);
+}
+
+body.role-coo .btn-primary:hover:not(:disabled) {
+  background: #06d6d0;
+}
+
+body.role-coo .sidebar-nav-item.active {
+  border-left-color: #13b0f5;
+  color: #13b0f5;
+  background: rgba(19, 176, 245, 0.1);
+}
+
+/* ======================================================
+   TEMA CEO (Chefe Executivo) - Vermelho
+   
+   Alternativa ao CEO padrão, para diferenciar visualmente
+====================================================== */
+
+body.role-ceo-alt {
+  --accent-primary: #e85d75;
+  --accent-secondary: #f04a64;
+}
+
+body.role-ceo-alt .sidebar-brand {
+  color: #e85d75;
+}
+
+body.role-ceo-alt .btn-primary {
+  background: #e85d75;
+}
+
+body.role-ceo-alt .sidebar-nav-item.active {
+  border-left-color: #e85d75;
+  color: #e85d75;
+  background: rgba(232, 93, 117, 0.1);
+}
+
+/* ======================================================
+   VARIAÇÕES VISUAIS BASEADAS EM CARGO
+====================================================== */
+
+/* Ícones em badges para diferenciar cargos */
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+body.role-ceo .role-badge {
+  background: rgba(60, 255, 143, 0.15);
+  color: #3cff8f;
+}
+
+body.role-cfo .role-badge {
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+}
+
+body.role-cto .role-badge {
+  background: rgba(188, 142, 244, 0.15);
+  color: #bc8ef4;
+}
+
+body.role-cmo .role-badge {
+  background: rgba(251, 133, 0, 0.15);
+  color: #fb8500;
+}
+
+body.role-coo .role-badge {
+  background: rgba(19, 176, 245, 0.15);
+  color: #13b0f5;
+}
+
+/* Linha decorativa no header por cargo */
+.role-accent-line {
+  height: 4px;
+  background: var(--accent-primary);
+  margin-top: var(--spacing-md);
+}
+
+/* Cards com destaque de cargo */
+.card-role {
+  border-top: 3px solid var(--accent-primary);
+}
+
+/* Indicador visual na sidebar */
+.sidebar-role-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--accent-primary);
+  margin-right: var(--spacing-sm);
+}
+
+/* ======================================================
+   PALETA DE CORES COMPLEMENTARES POR CARGO
+====================================================== */
+
+/* Links específicos por cargo */
+a {
+  color: var(--accent-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-primary);
+  text-decoration: underline;
+}
+
+/* Decoração visual em seções importante */
+.highlight-primary {
+  background: rgba(var(--accent-primary), 0.1);
+  border-left: 3px solid var(--accent-primary);
+  padding-left: var(--spacing-md);
+}

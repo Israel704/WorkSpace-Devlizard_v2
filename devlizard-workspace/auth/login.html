@@ -1,0 +1,43 @@
+<!-- Login após escolha do cargo -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../shared/css/global.css" />
+  <link rel="stylesheet" href="../shared/css/components.css" />
+  <link rel="stylesheet" href="../shared/styles.css" />
+</head>
+<body>
+
+  <main class="login-container">
+    <section class="login-card">
+      <header class="login-header">
+        <h1>DevLizard</h1>
+        <p>Acesso restrito</p>
+      </header>
+
+      <form id="loginForm">
+        <div class="field">
+          <label>Usuário</label>
+          <input type="text" id="user" required />
+        </div>
+
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="pass" required />
+        </div>
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <footer class="login-footer">
+        <span id="roleInfo"></span>
+      </footer>
+    </section>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

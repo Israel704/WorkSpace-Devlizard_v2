@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • Riscos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1>Riscos</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Registro de riscos com probabilidade, impacto, status e responsável.
+            </p>
+          </div>
+
+          <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <!-- Editor -->
+        <form id="risk-form" class="card" style="margin-top: 20px;">
+          <input type="hidden" id="risk-id" />
+
+          <div class="field">
+            <label for="risk-title">Risco</label>
+            <input id="risk-title" type="text" placeholder="Ex: Atraso no cronograma por falta de mão de obra" required />
+          </div>
+
+          <div class="field">
+            <label for="risk-owner">Responsável</label>
+            <input id="risk-owner" type="text" placeholder="Ex: COO / João / Time X" required />
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="field">
+              <label for="risk-prob">Probabilidade</label>
+              <select id="risk-prob" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
+                <option value="baixa">Baixa</option>
+                <option value="media">Média</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="risk-impact">Impacto</label>
+              <select id="risk-impact" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="risk-status">Status</label>
+            <select id="risk-status" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
+              <option value="aberto">Aberto</option>
+              <option value="mitigando">Mitigando</option>
+              <option value="mitigado">Mitigado</option>
+              <option value="aceito">Aceito</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="risk-mitigation">Plano de mitigação</label>
+            <input id="risk-mitigation" type="text" placeholder="Ex: contratar freelancer / reduzir escopo / plano B" required />
+          </div>
+
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" id="risk-cancel" style="display:none;">Cancelar</button>
+            <button type="submit" id="risk-save">Salvar</button>
+          </div>
+        </form>
+
+        <!-- Lista -->
+        <div style="margin-top: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <h2 style="font-size: 1.2rem;">Lista de riscos</h2>
+            <input id="risk-search" style="max-width: 320px;" placeholder="Buscar..." />
+          </div>
+
+          <div id="risks-list" class="cards" style="margin-top: 12px;"></div>
+          <p id="risks-empty" style="color: var(--muted); margin-top: 12px; display:none;">
+            Nenhum risco registrado ainda.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="risks.js"></script>
+</body>
+</html>

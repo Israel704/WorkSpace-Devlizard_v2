@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • Decisões</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1>Decisões</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Registro de decisões com impacto e status. Clique para editar.
+            </p>
+          </div>
+
+          <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <!-- Editor -->
+        <form id="decision-form" class="card" style="margin-top: 20px;">
+          <input type="hidden" id="decision-id" />
+
+          <div class="field">
+            <label for="decision-title">Decisão</label>
+            <input id="decision-title" type="text" placeholder="Ex: Abrir nova linha de produto" required />
+          </div>
+
+          <div class="field">
+            <label for="decision-reason">Motivo</label>
+            <input id="decision-reason" type="text" placeholder="Por quê isso existe?" required />
+          </div>
+
+          <div class="field">
+            <label for="decision-impact">Impacto</label>
+            <select id="decision-impact" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
+              <option value="alto">Alto</option>
+              <option value="medio">Médio</option>
+              <option value="baixo">Baixo</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="decision-status">Status</label>
+            <select id="decision-status" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
+              <option value="em_analise">Em análise</option>
+              <option value="aprovada">Aprovada</option>
+              <option value="descartada">Descartada</option>
+              <option value="executada">Executada</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" id="decision-cancel" style="display:none;">Cancelar</button>
+            <button type="submit" id="decision-save">Salvar</button>
+          </div>
+        </form>
+
+        <!-- Lista -->
+        <div style="margin-top: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <h2 style="font-size: 1.2rem;">Histórico</h2>
+            <input id="decision-search" style="max-width: 320px;" placeholder="Buscar..." />
+          </div>
+
+          <div id="decisions-list" class="cards" style="margin-top: 12px;"></div>
+          <p id="decisions-empty" style="color: var(--muted); margin-top: 12px; display:none;">
+            Nenhuma decisão registrada ainda.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="decisions.js"></script>
+</body>
+</html>

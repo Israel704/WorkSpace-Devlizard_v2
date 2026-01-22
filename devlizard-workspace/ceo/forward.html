@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • Encaminhar Arquivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div>
+            <h1>Encaminhar Arquivo</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Envie documentos para outros C-levels com registro no backend.
+            </p>
+          </div>
+          <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <form id="forward-form" class="card" style="margin-top: 20px; display:grid; gap:14px;">
+          <div class="field">
+            <label for="to-role">Enviar para</label>
+            <select id="to-role" required>
+              <option value="">Selecione a role</option>
+              <option value="cfo">CFO</option>
+              <option value="cto">CTO</option>
+              <option value="cmo">CMO</option>
+              <option value="coo">COO</option>
+              <option value="comercial">Comercial</option>
+              <option value="ceo">CEO</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="forward-note">Nota (opcional)</label>
+            <textarea id="forward-note" rows="3" placeholder="Contextualize o destinatário"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="forward-file">Arquivo (máx 10MB)</label>
+            <input id="forward-file" type="file" required />
+          </div>
+
+          <div id="forward-status" style="display:none; font-size:0.95rem;"></div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="submit" id="forward-submit">Enviar</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="forward.js"></script>
+</body>
+</html>

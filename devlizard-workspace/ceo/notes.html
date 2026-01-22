@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • Notas Estratégicas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1>Notas Estratégicas</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Crie, edite e mantenha histórico. Clique em uma nota para editar.
+            </p>
+          </div>
+
+          <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <!-- Editor -->
+        <form id="note-form" class="card" style="margin-top: 20px;">
+          <input type="hidden" id="note-id" />
+
+          <div class="field">
+            <label for="note-title">Título</label>
+            <input id="note-title" type="text" placeholder="Ex: Expansão, contratação, mudança de estratégia" required />
+          </div>
+
+          <div class="field">
+            <label for="note-text">Conteúdo</label>
+            <input id="note-text" type="text" placeholder="Escreva a nota (objetiva)" required />
+          </div>
+
+          <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <button type="button" id="note-cancel" style="display:none;">Cancelar</button>
+            <button type="submit" id="note-save">Salvar</button>
+          </div>
+        </form>
+
+        <!-- Lista -->
+        <div style="margin-top: 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <h2 style="font-size: 1.2rem;">Histórico</h2>
+            <input id="note-search" class="field" style="max-width: 320px;" placeholder="Buscar..." />
+          </div>
+
+          <div id="notes-list" class="cards" style="margin-top: 12px;"></div>
+          <p id="notes-empty" style="color: var(--muted); margin-top: 12px; display:none;">
+            Nenhuma nota registrada ainda.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="notes.js"></script>
+</body>
+</html>

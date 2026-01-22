@@ -1,0 +1,141 @@
+<!-- ================================================
+   ESTRUTURA DE PÁGINA INTERNA - TEMPLATE
+   
+   Use este template como base para criar novas
+   páginas dentro de cada diretório de C-level
+   (ceo, cfo, cto, cmo, coo)
+   
+   Caminho exemplo: /ceo/index.html
+================================================ -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - CEO</title>
+</head>
+<body class="role-ceo">
+  <div id="app">
+    <!-- Sidebar será injetada aqui -->
+    <div id="sidebar"></div>
+
+    <!-- Header será injetado aqui -->
+    <div id="header"></div>
+
+    <!-- Conteúdo específico da página -->
+    <div id="content" class="content">
+      <div class="page-header">
+        <h1 class="page-title">Visão Geral Executiva</h1>
+        <p class="page-subtitle">Dashboard principal do CEO</p>
+      </div>
+
+      <!-- Grid de cards exemplo -->
+      <div class="grid grid-3">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Receita Total</h3>
+          </div>
+          <div class="card-content">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--accent-primary);">
+              R$ 2.4M
+            </div>
+            <p class="text-muted" style="font-size: 0.875rem;">
+              ↑ 12% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Clientes Ativos</h3>
+          </div>
+          <div class="card-content">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--accent-secondary);">
+              1,234
+            </div>
+            <p class="text-muted" style="font-size: 0.875rem;">
+              ↑ 45 novos este mês
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Taxa de Conversão</h3>
+          </div>
+          <div class="card-content">
+            <div style="font-size: 2rem; font-weight: 700; color: #fb8500;">
+              3.8%
+            </div>
+            <p class="text-muted" style="font-size: 0.875rem;">
+              ↓ 0.2% desde última semana
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela exemplo -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Atividades Recentes</h3>
+        </div>
+        <div class="card-content">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th>Usuário</th>
+                <th>Data</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Login realizado</td>
+                <td>admin@devlizard.com</td>
+                <td>22/01/2026 14:32</td>
+                <td><span class="badge badge-primary">Sucesso</span></td>
+              </tr>
+              <tr>
+                <td>Relatório gerado</td>
+                <td>finance@devlizard.com</td>
+                <td>22/01/2026 12:15</td>
+                <td><span class="badge badge-secondary">Processando</span></td>
+              </tr>
+              <tr>
+                <td>Integração testada</td>
+                <td>dev@devlizard.com</td>
+                <td>21/01/2026 16:45</td>
+                <td><span class="badge badge-warning">Atenção</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts - Ordem importante! -->
+  <!-- 1. App global (estado e helpers) -->
+  <script src="../shared/app.js"></script>
+
+  <!-- 2. Layout injector (sidebar + header) -->
+  <script src="../shared/layout.js"></script>
+
+  <!-- 3. Scripts específicos da página -->
+  <script>
+    // Exemplo: Acessar estado global
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = App.getUser();
+      const role = App.getRole();
+
+      App.log(`Página carregada para ${role}`, { user });
+
+      // Exemplo: Usar helpers
+      const formatted = App.formatCurrency(2400000);
+      console.log('Valor formatado:', formatted);
+    });
+  </script>
+</body>
+</html>
