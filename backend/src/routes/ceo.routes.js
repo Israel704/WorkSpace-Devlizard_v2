@@ -257,4 +257,47 @@ router.delete('/risks/:id', async (req, res) => {
   }
 });
 
+// ==================== OPS REPORT ====================
+
+// GET /api/ceo/ops-report - Relatório operacional do COO
+router.get('/ops-report', async (req, res) => {
+  try {
+    // Contagem por status
+    const statusCounts = await db.all(`
+      SELECT status, COUNT(*) as count 
+      FROM ops_tasks 
+      GROUP BY status
+    `);
+
+    // Formatar contagem em objeto
+    const summary = {
+      todo: 0,
+      doing: 0,
+      blocked: 0,
+      done: 0
+    };
+
+    statusCounts.forEach(item => {
+      summary[item.status] = item.count;
+    });
+
+    // Buscar as 10 tarefas mais recentes
+    const recentTasks = await db.all(`
+      SELECT id, title, status, priority, owner, dueDate, updatedAt
+      FROM ops_tasks
+      ORDER BY updatedAt DESC
+      LIMIT 10
+    `);
+
+    res.json({
+      summary,
+      recentTasks
+    });
+  } catch (error) {
+    console.error('Erro ao buscar relatório operacional:', error);
+    res.status(500).json({ error: 'Erro ao buscar relatório operacional' });
+  }
+});
+
 module.exports = router;
+

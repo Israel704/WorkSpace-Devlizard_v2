@@ -6,6 +6,7 @@ const db = require('./db');
 // Importar rotas
 const authRoutes = require('./routes/auth.routes');
 const ceoRoutes = require('./routes/ceo.routes');
+const cooRoutes = require('./routes/coo.routes');
 const filesRoutes = require('./routes/files.routes');
 
 const app = express();
@@ -45,6 +46,7 @@ app.get('/health', (req, res) => {
 // Registrar rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/ceo', ceoRoutes);
+app.use('/api/coo', cooRoutes);
 app.use('/api/files', filesRoutes);
 
 // Rota 404
@@ -97,6 +99,12 @@ async function startServer() {
       console.log('   POST   /api/ceo/risks');
       console.log('   PUT    /api/ceo/risks/:id');
       console.log('   DELETE /api/ceo/risks/:id');
+      console.log('   GET    /api/ceo/ops-report');
+      console.log('   GET    /api/coo/tasks');
+      console.log('   POST   /api/coo/tasks');
+      console.log('   PUT    /api/coo/tasks/:id');
+      console.log('   PATCH  /api/coo/tasks/:id/move');
+      console.log('   DELETE /api/coo/tasks/:id');
       console.log('   POST   /api/files/forward');
       console.log('   GET    /api/files/inbox');
       console.log('   GET    /api/files/:id/download');

@@ -93,6 +93,27 @@ class Database {
             read INTEGER DEFAULT 0,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
+        `);
+
+        // Tabela de tarefas operacionais do COO
+        this.db.run(`
+          CREATE TABLE IF NOT EXISTS ops_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            status TEXT NOT NULL DEFAULT 'todo',
+            priority TEXT DEFAULT 'medium',
+            owner TEXT,
+            dueDate TEXT,
+            createdByRole TEXT DEFAULT 'coo',
+            createdAt INTEGER DEFAULT (strftime('%s', 'now')),
+            updatedAt INTEGER DEFAULT (strftime('%s', 'now'))
+          )
+        `);
+
+        // Criar índice para status na tabela ops_tasks
+        this.db.run(`
+          CREATE INDEX IF NOT EXISTS idx_ops_tasks_status ON ops_tasks(status)
         `, (err) => {
           if (err) {
             console.error('❌ Erro ao criar tabelas:', err);

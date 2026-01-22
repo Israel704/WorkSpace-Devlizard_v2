@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • Relatório Operacional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1>Relatório Operacional</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Visão consolidada das operações do COO
+            </p>
+          </div>
+
+          <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <!-- Resumo por Status -->
+        <section style="margin-top: 32px;">
+          <h2>Resumo por Status</h2>
+          <div class="cards" style="margin-top: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+            <div class="card" style="background: #6c757d; color: white;">
+              <h3>Pendente</h3>
+              <p id="count-todo" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+            </div>
+            <div class="card" style="background: #007bff; color: white;">
+              <h3>Em Andamento</h3>
+              <p id="count-doing" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+            </div>
+            <div class="card" style="background: #dc3545; color: white;">
+              <h3>Bloqueado</h3>
+              <p id="count-blocked" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+            </div>
+            <div class="card" style="background: #28a745; color: white;">
+              <h3>Concluído</h3>
+              <p id="count-done" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tarefas Recentes -->
+        <section style="margin-top: 32px;">
+          <h2>Tarefas Recentes (Top 10)</h2>
+          <div id="recentTasksContainer" style="margin-top: 16px;"></div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script>
+    // CEO Ops Report Logic
+    const API_BASE = 'http://localhost:3001/api';
+
+    function getToken() {
+      return localStorage.getItem('token');
+    }
+
+    async function apiFetch(url, options = {}) {
+      const token = getToken();
+      if (!token) {
+        window.location.href = '../auth/login.html';
+        throw new Error('Token não encontrado');
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers
+      };
+
+      const response = await fetch(`${API_BASE}${url}`, {
+        ...options,
+        headers
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '../auth/login.html';
+        throw new Error('Não autorizado');
+      }
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro na requisição');
+      }
+
+      return response.json();
+    }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return 'N/A';
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR');
+    }
+
+    function getPriorityBadge(priority) {
+      const badges = {
+        low: '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Baixa</span>',
+        medium: '<span style="background: #ffc107; color: black; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Média</span>',
+        high: '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Alta</span>'
+      };
+      return badges[priority] || badges.medium;
+    }
+
+    function getStatusBadge(status) {
+      const badges = {
+        todo: '<span style="background: #6c757d; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Pendente</span>',
+        doing: '<span style="background: #007bff; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Em Andamento</span>',
+        blocked: '<span style="background: #dc3545; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Bloqueado</span>',
+        done: '<span style="background: #28a745; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Concluído</span>'
+      };
+      return badges[status] || '';
+    }
+
+    async function loadOpsReport() {
+      try {
+        const data = await apiFetch('/ceo/ops-report');
+        
+        // Atualizar contadores
+        document.getElementById('count-todo').textContent = data.summary.todo || 0;
+        document.getElementById('count-doing').textContent = data.summary.doing || 0;
+        document.getElementById('count-blocked').textContent = data.summary.blocked || 0;
+        document.getElementById('count-done').textContent = data.summary.done || 0;
+
+        // Renderizar tarefas recentes
+        const container = document.getElementById('recentTasksContainer');
+        
+        if (!data.recentTasks || data.recentTasks.length === 0) {
+          container.innerHTML = '<div class="card"><p style="color: #999; text-align: center;">Nenhuma tarefa operacional encontrada</p></div>';
+          return;
+        }
+
+        container.innerHTML = data.recentTasks.map(task => `
+          <div class="card" style="margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+              <div style="flex: 1;">
+                <h3 style="margin: 0 0 8px 0; font-size: 16px;">${task.title}</h3>
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px;">
+                  ${getStatusBadge(task.status)}
+                  ${getPriorityBadge(task.priority)}
+                  ${task.owner ? `<span style="font-size: 12px; color: #666;">👤 ${task.owner}</span>` : ''}
+                  ${task.dueDate ? `<span style="font-size: 12px; color: #666;">📅 ${new Date(task.dueDate).toLocaleDateString('pt-BR')}</span>` : ''}
+                </div>
+              </div>
+              <div style="text-align: right; font-size: 11px; color: #999;">
+                <div>ID: ${task.id}</div>
+                <div>Atualizado: ${formatDate(task.updatedAt)}</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Erro ao carregar relatório:', error);
+        alert('Erro ao carregar relatório operacional: ' + error.message);
+      }
+    }
+
+    // Carregar ao iniciar
+    loadOpsReport();
+  </script>
+</body>
+</html>

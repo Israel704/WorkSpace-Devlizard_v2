@@ -164,6 +164,7 @@ window.App = (() => {
   { label: "Riscos", href: "risks.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Relatórios", href: "reports.html" },
+  { label: "Relatório Operacional", href: "ops-report.html" },
 ],
 
     };
