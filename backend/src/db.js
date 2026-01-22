@@ -108,35 +108,60 @@ class Database {
 
   async seedData() {
     return new Promise((resolve, reject) => {
-      // Verificar se já existe o usuário admin
-      this.db.get('SELECT id FROM users WHERE email = ?', ['admin@devlizard.com'], async (err, row) => {
-        if (err) {
-          reject(err);
+      // Definir usuários padrão para cada role
+      const defaultUsers = [
+        { email: 'admin@devlizard.com', password: '123456', role: 'ceo' },
+        { email: 'coo@devlizard.com', password: 'coo2024', role: 'coo' },
+        { email: 'cfo@devlizard.com', password: 'cfo2024', role: 'cfo' },
+        { email: 'cto@devlizard.com', password: 'cto2024', role: 'cto' },
+        { email: 'cmo@devlizard.com', password: 'cmo2024', role: 'cmo' },
+        { email: 'comercial@devlizard.com', password: 'comercial2024', role: 'comercial' },
+      ];
+
+      // Verificar e criar usuários
+      const createUsersRecursively = async (index) => {
+        if (index >= defaultUsers.length) {
+          console.log('✅ Todos os usuários padrão foram verificados/criados');
+          resolve();
           return;
         }
 
-        if (!row) {
-          // Criar usuário admin
-          const hashedPassword = await bcrypt.hash('123456', 10);
-          
-          this.db.run(
-            'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
-            ['admin@devlizard.com', hashedPassword, 'ceo'],
-            (err) => {
-              if (err) {
-                console.error('❌ Erro ao criar usuário admin:', err);
-                reject(err);
-              } else {
-                console.log('✅ Usuário admin criado: admin@devlizard.com / 123456');
-                resolve();
-              }
+        const user = defaultUsers[index];
+        
+        this.db.get('SELECT id FROM users WHERE email = ? AND role = ?', [user.email, user.role], async (err, row) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          if (!row) {
+            try {
+              const hashedPassword = await bcrypt.hash(user.password, 10);
+              
+              this.db.run(
+                'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
+                [user.email, hashedPassword, user.role],
+                (err) => {
+                  if (err) {
+                    console.error(`❌ Erro ao criar usuário ${user.role}:`, err);
+                    reject(err);
+                  } else {
+                    console.log(`✅ Usuário ${user.role} criado: ${user.email} / ${user.password}`);
+                    createUsersRecursively(index + 1);
+                  }
+                }
+              );
+            } catch (error) {
+              reject(error);
             }
-          );
-        } else {
-          console.log('✅ Usuário admin já existe');
-          resolve();
-        }
-      });
+          } else {
+            console.log(`✅ Usuário ${user.role} já existe: ${user.email}`);
+            createUsersRecursively(index + 1);
+          }
+        });
+      };
+
+      createUsersRecursively(0);
     });
   }
 

@@ -85,11 +85,16 @@ O servidor iniciará em `http://localhost:3000` e:
 - ✅ Criará as tabelas necessárias
 - ✅ Inserirá usuário admin padrão
 
-## 👤 Usuário Padrão
+## 👤 Usuários Padrão (Por Role)
 
-**Email:** `admin@devlizard.com`  
-**Senha:** `123456`  
-**Role:** `ceo`
+| Role | Email | Senha | 
+|------|-------|-------|
+| CEO | `admin@devlizard.com` | `123456` |
+| COO | `coo@devlizard.com` | `coo2024` |
+| CFO | `cfo@devlizard.com` | `cfo2024` |
+| CTO | `cto@devlizard.com` | `cto2024` |
+| CMO | `cmo@devlizard.com` | `cmo2024` |
+| Comercial | `comercial@devlizard.com` | `comercial2024` |
 
 ## 📡 Endpoints Disponíveis
 

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>COO • DevLizard</title>
+  <title>COO • Operações</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 
@@ -14,33 +14,85 @@
       <div id="header"></div>
 
       <section class="content">
-        <h1>Visão Geral</h1>
-        <p style="color: var(--muted); margin-top: 8px;">
-          Dashboard operacional e ferramentas do COO.
+        <h1>Operações</h1>
+        <p style="color: var(--muted); margin-top: 6px;">
+          Acompanhamento de processos, gargalos e execução.
         </p>
 
-        <div class="cards" style="margin-top: 20px;">
+        <div class="cards">
           <div class="card">
-            <h3>Operações</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Status operacional.
-            </p>
+            <h3>Processos Ativos</h3>
+            <p id="processCount">0</p>
           </div>
 
           <div class="card">
-            <h3>Processos</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Otimização de processos.
-            </p>
+            <h3>Gargalos Abertos</h3>
+            <p id="bottleneckCount">0</p>
           </div>
 
           <div class="card">
-            <h3>Recursos</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Gestão de recursos.
-            </p>
+            <h3>Status Geral</h3>
+            <p id="operationStatus">Estável</p>
           </div>
         </div>
+
+        <section style="margin-top: 32px;">
+          <h2>Processos</h2>
+
+          <form id="processForm" class="card" style="margin-top:16px;">
+            <input type="text" id="processName" placeholder="Nome do processo" required />
+            <button type="submit">Adicionar</button>
+          </form>
+
+          <ul id="processList" style="margin-top:16px;"></ul>
+        </section>
+
+        <section style="margin-top: 32px;">
+          <h2>Gargalos</h2>
+
+          <form id="bottleneckForm" class="card" style="margin-top:16px;">
+            <input type="text" id="bottleneckDesc" placeholder="Descrição do gargalo" required />
+            <button type="submit">Registrar</button>
+          </form>
+
+          <ul id="bottleneckList" style="margin-top:16px;"></ul>
+        </section>
+
+        <section style="margin-top: 32px;">
+          <h2>Compartilhamento de Arquivos</h2>
+
+          <div class="card" style="margin-top:16px;">
+            <h3>Enviar Arquivo</h3>
+            <form id="sendFileForm" style="display: flex; flex-direction: column; gap: 12px;">
+              <div>
+                <label for="toRole">Enviar para:</label>
+                <select id="toRole" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                  <option value="">Selecione...</option>
+                  <option value="ceo">CEO</option>
+                  <option value="cfo">CFO</option>
+                  <option value="cto">CTO</option>
+                  <option value="cmo">CMO</option>
+                  <option value="comercial">Comercial</option>
+                </select>
+              </div>
+              <div>
+                <label for="fileInput">Arquivo:</label>
+                <input type="file" id="fileInput" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+              <div>
+                <label for="fileNote">Observação (opcional):</label>
+                <textarea id="fileNote" placeholder="Adicione uma observação..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px; font-family: inherit;"></textarea>
+              </div>
+              <button type="submit" style="padding: 10px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Enviar</button>
+            </form>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <h3>Arquivos Recebidos</h3>
+            <div id="inboxContainer" style="margin-top: 12px;"></div>
+          </div>
+        </section>
+
       </section>
     </main>
   </div>
@@ -48,6 +100,7 @@
   <script src="coo.guard.js"></script>
   <script src="../shared/layout.js"></script>
   <script src="../shared/app.js"></script>
+  <script src="../shared/files-manager.js"></script>
   <script src="coo.js"></script>
 </body>
 </html>
