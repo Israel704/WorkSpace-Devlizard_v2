@@ -9,7 +9,7 @@ router.use(authRequired);
 router.use(requireRole(['coo']));
 
 // Validações
-const VALID_STATUSES = ['todo', 'doing', 'blocked', 'done'];
+const VALID_STATUSES = ['todo', 'doing', 'blocked', 'review', 'done'];
 const VALID_PRIORITIES = ['low', 'medium', 'high'];
 const MAX_DESCRIPTION_LENGTH = 1000;
 

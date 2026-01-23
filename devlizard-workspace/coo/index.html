@@ -19,76 +19,89 @@
           Gestão operacional com Kanban Board
         </p>
 
-        <!-- Formulário de Nova Tarefa -->
+        <!-- Kanban Operacional -->
         <section style="margin-top: 32px;">
-          <h2>Nova Tarefa</h2>
-          <div class="card" style="margin-top:16px;">
-            <form id="taskForm" style="display: grid; gap: 12px;">
-              <div>
-                <label for="taskTitle">Título *</label>
-                <input type="text" id="taskTitle" placeholder="Título da tarefa" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
-              </div>
-              <div>
-                <label for="taskDescription">Descrição</label>
-                <textarea id="taskDescription" placeholder="Descrição da tarefa..." maxlength="1000" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px; font-family: inherit;"></textarea>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-                <div>
-                  <label for="taskPriority">Prioridade</label>
-                  <select id="taskPriority" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="low">Baixa</option>
-                    <option value="medium" selected>Média</option>
-                    <option value="high">Alta</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="taskOwner">Responsável</label>
-                  <input type="text" id="taskOwner" placeholder="Nome do responsável" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
-                </div>
-                <div>
-                  <label for="taskDueDate">Prazo</label>
-                  <input type="date" id="taskDueDate" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
-                </div>
-              </div>
-              <button type="submit" style="padding: 10px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Criar Tarefa</button>
-            </form>
+          <!-- Barra Superior -->
+          <div class="kanban-toolbar">
+            <h2 style="margin: 0;">Kanban Operacional</h2>
+            <div class="kanban-toolbar-actions">
+              <input 
+                type="text" 
+                id="kanbanFilterInput" 
+                class="kanban-filter-input" 
+                placeholder="🔍 Filtrar por palavra..."
+              />
+              <button id="btnNewTask" class="btn btn-primary">+ Nova tarefa</button>
+              <button id="btnClearFilter" class="btn btn-secondary">Limpar filtros</button>
+              <button id="btnSaveKanban" class="btn btn-success">💾 Salvar</button>
+            </div>
           </div>
-        </section>
 
-        <!-- Kanban Board -->
-        <section style="margin-top: 32px;">
-          <h2>Kanban Board</h2>
-          <div id="kanbanBoard" style="margin-top: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
-            <!-- Coluna Pendente -->
-            <div class="kanban-column" data-status="todo">
-              <div class="kanban-header" style="background-color: #6c757d; color: white; padding: 12px; border-radius: 4px; text-align: center; font-weight: bold;">
-                Pendente (<span id="count-todo">0</span>)
+          <!-- Kanban Board -->
+          <div id="kanbanBoard" class="kanban-board">
+            <!-- Coluna: Backlog -->
+            <div class="kanban-column" data-status="backlog">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Backlog</span>
+                  <span class="kanban-count" id="count-backlog">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Não estão prontos para ser desenvolvido</p>
               </div>
-              <div id="column-todo" class="kanban-tasks" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 200px;"></div>
+              <div id="column-backlog" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="backlog">+ Add item</button>
             </div>
 
-            <!-- Coluna Em Andamento -->
+            <!-- Coluna: Disponíveis -->
+            <div class="kanban-column" data-status="ready">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Disponíveis</span>
+                  <span class="kanban-count" id="count-ready">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Prontos para serem desenvolvidos</p>
+              </div>
+              <div id="column-ready" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="ready">+ Add item</button>
+            </div>
+
+            <!-- Coluna: Em progresso -->
             <div class="kanban-column" data-status="doing">
-              <div class="kanban-header" style="background-color: #007bff; color: white; padding: 12px; border-radius: 4px; text-align: center; font-weight: bold;">
-                Em Andamento (<span id="count-doing">0</span>)
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Em progresso</span>
+                  <span class="kanban-count" id="count-doing">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Desenvolvimento em andamento</p>
               </div>
-              <div id="column-doing" class="kanban-tasks" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 200px;"></div>
+              <div id="column-doing" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="doing">+ Add item</button>
             </div>
 
-            <!-- Coluna Bloqueado -->
-            <div class="kanban-column" data-status="blocked">
-              <div class="kanban-header" style="background-color: #dc3545; color: white; padding: 12px; border-radius: 4px; text-align: center; font-weight: bold;">
-                Bloqueado (<span id="count-blocked">0</span>)
+            <!-- Coluna: Aguardando revisão -->
+            <div class="kanban-column" data-status="review_wait">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Aguardando revisão</span>
+                  <span class="kanban-count" id="count-review_wait">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Esperando revisão de um membro diferente</p>
               </div>
-              <div id="column-blocked" class="kanban-tasks" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 200px;"></div>
+              <div id="column-review_wait" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="review_wait">+ Add item</button>
             </div>
 
-            <!-- Coluna Concluído -->
-            <div class="kanban-column" data-status="done">
-              <div class="kanban-header" style="background-color: #28a745; color: white; padding: 12px; border-radius: 4px; text-align: center; font-weight: bold;">
-                Concluído (<span id="count-done">0</span>)
+            <!-- Coluna: Em revisão -->
+            <div class="kanban-column" data-status="reviewing">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Em revisão</span>
+                  <span class="kanban-count" id="count-reviewing">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Revisão em andamento</p>
               </div>
-              <div id="column-done" class="kanban-tasks" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; min-height: 200px;"></div>
+              <div id="column-reviewing" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="reviewing">+ Add item</button>
             </div>
           </div>
         </section>
@@ -138,5 +151,33 @@
   <script src="../shared/app.js"></script>
   <script src="../shared/files-manager.js"></script>
   <script src="coo.js"></script>
+
+  <!-- Modal para Criar/Editar Tarefa -->
+  <div id="taskModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nova Tarefa</h3>
+        <button id="closeModal" class="modal-close">&times;</button>
+      </div>
+      <form id="taskForm">
+        <div class="form-group">
+          <label for="taskTitle">Título *</label>
+          <input type="text" id="taskTitle" required placeholder="Ex: Tela de login">
+        </div>
+        <div class="form-group">
+          <label for="taskDescription">Descrição</label>
+          <textarea id="taskDescription" rows="4" placeholder="Descrição da tarefa..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancelTaskBtn" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast de notificação -->
+  <div id="toast" class="toast"></div>
+
 </body>
 </html>
