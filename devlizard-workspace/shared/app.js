@@ -163,8 +163,25 @@ window.App = (() => {
   { label: "Decisões", href: "decisions.html" },
   { label: "Riscos", href: "risks.html" },
   { label: "Notas", href: "notes.html" },
+  { label: "Propostas", href: "proposals.html" },
   { label: "Relatórios", href: "reports.html" },
   { label: "Relatório Operacional", href: "ops-report.html" },
+],
+      coo: [
+  { label: "Visão Geral", href: "index.html" },
+  { label: "Propostas", href: "proposals.html" },
+],
+      cfo: [
+  { label: "Visão Geral", href: "index.html" },
+  { label: "Propostas", href: "proposals.html" },
+],
+      cto: [
+  { label: "Visão Geral", href: "index.html" },
+  { label: "Propostas", href: "proposals.html" },
+],
+      cmo: [
+  { label: "Visão Geral", href: "index.html" },
+  { label: "Propostas", href: "proposals.html" },
 ],
 
     };

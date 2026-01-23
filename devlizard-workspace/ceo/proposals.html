@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Propostas • CEO • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div>
+            <h1 style="margin: 0;">Sistema de Propostas</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Crie propostas e receba decisões de outros C-levels.
+            </p>
+          </div>
+          <a href="index.html" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; white-space: nowrap;">← Voltar ao Início</a>
+        </div>
+
+        <!-- Abas -->
+        <div class="tabs" style="display: flex; gap: 16px; margin-top: 24px; border-bottom: 2px solid #e0e0e0;">
+          <button class="tab-btn active" data-tab="create">Criar Proposta</button>
+          <button class="tab-btn" data-tab="inbox">Recebidas</button>
+          <button class="tab-btn" data-tab="sent">Enviadas</button>
+        </div>
+
+        <!-- Aba: Criar Proposta -->
+        <div id="tab-create" class="tab-content active" style="margin-top: 24px;">
+          <div class="card">
+            <h2>Nova Proposta</h2>
+            <form id="createProposalForm" style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+              <div>
+                <label for="proposalTitle">Título *</label>
+                <input 
+                  type="text" 
+                  id="proposalTitle" 
+                  placeholder="Ex: Aprovar novo fornecedor" 
+                  required 
+                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;"
+                />
+              </div>
+              <div>
+                <label for="proposalDescription">Descrição *</label>
+                <textarea 
+                  id="proposalDescription" 
+                  placeholder="Descreva detalhes da proposta..." 
+                  required 
+                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 120px; font-family: inherit; margin-top: 4px;"
+                ></textarea>
+              </div>
+              <div>
+                <label for="proposalToRole">Enviar para *</label>
+                <select 
+                  id="proposalToRole" 
+                  required 
+                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;"
+                >
+                  <option value="">Selecione o destinatário...</option>
+                  <option value="coo">COO</option>
+                  <option value="cfo">CFO</option>
+                  <option value="cto">CTO</option>
+                  <option value="cmo">CMO</option>
+                </select>
+              </div>
+              <button 
+                type="submit" 
+                style="padding: 12px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;"
+              >
+                Enviar Proposta
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Aba: Propostas Recebidas -->
+        <div id="tab-inbox" class="tab-content" style="margin-top: 24px; display: none;">
+          <div id="inboxProposals"></div>
+        </div>
+
+        <!-- Aba: Propostas Enviadas -->
+        <div id="tab-sent" class="tab-content" style="margin-top: 24px; display: none;">
+          <div id="sentProposals"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/proposals.js"></script>
+</body>
+</html>

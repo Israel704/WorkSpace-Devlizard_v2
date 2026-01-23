@@ -111,9 +111,33 @@ class Database {
           )
         `);
 
+        // Tabela de propostas entre C-levels
+        this.db.run(`
+          CREATE TABLE IF NOT EXISTS proposals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            fromRole TEXT NOT NULL,
+            toRole TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            decisionComment TEXT,
+            createdAt INTEGER DEFAULT (strftime('%s', 'now')),
+            decidedAt INTEGER
+          )
+        `);
+
         // Criar índice para status na tabela ops_tasks
         this.db.run(`
           CREATE INDEX IF NOT EXISTS idx_ops_tasks_status ON ops_tasks(status)
+        `);
+
+        // Criar índices para a tabela proposals
+        this.db.run(`
+          CREATE INDEX IF NOT EXISTS idx_proposals_toRole ON proposals(toRole)
+        `);
+
+        this.db.run(`
+          CREATE INDEX IF NOT EXISTS idx_proposals_status ON proposals(status)
         `, (err) => {
           if (err) {
             console.error('❌ Erro ao criar tabelas:', err);

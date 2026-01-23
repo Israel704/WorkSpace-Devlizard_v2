@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.routes');
 const ceoRoutes = require('./routes/ceo.routes');
 const cooRoutes = require('./routes/coo.routes');
 const filesRoutes = require('./routes/files.routes');
+const proposalsRoutes = require('./routes/proposals.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,6 +49,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/ceo', ceoRoutes);
 app.use('/api/coo', cooRoutes);
 app.use('/api/files', filesRoutes);
+app.use('/api/proposals', proposalsRoutes);
 
 // Rota 404
 app.use((req, res) => {
@@ -110,6 +112,11 @@ async function startServer() {
       console.log('   GET    /api/files/:id/download');
       console.log('   PATCH  /api/files/:id/read');
       console.log('   DELETE /api/files/:id');
+      console.log('   POST   /api/proposals');
+      console.log('   GET    /api/proposals/sent');
+      console.log('   GET    /api/proposals/inbox');
+      console.log('   PATCH  /api/proposals/:id/decide');
+      console.log('   DELETE /api/proposals/:id');
       console.log('');
       console.log('👤 Usuário padrão:');
       console.log('   Email: admin@devlizard.com');
