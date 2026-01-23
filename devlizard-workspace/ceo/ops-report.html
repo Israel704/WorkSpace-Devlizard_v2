@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <title>CEO • Relatório Operacional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+  </style>
 </head>
 
 <body class="role-ceo">
@@ -18,32 +28,37 @@
           <div>
             <h1>Relatório Operacional</h1>
             <p style="color: var(--muted); margin-top: 8px;">
-              Visão consolidada das operações do COO
+              <span style="display: inline-block; width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite;"></span>
+              Sincronizado com Kanban Board do COO
             </p>
           </div>
 
           <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
         </div>
 
-        <!-- Resumo por Status -->
+        <!-- Resumo por Status (Sincronizado com Kanban do COO) -->
         <section style="margin-top: 32px;">
           <h2>Resumo por Status</h2>
-          <div class="cards" style="margin-top: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+          <div class="cards" style="margin-top: 16px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;">
             <div class="card" style="background: #6c757d; color: white;">
-              <h3>Pendente</h3>
-              <p id="count-todo" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+              <h3>Backlog</h3>
+              <p id="count-backlog" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+            </div>
+            <div class="card" style="background: #17a2b8; color: white;">
+              <h3>Pronto</h3>
+              <p id="count-ready" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
             </div>
             <div class="card" style="background: #007bff; color: white;">
               <h3>Em Andamento</h3>
               <p id="count-doing" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
             </div>
-            <div class="card" style="background: #dc3545; color: white;">
-              <h3>Bloqueado</h3>
-              <p id="count-blocked" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+            <div class="card" style="background: #ffc107; color: black;">
+              <h3>Aguardando Review</h3>
+              <p id="count-review-wait" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
             </div>
             <div class="card" style="background: #28a745; color: white;">
-              <h3>Concluído</h3>
-              <p id="count-done" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
+              <h3>Em Review</h3>
+              <p id="count-reviewing" style="font-size: 32px; font-weight: bold; margin: 8px 0;">0</p>
             </div>
           </div>
         </section>
@@ -62,117 +77,124 @@
   <script src="../shared/layout.js"></script>
   <script src="../shared/app.js"></script>
   <script>
-    // CEO Ops Report Logic
-    const API_BASE = 'http://localhost:3001/api';
+    // CEO Ops Report - Sincronizado com Kanban Board do COO
+    const STORAGE_KEY_COO_KANBAN = 'coo_kanban_tasks';
+    const REFRESH_INTERVAL = 5000; // 5 segundos
 
-    function getToken() {
-      return localStorage.getItem('token');
-    }
-
-    async function apiFetch(url, options = {}) {
-      const token = getToken();
-      if (!token) {
-        window.location.href = '../auth/login.html';
-        throw new Error('Token não encontrado');
-      }
-
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        ...options.headers
-      };
-
-      const response = await fetch(`${API_BASE}${url}`, {
-        ...options,
-        headers
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '../auth/login.html';
-        throw new Error('Não autorizado');
-      }
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erro na requisição');
-      }
-
-      return response.json();
-    }
-
-    function formatDate(timestamp) {
-      if (!timestamp) return 'N/A';
-      const date = new Date(timestamp * 1000);
-      return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR');
-    }
-
-    function getPriorityBadge(priority) {
-      const badges = {
-        low: '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Baixa</span>',
-        medium: '<span style="background: #ffc107; color: black; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Média</span>',
-        high: '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">Alta</span>'
-      };
-      return badges[priority] || badges.medium;
-    }
+    let refreshTimer = null;
 
     function getStatusBadge(status) {
       const badges = {
-        todo: '<span style="background: #6c757d; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Pendente</span>',
+        backlog: '<span style="background: #6c757d; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Backlog</span>',
+        ready: '<span style="background: #17a2b8; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Pronto</span>',
         doing: '<span style="background: #007bff; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Em Andamento</span>',
-        blocked: '<span style="background: #dc3545; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Bloqueado</span>',
-        done: '<span style="background: #28a745; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Concluído</span>'
+        review_wait: '<span style="background: #ffc107; color: black; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Aguardando Review</span>',
+        reviewing: '<span style="background: #28a745; color: white; padding: 4px 10px; border-radius: 3px; font-size: 12px;">Em Review</span>'
       };
-      return badges[status] || '';
+      return badges[status] || badges.backlog;
     }
 
-    async function loadOpsReport() {
+    function getCOOKanbanData() {
       try {
-        const data = await apiFetch('/ceo/ops-report');
-        
-        // Atualizar contadores
-        document.getElementById('count-todo').textContent = data.summary.todo || 0;
-        document.getElementById('count-doing').textContent = data.summary.doing || 0;
-        document.getElementById('count-blocked').textContent = data.summary.blocked || 0;
-        document.getElementById('count-done').textContent = data.summary.done || 0;
-
-        // Renderizar tarefas recentes
-        const container = document.getElementById('recentTasksContainer');
-        
-        if (!data.recentTasks || data.recentTasks.length === 0) {
-          container.innerHTML = '<div class="card"><p style="color: #999; text-align: center;">Nenhuma tarefa operacional encontrada</p></div>';
-          return;
-        }
-
-        container.innerHTML = data.recentTasks.map(task => `
-          <div class="card" style="margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
-              <div style="flex: 1;">
-                <h3 style="margin: 0 0 8px 0; font-size: 16px;">${task.title}</h3>
-                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px;">
-                  ${getStatusBadge(task.status)}
-                  ${getPriorityBadge(task.priority)}
-                  ${task.owner ? `<span style="font-size: 12px; color: #666;">👤 ${task.owner}</span>` : ''}
-                  ${task.dueDate ? `<span style="font-size: 12px; color: #666;">📅 ${new Date(task.dueDate).toLocaleDateString('pt-BR')}</span>` : ''}
-                </div>
-              </div>
-              <div style="text-align: right; font-size: 11px; color: #999;">
-                <div>ID: ${task.id}</div>
-                <div>Atualizado: ${formatDate(task.updatedAt)}</div>
-              </div>
-            </div>
-          </div>
-        `).join('');
-
-      } catch (error) {
-        console.error('Erro ao carregar relatório:', error);
-        alert('Erro ao carregar relatório operacional: ' + error.message);
+        const data = localStorage.getItem(STORAGE_KEY_COO_KANBAN);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        console.error('Erro ao carregar Kanban do COO:', e);
+        return [];
       }
     }
 
-    // Carregar ao iniciar
-    loadOpsReport();
+    function updateCounters() {
+      const tasks = getCOOKanbanData();
+      
+      // Contar tarefas por status
+      const counts = {
+        backlog: 0,
+        ready: 0,
+        doing: 0,
+        review_wait: 0,
+        reviewing: 0
+      };
+
+      tasks.forEach(task => {
+        if (counts.hasOwnProperty(task.status)) {
+          counts[task.status]++;
+        }
+      });
+
+      // Atualizar contadores na página
+      document.getElementById('count-backlog').textContent = counts.backlog;
+      document.getElementById('count-ready').textContent = counts.ready;
+      document.getElementById('count-doing').textContent = counts.doing;
+      document.getElementById('count-review-wait').textContent = counts.review_wait;
+      document.getElementById('count-reviewing').textContent = counts.reviewing;
+    }
+
+    function renderRecentTasks() {
+      const tasks = getCOOKanbanData();
+      const container = document.getElementById('recentTasksContainer');
+      
+      // Ordenar tarefas por status (priorizar as ativas)
+      const statusOrder = { backlog: 0, ready: 1, doing: 2, review_wait: 3, reviewing: 4 };
+      const sortedTasks = [...tasks].sort((a, b) => {
+        return (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
+      });
+
+      if (sortedTasks.length === 0) {
+        container.innerHTML = '<div class="card"><p style="color: #999; text-align: center;">Nenhuma tarefa operacional encontrada</p></div>';
+        return;
+      }
+
+      // Mostrar apenas os 10 primeiros
+      const recentTasks = sortedTasks.slice(0, 10);
+
+      container.innerHTML = recentTasks.map(task => `
+        <div class="card" style="margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
+            <div style="flex: 1;">
+              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${task.title || 'Sem título'}</h3>
+              <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px;">
+                ${getStatusBadge(task.status)}
+                ${task.description ? `<span style="font-size: 12px; color: #666;">📝 ${task.description.substring(0, 40)}${task.description.length > 40 ? '...' : ''}</span>` : ''}
+              </div>
+            </div>
+            <div style="text-align: right; font-size: 11px; color: #999;">
+              <div>ID: ${task.id || 'N/A'}</div>
+              <div>Criado: ${task.createdAt ? new Date(task.createdAt).toLocaleDateString('pt-BR') : 'N/A'}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function startAutoSync() {
+      // Atualizar imediatamente
+      updateCounters();
+      renderRecentTasks();
+
+      // Atualizar a cada 5 segundos
+      refreshTimer = setInterval(() => {
+        updateCounters();
+        renderRecentTasks();
+      }, REFRESH_INTERVAL);
+    }
+
+    function stopAutoSync() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      startAutoSync();
+    });
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+      stopAutoSync();
+    });
   </script>
 </body>
 </html>

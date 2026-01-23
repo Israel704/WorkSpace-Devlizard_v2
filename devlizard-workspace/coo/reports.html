@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>CEO • Relatórios</title>
+  <title>COO • Relatórios</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     .reports-container {
@@ -179,7 +179,7 @@
   </style>
 </head>
 
-<body class="role-ceo">
+<body class="role-coo">
   <div class="app">
     <div id="sidebar"></div>
 
@@ -190,66 +190,22 @@
         <h1>Relatórios</h1>
 
         <p style="color: var(--muted); margin-top: 12px; max-width: 600px;">
-          Consolidação de dados estratégicos com integração operacional do COO. Acompanhamento de indicadores, decisões e riscos.
+          Acompanhamento de métricas operacionais e comunicação com CEO sobre indicadores estratégicos.
         </p>
 
         <div class="reports-container">
-          <!-- Painel CEO -->
+          <!-- Painel COO -->
           <div class="report-section">
             <div class="report-header">
-              <h2>Dashboard Estratégico</h2>
-              <span id="lastUpdateCEO">Atualizado agora</span>
+              <h2>Dashboard COO</h2>
+              <span id="lastUpdateCOO">Atualizado agora</span>
             </div>
 
-            <div class="status-badge status-active">✓ Sistema Executivo</div>
+            <div class="status-badge status-active">✓ Sistema Operacional</div>
 
             <div class="communication-box">
               <strong>Comunicação Ativa</strong>
-              Sincronizando dados em tempo real com COO para visão integrada
-            </div>
-
-            <div class="metrics-grid">
-              <div class="metric-card">
-                <div class="metric-value" id="metricDecisions">0</div>
-                <div class="metric-label">Decisões</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-value" id="metricRisks">0</div>
-                <div class="metric-label">Riscos</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-value" id="metricStrategic">0</div>
-                <div class="metric-label">Itens Estratégicos</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-value" id="metricNotes">0</div>
-                <div class="metric-label">Notas Ativas</div>
-              </div>
-            </div>
-
-            <h3 style="font-size: 14px; margin-top: 20px; margin-bottom: 12px;">Informações Estratégicas</h3>
-            <div id="ceoIndicators" class="timeline">
-              <!-- Preenchido por JavaScript -->
-            </div>
-
-            <div class="btn-group">
-              <button class="btn btn-primary" id="btnRefreshCEO">🔄 Atualizar</button>
-              <button class="btn btn-secondary" id="btnExportCEO">📊 Exportar</button>
-            </div>
-          </div>
-
-          <!-- Painel Operacional COO -->
-          <div class="report-section">
-            <div class="report-header">
-              <h2>Visão Operacional</h2>
-              <span id="lastUpdateCOO">Conectando...</span>
-            </div>
-
-            <div class="status-badge status-active">✓ Conectado</div>
-
-            <div class="communication-box">
-              <strong>Dados do COO</strong>
-              Métricas operacionais e indicadores de desempenho da equipe
+              Você está compartilhando dados em tempo real com o CEO
             </div>
 
             <div class="metrics-grid">
@@ -271,32 +227,76 @@
               </div>
             </div>
 
-            <h3 style="font-size: 14px; margin-top: 20px; margin-bottom: 12px;">Status Operacional</h3>
+            <h3 style="font-size: 14px; margin-top: 20px; margin-bottom: 12px;">Indicadores Operacionais</h3>
             <div id="cooIndicators" class="timeline">
               <!-- Preenchido por JavaScript -->
             </div>
 
             <div class="btn-group">
-              <button class="btn btn-primary" id="btnRefreshCOO">🔄 Sincronizar</button>
-              <button class="btn btn-secondary" id="btnViewCOOReports">📑 Ver Completo</button>
+              <button class="btn btn-primary" id="btnRefreshCOO">🔄 Atualizar</button>
+              <button class="btn btn-secondary" id="btnExportCOO">📊 Exportar</button>
+            </div>
+          </div>
+
+          <!-- Painel Compartilhado CEO -->
+          <div class="report-section">
+            <div class="report-header">
+              <h2>Visão CEO</h2>
+              <span id="lastUpdateCEO">Conectando...</span>
+            </div>
+
+            <div class="status-badge status-active">✓ Conectado</div>
+
+            <div class="communication-box">
+              <strong>Dados do CEO</strong>
+              Indicadores estratégicos e decisões do nível executivo
+            </div>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-value" id="metricDecisions">0</div>
+                <div class="metric-label">Decisões</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value" id="metricRisks">0</div>
+                <div class="metric-label">Riscos</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value" id="metricStrategic">0</div>
+                <div class="metric-label">Itens Estratégicos</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-value" id="metricNotes">0</div>
+                <div class="metric-label">Notas Ativas</div>
+              </div>
+            </div>
+
+            <h3 style="font-size: 14px; margin-top: 20px; margin-bottom: 12px;">Últimas Decisões</h3>
+            <div id="ceoDecisions" class="timeline">
+              <!-- Preenchido por JavaScript -->
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-primary" id="btnRefreshCEO">🔄 Sincronizar</button>
+              <button class="btn btn-secondary" id="btnViewCEOReports">📑 Ver Completo</button>
             </div>
           </div>
         </div>
 
         <!-- Tabela Comparativa -->
         <div class="report-section" style="margin-top: 24px;">
-          <h2>Integração: Estratégia vs Operação</h2>
+          <h2>Comparativo: COO vs CEO</h2>
           <p style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">
-            Análise integrada CEO-COO para alinhamento estratégico-operacional e tomada de decisão
+            Visão integrada dos dois perfis para alinhamento estratégico-operacional
           </p>
 
           <table class="comparison-table">
             <thead>
               <tr>
                 <th>Métrica</th>
-                <th>CEO (Estratégico)</th>
                 <th>COO (Operacional)</th>
-                <th>Status Integração</th>
+                <th>CEO (Estratégico)</th>
+                <th>Status Alinhamento</th>
               </tr>
             </thead>
             <tbody id="comparisonTableBody">
@@ -306,13 +306,13 @@
         </div>
 
         <a href="index.html" style="display:inline-block; margin-top:24px;">
-          ← Voltar para Visão Geral
+          ← Voltar para Operações
         </a>
       </section>
     </main>
   </div>
 
-  <script src="ceo.guard.js"></script>
+  <script src="coo.guard.js"></script>
   <script src="../shared/layout.js"></script>
   <script src="../shared/app.js"></script>
   <script src="reports.js"></script>

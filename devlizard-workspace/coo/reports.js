@@ -1,37 +1,35 @@
-// ==================== CEO REPORTS MODULE ====================
-// Comunicação com COO para análise integrada de dados estratégicos e operacionais
+// ==================== COO REPORTS MODULE ====================
+// Comunicação entre COO e CEO para análise integrada de dados
 
-const CEOReports = (() => {
-  const STORAGE_KEY_CEO = 'ceo_reports_data';
+const COOReports = (() => {
+  const STORAGE_KEY_COO = 'coo_reports_data';
   const STORAGE_KEY_SHARED = 'shared_reports_data'; // Compartilhado entre CEO e COO
   const REFRESH_INTERVAL = 5000; // 5 segundos
 
   let refreshTimer = null;
 
   // ==================== DATA STRUCTURES ====================
-  const defaultCEOData = {
-    decisions: 5,
-    risks: 3,
-    strategic: 8,
-    notes: 12,
-    lastUpdated: new Date().toISOString(),
-    indicators: [
-      { label: 'Decisão: Aprovação de orçamento Q1', time: '15 min atrás', status: 'ok' },
-      { label: 'Risco: Atraso em deliverable crítico', time: '45 min atrás', status: 'alert' },
-      { label: 'Nota: Reunião com stakeholders agendada', time: '2h atrás', status: 'ok' }
-    ]
-  };
-
   const defaultCOOData = {
-    activeTasks: 24,
-    proposals: 7,
-    efficiency: 88,
+    activeTasks: 0,
+    proposals: 0,
+    efficiency: 85,
     teamSize: 8,
     lastUpdated: new Date().toISOString(),
     indicators: [
-      { label: 'Kanban: 3 tarefas em revisão', time: '5 min atrás', status: 'ok' },
-      { label: 'Equipe: Todos operacionais', time: '30 seg atrás', status: 'ok' },
-      { label: 'Propostas: 2 novas para avaliar', time: '20 min atrás', status: 'warning' }
+      { label: 'Kanban sincronizado', time: '2 min atrás', status: 'ok' },
+      { label: 'Equipe em operação', time: '30 seg atrás', status: 'ok' },
+      { label: 'Última proposição processada', time: '5 min atrás', status: 'ok' }
+    ]
+  };
+
+  const defaultCEOData = {
+    decisions: 0,
+    risks: 0,
+    strategic: 0,
+    notes: 0,
+    lastUpdated: new Date().toISOString(),
+    decisions_list: [
+      { label: 'Aguardando decisão CEO', time: '10 min atrás', status: 'pending' }
     ]
   };
 
@@ -46,32 +44,22 @@ const CEOReports = (() => {
 
   // ==================== STORAGE ====================
   const loadData = () => {
-    // Carregar dados do CEO
-    const storedCEO = localStorage.getItem(STORAGE_KEY_CEO);
-    if (!storedCEO) {
-      localStorage.setItem(STORAGE_KEY_CEO, JSON.stringify(defaultCEOData));
+    // Carregar dados do COO
+    const storedCOO = localStorage.getItem(STORAGE_KEY_COO);
+    if (!storedCOO) {
+      localStorage.setItem(STORAGE_KEY_COO, JSON.stringify(defaultCOOData));
     }
 
-    // Carregar dados compartilhados (do COO)
+    // Carregar dados compartilhados (do CEO)
     const storedShared = localStorage.getItem(STORAGE_KEY_SHARED);
     if (!storedShared) {
-      localStorage.setItem(STORAGE_KEY_SHARED, JSON.stringify(defaultCOOData));
-    }
-  };
-
-  const getCEOData = () => {
-    try {
-      const data = localStorage.getItem(STORAGE_KEY_CEO);
-      return data ? JSON.parse(data) : defaultCEOData;
-    } catch (e) {
-      console.error('Erro ao carregar dados CEO:', e);
-      return defaultCEOData;
+      localStorage.setItem(STORAGE_KEY_SHARED, JSON.stringify(defaultCEOData));
     }
   };
 
   const getCOOData = () => {
     try {
-      const data = localStorage.getItem(STORAGE_KEY_SHARED);
+      const data = localStorage.getItem(STORAGE_KEY_COO);
       return data ? JSON.parse(data) : defaultCOOData;
     } catch (e) {
       console.error('Erro ao carregar dados COO:', e);
@@ -79,58 +67,56 @@ const CEOReports = (() => {
     }
   };
 
-  const saveCEOData = (data) => {
+  const getCEOData = () => {
     try {
-      localStorage.setItem(STORAGE_KEY_CEO, JSON.stringify({
+      const data = localStorage.getItem(STORAGE_KEY_SHARED);
+      return data ? JSON.parse(data) : defaultCEOData;
+    } catch (e) {
+      console.error('Erro ao carregar dados CEO:', e);
+      return defaultCEOData;
+    }
+  };
+
+  const saveCOOData = (data) => {
+    try {
+      localStorage.setItem(STORAGE_KEY_COO, JSON.stringify({
         ...data,
         lastUpdated: new Date().toISOString()
       }));
     } catch (e) {
-      console.error('Erro ao salvar dados CEO:', e);
+      console.error('Erro ao salvar dados COO:', e);
     }
   };
 
   // ==================== DATA SYNC ====================
-  const syncWithCOO = () => {
-    // Tenta sincronizar com dados do COO
-    const cooData = getCOOData();
+  const syncWithCEO = () => {
+    // Tenta sincronizar com dados do CEO
+    const ceoData = getCEOData();
     
     // Atualizar última sincronização
-    const ceoData = getCEOData();
-    ceoData.lastCOOSync = new Date().toISOString();
-    saveCEOData(ceoData);
+    const cooData = getCOOData();
+    cooData.lastCEOSync = new Date().toISOString();
+    saveCOOData(cooData);
 
-    console.log('CEO sincronizado com COO:', cooData);
+    console.log('COO sincronizado com CEO:', ceoData);
   };
 
   const broadcastReadiness = () => {
-    // Notifica que CEO está pronto (para possível uso por COO)
+    // Notifica que COO está pronto (para possível uso por CEO)
     const readinessData = {
-      role: 'ceo',
+      role: 'coo',
       ready: true,
       timestamp: new Date().toISOString(),
-      lastUpdated: getCEOData().lastUpdated
+      lastUpdated: getCOOData().lastUpdated
     };
 
-    sessionStorage.setItem('ceo_reports_ready', JSON.stringify(readinessData));
+    sessionStorage.setItem('coo_reports_ready', JSON.stringify(readinessData));
   };
 
   // ==================== RENDERING ====================
   const renderDashboard = () => {
-    const ceoData = getCEOData();
     const cooData = getCOOData();
-
-    // Atualizar métricas CEO
-    document.getElementById('metricDecisions').textContent = ceoData.decisions;
-    document.getElementById('metricRisks').textContent = ceoData.risks;
-    document.getElementById('metricStrategic').textContent = ceoData.strategic;
-    document.getElementById('metricNotes').textContent = ceoData.notes;
-
-    // Atualizar hora CEO
-    document.getElementById('lastUpdateCEO').textContent = formatTime(ceoData.lastUpdated);
-
-    // Atualizar indicadores CEO
-    renderIndicators('ceoIndicators', ceoData.indicators);
+    const ceoData = getCEOData();
 
     // Atualizar métricas COO
     document.getElementById('metricTasks').textContent = cooData.activeTasks;
@@ -144,8 +130,20 @@ const CEOReports = (() => {
     // Atualizar indicadores COO
     renderIndicators('cooIndicators', cooData.indicators);
 
+    // Atualizar métricas CEO
+    document.getElementById('metricDecisions').textContent = ceoData.decisions;
+    document.getElementById('metricRisks').textContent = ceoData.risks;
+    document.getElementById('metricStrategic').textContent = ceoData.strategic;
+    document.getElementById('metricNotes').textContent = ceoData.notes;
+
+    // Atualizar hora CEO
+    document.getElementById('lastUpdateCEO').textContent = formatTime(ceoData.lastUpdated);
+
+    // Atualizar decisões CEO
+    renderIndicators('ceoDecisions', ceoData.decisions_list);
+
     // Atualizar tabela comparativa
-    renderComparisonTable(ceoData, cooData);
+    renderComparisonTable(cooData, ceoData);
   };
 
   const renderIndicators = (elementId, indicators) => {
@@ -165,49 +163,43 @@ const CEOReports = (() => {
     `).join('');
   };
 
-  const renderComparisonTable = (ceoData, cooData) => {
+  const renderComparisonTable = (cooData, ceoData) => {
     const tbody = document.getElementById('comparisonTableBody');
     if (!tbody) return;
 
     const comparisons = [
       {
         metric: 'Foco Principal',
-        ceo: '📊 Estratégico',
         coo: '🔧 Operacional',
-        integration: '✓ Complementar'
+        ceo: '📊 Estratégico',
+        alignment: '✓ Complementar'
       },
       {
-        metric: 'Itens em Decisão',
-        ceo: ceoData.decisions || 0,
+        metric: 'Tarefas Ativas',
+        coo: cooData.activeTasks || 0,
+        ceo: ceoData.strategic || 0,
+        alignment: '✓ Alinhado'
+      },
+      {
+        metric: 'Taxa de Propostas',
         coo: cooData.proposals || 0,
-        integration: cooData.proposals > 0 ? '✓ Em progresso' : '⚠ Aguardando'
-      },
-      {
-        metric: 'Risco vs Tarefas',
-        ceo: ceoData.risks + ' riscos',
-        coo: cooData.activeTasks + ' tarefas',
-        integration: cooData.efficiency > 85 ? '✓ Controlado' : '⚠ Revisar'
+        ceo: ceoData.decisions || 0,
+        alignment: ceoData.decisions > 0 ? '✓ Em progresso' : '⚠ Pendente'
       },
       {
         metric: 'Eficiência Geral',
-        ceo: ceoData.decisions > 0 ? 'Decisões ativas' : 'Aguardando',
         coo: cooData.efficiency + '%',
-        integration: (cooData.efficiency > 80 && ceoData.decisions > 0) ? '✓ Otimizado' : '⚠ Em ajuste'
-      },
-      {
-        metric: 'Sincronização',
-        ceo: ceoData.lastUpdated ? 'Sincronizado' : 'Desconectado',
-        coo: cooData.lastUpdated ? 'Sincronizado' : 'Desconectado',
-        integration: '✓ Tempo real'
+        ceo: 'Decisões: ' + ceoData.decisions,
+        alignment: cooData.efficiency > 80 ? '✓ Otimizado' : '⚠ Revisar'
       }
     ];
 
     tbody.innerHTML = comparisons.map(comp => `
       <tr>
         <td><strong>${comp.metric}</strong></td>
-        <td>${comp.ceo}</td>
         <td>${comp.coo}</td>
-        <td>${comp.integration}</td>
+        <td>${comp.ceo}</td>
+        <td>${comp.alignment}</td>
       </tr>
     `).join('');
   };
@@ -232,54 +224,54 @@ const CEOReports = (() => {
 
   // ==================== EVENT LISTENERS ====================
   const attachEventListeners = () => {
-    const btnRefreshCEO = document.getElementById('btnRefreshCEO');
-    const btnExportCEO = document.getElementById('btnExportCEO');
     const btnRefreshCOO = document.getElementById('btnRefreshCOO');
-    const btnViewCOOReports = document.getElementById('btnViewCOOReports');
+    const btnExportCOO = document.getElementById('btnExportCOO');
+    const btnRefreshCEO = document.getElementById('btnRefreshCEO');
+    const btnViewCEOReports = document.getElementById('btnViewCEOReports');
 
-    if (btnRefreshCEO) {
-      btnRefreshCEO.addEventListener('click', () => {
-        syncWithCOO();
+    if (btnRefreshCOO) {
+      btnRefreshCOO.addEventListener('click', () => {
+        syncWithCEO();
         renderDashboard();
         showToast('✓ Dados atualizados!');
       });
     }
 
-    if (btnExportCEO) {
-      btnExportCEO.addEventListener('click', () => {
+    if (btnExportCOO) {
+      btnExportCOO.addEventListener('click', () => {
         exportData();
       });
     }
 
-    if (btnRefreshCOO) {
-      btnRefreshCOO.addEventListener('click', () => {
-        syncWithCOO();
+    if (btnRefreshCEO) {
+      btnRefreshCEO.addEventListener('click', () => {
+        syncWithCEO();
         renderDashboard();
-        showToast('✓ Sincronizado com COO!');
+        showToast('✓ Sincronizado com CEO!');
       });
     }
 
-    if (btnViewCOOReports) {
-      btnViewCOOReports.addEventListener('click', () => {
-        window.location.href = '../coo/reports.html';
+    if (btnViewCEOReports) {
+      btnViewCEOReports.addEventListener('click', () => {
+        window.location.href = '../ceo/reports.html';
       });
     }
   };
 
   // ==================== EXPORT ====================
   const exportData = () => {
-    const ceoData = getCEOData();
     const cooData = getCOOData();
+    const ceoData = getCEOData();
     
     const exportData = {
       exportDate: new Date().toISOString(),
-      ceo: ceoData,
       coo: cooData,
-      integration: {
-        decisions: ceoData.decisions,
-        risks: ceoData.risks,
+      ceo: ceoData,
+      comparison: {
         activeTasks: cooData.activeTasks,
-        efficiency: cooData.efficiency
+        proposals: cooData.proposals,
+        efficiency: cooData.efficiency,
+        decisions: ceoData.decisions
       }
     };
 
@@ -288,7 +280,7 @@ const CEOReports = (() => {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `relatorio_ceo_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `relatorio_coo_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
 
@@ -299,7 +291,7 @@ const CEOReports = (() => {
   const startAutoRefresh = () => {
     // Auto-sincronizar a cada 5 segundos
     refreshTimer = setInterval(() => {
-      syncWithCOO();
+      syncWithCEO();
       renderDashboard();
     }, REFRESH_INTERVAL);
   };
@@ -319,10 +311,10 @@ const CEOReports = (() => {
   // ==================== PUBLIC API ====================
   return {
     init,
-    getCEOData,
     getCOOData,
-    saveCEOData,
-    syncWithCOO,
+    getCEOData,
+    saveCOOData,
+    syncWithCEO,
     renderDashboard,
     exportData
   };
@@ -330,5 +322,5 @@ const CEOReports = (() => {
 
 // Inicializar ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-  CEOReports.init();
+  COOReports.init();
 });

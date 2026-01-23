@@ -170,6 +170,7 @@ window.App = (() => {
       coo: [
   { label: "Visão Geral", href: "index.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Relatórios", href: "reports.html" },
 ],
       cfo: [
   { label: "Visão Geral", href: "index.html" },
