@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tech Intake • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cto">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <h1>Tech Intake - Análise Técnica de Demandas</h1>
+        <p style="color: var(--muted); margin-top: 8px;">
+          Registre e analise demandas técnicas com esforço, risco e recomendações.
+        </p>
+
+        <div style="margin-top: 32px; padding: 16px; background: var(--surface-secondary); border-radius: 8px;">
+          <h2>Nova Demanda</h2>
+          <form id="intakeForm" style="display: grid; gap: 12px; margin-top: 16px;">
+            <div>
+              <label style="display: block; font-weight: bold; margin-bottom: 4px;">Título *</label>
+              <input type="text" id="intakeTitle" placeholder="Descrição breve da demanda" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); box-sizing: border-box;" />
+            </div>
+
+            <div>
+              <label style="display: block; font-weight: bold; margin-bottom: 4px;">Descrição *</label>
+              <textarea id="intakeDescription" placeholder="Detalhes completos" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); box-sizing: border-box; min-height: 100px; font-family: inherit;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label style="display: block; font-weight: bold; margin-bottom: 4px;">Esforço</label>
+                <select id="intakeEffort" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); box-sizing: border-box;">
+                  <option value="S">Pequeno (S)</option>
+                  <option value="M" selected>Médio (M)</option>
+                  <option value="L">Grande (L)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="display: block; font-weight: bold; margin-bottom: 4px;">Risco</label>
+                <select id="intakeRisk" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); box-sizing: border-box;">
+                  <option value="low">Baixo</option>
+                  <option value="medium" selected>Médio</option>
+                  <option value="high">Alto</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-weight: bold; margin-bottom: 4px;">Dependências</label>
+              <textarea id="intakeDependencies" placeholder="Descreva dependências, bloqueadores ou integrações" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); box-sizing: border-box; min-height: 60px; font-family: inherit;"></textarea>
+            </div>
+
+            <div>
+              <label style="display: block; font-weight: bold; margin-bottom: 4px;">Recomendação</label>
+              <select id="intakeRecommendation" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); box-sizing: border-box;">
+                <option value="approve" selected>Aprovar</option>
+                <option value="replan">Replanejar</option>
+                <option value="deny">Negar</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button type="submit" style="padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Criar Demanda</button>
+              <button type="reset" style="padding: 8px 16px; background: var(--border); color: var(--text); border: none; border-radius: 4px; cursor: pointer;">Limpar</button>
+            </div>
+          </form>
+        </div>
+
+        <div style="margin-top: 32px;">
+          <h2>Demandas Registradas</h2>
+          <div id="intakeList" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+            <div style="padding: 16px; background: var(--surface-secondary); border-radius: 8px; text-align: center; color: var(--muted);">
+              Nenhuma demanda registrada ainda.
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 32px;">
+          <button id="exportBtn" style="padding: 8px 16px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Exportar JSON</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cto.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="intake.js"></script>
+</body>
+
+</html>

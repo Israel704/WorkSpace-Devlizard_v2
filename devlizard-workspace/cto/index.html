@@ -14,31 +14,46 @@
       <div id="header"></div>
 
       <section class="content">
-        <h1>Visão Geral</h1>
+        <h1>Visão Geral do CTO</h1>
         <p style="color: var(--muted); margin-top: 8px;">
-          Dashboard tecnológico e ferramentas do CTO.
+          Atalhos rápidos para as ferramentas de gestão técnica.
         </p>
 
         <div class="cards" style="margin-top: 20px;">
           <div class="card">
-            <h3>Infraestrutura</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Status dos sistemas.
+            <h3>Tech Intake</h3>
+            <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">
+              Análise técnica de demandas
             </p>
+            <div style="margin-top: 16px; display: flex; gap: 12px; font-weight: bold;">
+              <div style="flex: 1;">
+                <div style="font-size: 24px; color: var(--primary);" id="intakePendingCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Pendentes</div>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-size: 24px; color: var(--success);" id="intakeReviewedCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Analisados</div>
+              </div>
+            </div>
+            <a href="intake.html" class="btn" style="margin-top: 16px; display: inline-block; text-decoration: none; padding: 8px 16px; background: var(--primary); color: white; border-radius: 4px; font-size: 14px; text-align: center;">Abrir Tech Intake</a>
           </div>
 
           <div class="card">
-            <h3>Projetos</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Roadmap técnico.
+            <h3>Debt & Quality</h3>
+            <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">
+              Dívidas técnicas e bugs críticos
             </p>
-          </div>
-
-          <div class="card">
-            <h3>Incidentes</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Log de problemas.
-            </p>
+            <div style="margin-top: 16px; display: flex; gap: 12px; font-weight: bold;">
+              <div style="flex: 1;">
+                <div style="font-size: 24px; color: var(--danger);" id="debtCriticalCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Críticos</div>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-size: 24px; color: var(--warning);" id="debtProgressCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Em progresso</div>
+              </div>
+            </div>
+            <a href="debt.html" class="btn" style="margin-top: 16px; display: inline-block; text-decoration: none; padding: 8px 16px; background: var(--primary); color: white; border-radius: 4px; font-size: 14px; text-align: center;">Abrir Debt & Quality</a>
           </div>
         </div>
       </section>
