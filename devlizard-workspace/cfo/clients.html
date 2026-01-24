@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CFO • Clientes • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cfo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div class="page-head" style="margin-bottom: 12px;">
+          <div class="page-head-left">
+            <h1>Clientes</h1>
+            <p style="color: var(--muted); margin-top: 8px;">Cadastro simples de clientes para vínculo com projetos.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0;">Novo cliente</h3>
+          <form id="clientForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 12px;">
+            <div>
+              <label for="clientName">Nome *</label>
+              <input id="clientName" name="name" type="text" placeholder="Acme Corp" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="clientContact">Contato</label>
+              <input id="clientContact" name="contact" type="text" placeholder="Pessoa de contato" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="clientEmail">Email</label>
+              <input id="clientEmail" name="email" type="email" placeholder="contato@empresa.com" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="clientPhone">Telefone</label>
+              <input id="clientPhone" name="phone" type="tel" placeholder="(11) 99999-9999" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="clientStatus">Status</label>
+              <select id="clientStatus" name="status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="active">Ativo</option>
+                <option value="inactive">Inativo</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: flex-end; gap: 8px;">
+              <button id="submitClient" type="submit" style="padding: 12px 16px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Salvar cliente</button>
+              <button id="cancelEdit" type="button" style="padding: 12px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: none;">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="clientsList" style="margin-top: 16px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cfo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="clients.js"></script>
+</body>
+</html>

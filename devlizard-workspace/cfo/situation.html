@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CFO • Situação da Empresa • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cfo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div class="page-head" style="margin-bottom: 12px;">
+          <div class="page-head-left">
+            <h1>Situação da Empresa</h1>
+            <p style="color: var(--muted); margin-top: 8px;">Dashboard automática baseada nos projetos cadastrados.</p>
+          </div>
+        </div>
+
+        <div class="cards" style="margin-top: 12px;">
+          <div class="card">
+            <h3>Caixa Atual</h3>
+            <p id="cashValue" style="font-size: 24px; font-weight: 700; margin: 12px 0 4px 0;">R$ 0,00</p>
+            <p style="color: var(--muted); margin: 0;">Entradas - Saídas</p>
+          </div>
+          <div class="card">
+            <h3>Entradas</h3>
+            <p id="entriesValue" style="font-size: 24px; font-weight: 700; margin: 12px 0 4px 0;">R$ 0,00</p>
+            <p style="color: var(--muted); margin: 0;">Projetos ativos e concluídos</p>
+          </div>
+          <div class="card">
+            <h3>Saídas</h3>
+            <p id="exitsValue" style="font-size: 24px; font-weight: 700; margin: 12px 0 4px 0;">R$ 0,00</p>
+            <p style="color: var(--muted); margin: 0;">MVP: iguais ao investido</p>
+          </div>
+          <div class="card">
+            <h3>Investido</h3>
+            <p id="investedValue" style="font-size: 24px; font-weight: 700; margin: 12px 0 4px 0;">R$ 0,00</p>
+            <p style="color: var(--muted); margin: 0;">Custos de projetos</p>
+          </div>
+          <div class="card">
+            <h3>Investido e Rendendo</h3>
+            <p id="yieldValue" style="font-size: 24px; font-weight: 700; margin: 12px 0 4px 0;">R$ 0,00</p>
+            <p style="color: var(--muted); margin: 0 0 10px 0;">Valor manual para acompanhar aplicações rendendo.</p>
+            <form id="yieldForm" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <input id="yieldInput" type="number" min="0" step="0.01" placeholder="0" style="flex: 1; min-width: 140px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              <button type="submit" style="padding: 10px 14px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Salvar</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+          <h3 style="margin: 0 0 12px 0;">Resumo rápido</h3>
+          <div id="statusBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;"></div>
+          <p id="prospectNote" style="margin-top: 12px; color: var(--muted);"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cfo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="situation.js"></script>
+</body>
+</html>

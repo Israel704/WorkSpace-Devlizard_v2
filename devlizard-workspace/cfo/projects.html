@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CFO • Projetos • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cfo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div class="page-head" style="margin-bottom: 12px;">
+          <div class="page-head-left">
+            <h1>Projetos</h1>
+            <p style="color: var(--muted); margin-top: 8px;">Cadastro de projetos com vínculo a clientes e cálculo financeiro.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0;">Novo projeto</h3>
+          <form id="projectForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 12px;">
+            <div>
+              <label for="projectClient">Cliente *</label>
+              <select id="projectClient" name="clientId" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></select>
+            </div>
+            <div>
+              <label for="projectTitle">Título *</label>
+              <input id="projectTitle" name="title" type="text" placeholder="Site corporativo" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="projectDescription">Descrição</label>
+              <textarea id="projectDescription" name="description" rows="3" placeholder="Breve descrição" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+            <div>
+              <label for="projectTech">Tech stack</label>
+              <input id="projectTech" name="techStack" type="text" placeholder="Node + SQLite + HTML" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="projectValue">Valor do projeto (R$)</label>
+              <input id="projectValue" name="value" type="number" min="0" step="0.01" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="projectCost">Investimento / Custo (R$)</label>
+              <input id="projectCost" name="costInvested" type="number" min="0" step="0.01" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label for="projectStatus">Status</label>
+              <select id="projectStatus" name="status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="prospect">Prospect</option>
+                <option value="active">Ativo</option>
+                <option value="paused">Pausado</option>
+                <option value="done">Concluído</option>
+                <option value="canceled">Cancelado</option>
+              </select>
+            </div>
+            <div>
+              <label for="projectDate">Entrada prevista</label>
+              <input id="projectDate" name="expectedEntryDate" type="date" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="display: flex; align-items: flex-end; gap: 8px;">
+              <button id="submitProject" type="submit" style="padding: 12px 16px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Salvar projeto</button>
+              <button id="cancelProjectEdit" type="button" style="padding: 12px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: none;">Cancelar</button>
+            </div>
+          </form>
+          <p id="noClientsMessage" style="margin-top: 10px; color: #dc3545; display: none;">Cadastre pelo menos um cliente para criar projetos.</p>
+        </div>
+
+        <div class="card" style="margin-top: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div>
+            <label for="filterStatus">Filtrar status</label>
+            <select id="filterStatus" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-width: 160px;">
+              <option value="">Todos</option>
+              <option value="prospect">Prospect</option>
+              <option value="active">Ativo</option>
+              <option value="paused">Pausado</option>
+              <option value="done">Concluído</option>
+              <option value="canceled">Cancelado</option>
+            </select>
+          </div>
+          <div>
+            <label for="sortBy">Ordenar por</label>
+            <select id="sortBy" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-width: 180px;">
+              <option value="recent">Mais recentes</option>
+              <option value="valueDesc">Valor (desc)</option>
+              <option value="valueAsc">Valor (asc)</option>
+              <option value="dateDesc">Data prevista (desc)</option>
+              <option value="dateAsc">Data prevista (asc)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="projectsList" style="margin-top: 12px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cfo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="projects.js"></script>
+</body>
+</html>
