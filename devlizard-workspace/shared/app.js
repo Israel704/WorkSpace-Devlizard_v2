@@ -202,6 +202,7 @@ window.App = (() => {
 ],
       cfo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Aprovações Financeiras", href: "approvals.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],

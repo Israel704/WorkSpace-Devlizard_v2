@@ -87,13 +87,13 @@ function initTabs() {
 
 // ==================== CRIAR PROPOSTA ====================
 
-async function createProposal(title, description, toRole) {
+async function createProposal(title, description, toRole, category = 'geral') {
   try {
     const data = await (window.App?.apiFetch
       ? window.App.apiFetch(`${API_URL}/proposals`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, toRole })
+          body: JSON.stringify({ title, description, toRole, category })
         })
       : (async () => {
           const response = await fetch(`${API_URL}/proposals`, {
@@ -102,7 +102,7 @@ async function createProposal(title, description, toRole) {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${getToken()}`
             },
-            body: JSON.stringify({ title, description, toRole })
+            body: JSON.stringify({ title, description, toRole, category })
           });
           const json = await response.json();
           if (!response.ok) throw new Error(json.error || 'Erro ao criar proposta');
@@ -126,6 +126,7 @@ function initCreateForm() {
     const title = (document.getElementById('proposalTitle')?.value || '').trim();
     const description = (document.getElementById('proposalDescription')?.value || '').trim();
     const toRole = (document.getElementById('proposalToRole')?.value || '').trim();
+    const category = (document.getElementById('proposalCategory')?.value || 'geral').trim();
 
     // Validações defensivas sem alterar UX
     if (!title) {
@@ -155,7 +156,7 @@ function initCreateForm() {
     submitBtn.textContent = 'Enviando...';
 
     try {
-      await createProposal(title, description, toRole);
+      await createProposal(title, description, toRole, category);
       alert('Proposta enviada com sucesso!');
       form.reset();
       
@@ -213,7 +214,7 @@ function renderInboxProposals(proposals) {
         <div>
           <h3 style="margin: 0;">${proposal.title}</h3>
           <p style="color: var(--muted); font-size: 14px; margin: 4px 0 0 0;">
-            De: ${getRoleName(proposal.fromRole)} • ${formatDate(proposal.createdAt)}
+            De: ${getRoleName(proposal.fromRole)} • ${formatDate(proposal.createdAt)}${proposal.category && proposal.category !== 'geral' ? ` • <strong>Cat:</strong> ${proposal.category}` : ''}
           </p>
         </div>
         ${getStatusBadge(proposal.status)}
@@ -316,7 +317,7 @@ function renderSentProposals(proposals) {
         <div>
           <h3 style="margin: 0;">${proposal.title}</h3>
           <p style="color: var(--muted); font-size: 14px; margin: 4px 0 0 0;">
-            Para: ${getRoleName(proposal.toRole)} • ${formatDate(proposal.createdAt)}
+            Para: ${getRoleName(proposal.toRole)} • ${formatDate(proposal.createdAt)}${proposal.category && proposal.category !== 'geral' ? ` • <strong>Cat:</strong> ${proposal.category}` : ''}
           </p>
         </div>
         ${getStatusBadge(proposal.status)}
@@ -368,6 +369,54 @@ async function loadSentProposals() {
   }
 }
 
+// ==================== GERENCIAMENTO DE DECISÕES GLOBAIS ====================
+
+function publishGlobalDecision(proposal, decision, comment) {
+  try {
+    // Carregar decisões globais atuais
+    const globalDecisionsRaw = localStorage.getItem('global_decisions') || '[]';
+    let globalDecisions = JSON.parse(globalDecisionsRaw);
+    if (!Array.isArray(globalDecisions)) globalDecisions = [];
+
+    // Criar novo registro
+    const newDecision = {
+      id: Date.now(),
+      title: proposal.title,
+      summary: `${decision === 'approved' ? '✓ Aprovada' : '✗ Rejeitada'} - ${comment}`,
+      fromRole: proposal.fromRole,
+      toRole: proposal.toRole,
+      status: decision === 'approved' ? 'approved' : 'rejected',
+      decidedAt: Math.floor(Date.now() / 1000),
+      decidedBy: getRole(),
+      category: proposal.category || 'geral',
+      proposalId: proposal.id
+    };
+
+    // Adicionar à lista de decisões globais
+    globalDecisions.unshift(newDecision);
+
+    // Manter apenas últimas 100 decisões
+    if (globalDecisions.length > 100) {
+      globalDecisions = globalDecisions.slice(0, 100);
+    }
+
+    localStorage.setItem('global_decisions', JSON.stringify(globalDecisions));
+  } catch (error) {
+    console.error('Erro ao publicar decisão global:', error);
+  }
+}
+
+function getGlobalDecisions() {
+  try {
+    const raw = localStorage.getItem('global_decisions') || '[]';
+    const decisions = JSON.parse(raw);
+    return Array.isArray(decisions) ? decisions : [];
+  } catch (error) {
+    console.error('Erro ao carregar decisões globais:', error);
+    return [];
+  }
+}
+
 // ==================== DECIDIR PROPOSTA ====================
 
 async function decideProposal(proposalId, decision) {
@@ -405,6 +454,20 @@ async function decideProposal(proposalId, decision) {
           return json;
         })()
     );
+
+    // Publicar no painel global de decisões (apenas se for CFO/toRole)
+    if (getRole() === 'cfo') {
+      // Para publicar, precisamos da proposta completa
+      // Tentaremos buscar da API ou do storage local
+      try {
+        // Se recebemos como resposta da API, usa;  senão, reconstrói minimamente
+        if (data && data.id) {
+          publishGlobalDecision(data, decision, comment);
+        }
+      } catch (e) {
+        console.warn('Não foi possível publicar decisão global:', e);
+      }
+    }
 
     alert(`Proposta ${decision === 'approved' ? 'aprovada' : 'rejeitada'} com sucesso!`);
     loadInboxProposals();

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CFO • Aprovações Financeiras • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cfo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div>
+            <h1 style="margin: 0;">Caixa de Aprovações Financeiras</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Propostas financeiras pendentes de aprovação.
+            </p>
+          </div>
+          <a href="index.html" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; white-space: nowrap;">← Voltar</a>
+        </div>
+
+        <!-- Filtro -->
+        <div class="card" style="margin-top: 24px;">
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <label for="filterStatus">Filtrar por status:</label>
+            <select 
+              id="filterStatus" 
+              style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; min-width: 150px;"
+            >
+              <option value="">Todos</option>
+              <option value="pending">Pendentes</option>
+              <option value="approved">Aprovadas</option>
+              <option value="rejected">Rejeitadas</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Lista de Propostas Financeiras -->
+        <div id="approvalsContainer" style="margin-top: 24px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cfo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/proposals.js"></script>
+  <script src="approvals.js"></script>
+</body>
+</html>
