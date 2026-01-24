@@ -100,6 +100,26 @@ router.get('/inbox', async (req, res) => {
   }
 });
 
+// ==================== CONTAR PROPOSTAS PENDENTES ====================
+
+// GET /api/proposals/pending/count
+router.get('/pending/count', async (req, res) => {
+  try {
+    const toRole = req.user.role;
+
+    const result = await db.get(
+      `SELECT COUNT(*) as count FROM proposals 
+       WHERE toRole = ? AND status = 'pending'`,
+      [toRole]
+    );
+
+    res.json({ count: result.count || 0 });
+  } catch (error) {
+    console.error('Erro ao contar propostas pendentes:', error);
+    res.status(500).json({ error: 'Erro ao contar propostas pendentes' });
+  }
+});
+
 // ==================== DECIDIR PROPOSTA ====================
 
 // PATCH /api/proposals/:id/decide

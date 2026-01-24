@@ -121,6 +121,9 @@ const Layout = (() => {
 
     // Depois que sidebar/header existem, sincroniza com App
     syncWithApp();
+    
+    // Inicializa sistema de notificações
+    initNotifications();
   };
 
   /**
@@ -144,6 +147,18 @@ const Layout = (() => {
 
     // marca ativo (fallback se necessário)
     setActiveLinkByUrl();
+  };
+
+  /**
+   * Inicializa o sistema de notificações de propostas
+   */
+  const initNotifications = () => {
+    // Aguarda um momento para garantir que o header foi renderizado
+    setTimeout(() => {
+      if (window.NotificationSystem) {
+        window.NotificationSystem.initialize();
+      }
+    }, 500);
   };
 
   /**
