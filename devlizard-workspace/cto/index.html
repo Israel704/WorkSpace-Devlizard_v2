@@ -19,41 +19,61 @@
           Atalhos rápidos para as ferramentas de gestão técnica.
         </p>
 
-        <div class="cards" style="margin-top: 20px;">
-          <div class="card">
-            <h3>Tech Intake</h3>
-            <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">
-              Análise técnica de demandas
-            </p>
-            <div style="margin-top: 16px; display: flex; gap: 12px; font-weight: bold;">
-              <div style="flex: 1;">
-                <div style="font-size: 24px; color: var(--primary);" id="intakePendingCount">0</div>
-                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Pendentes</div>
+        <div class="cards" style="margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          <!-- Card: Tech Intake -->
+          <div class="card" style="padding: 24px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; border-left: 4px solid var(--primary);">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Tech Intake</h3>
+                <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">
+                  Análise técnica de demandas
+                </p>
               </div>
-              <div style="flex: 1;">
-                <div style="font-size: 24px; color: var(--success);" id="intakeReviewedCount">0</div>
-                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Analisados</div>
+              <div style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">📋</div>
+            </div>
+
+            <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent); margin-bottom: 16px;"></div>
+
+            <div style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="font-size: 28px; color: var(--primary); font-weight: bold;" id="intakePendingCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500;">Pendentes</div>
+              </div>
+              <div style="padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="font-size: 28px; color: var(--success); font-weight: bold;" id="intakeReviewedCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500;">Analisados</div>
               </div>
             </div>
-            <a href="intake.html" class="btn" style="margin-top: 16px; display: inline-block; text-decoration: none; padding: 8px 16px; background: var(--primary); color: white; border-radius: 4px; font-size: 14px; text-align: center;">Abrir Tech Intake</a>
+
+            <a href="intake.html" class="btn" style="width: 100%; display: block; text-decoration: none; padding: 12px 16px; background: var(--primary); color: white; border-radius: 6px; font-size: 14px; text-align: center; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s;">Abrir Tech Intake →</a>
           </div>
 
-          <div class="card">
-            <h3>Debt & Quality</h3>
-            <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">
-              Dívidas técnicas e bugs críticos
-            </p>
-            <div style="margin-top: 16px; display: flex; gap: 12px; font-weight: bold;">
-              <div style="flex: 1;">
-                <div style="font-size: 24px; color: var(--danger);" id="debtCriticalCount">0</div>
-                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Críticos</div>
+          <!-- Card: Debt & Quality -->
+          <div class="card" style="padding: 24px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; border-left: 4px solid var(--danger);">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Debt & Quality</h3>
+                <p style="color: var(--muted); margin-top: 8px; font-size: 14px;">
+                  Dívidas técnicas e bugs críticos
+                </p>
               </div>
-              <div style="flex: 1;">
-                <div style="font-size: 24px; color: var(--warning);" id="debtProgressCount">0</div>
-                <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">Em progresso</div>
+              <div style="width: 40px; height: 40px; background: rgba(239, 68, 68, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">🐛</div>
+            </div>
+
+            <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent); margin-bottom: 16px;"></div>
+
+            <div style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="font-size: 28px; color: var(--danger); font-weight: bold;" id="debtCriticalCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500;">Críticos</div>
+              </div>
+              <div style="padding: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="font-size: 28px; color: var(--warning); font-weight: bold;" id="debtProgressCount">0</div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500;">Em progresso</div>
               </div>
             </div>
-            <a href="debt.html" class="btn" style="margin-top: 16px; display: inline-block; text-decoration: none; padding: 8px 16px; background: var(--primary); color: white; border-radius: 4px; font-size: 14px; text-align: center;">Abrir Debt & Quality</a>
+
+            <a href="debt.html" class="btn" style="width: 100%; display: block; text-decoration: none; padding: 12px 16px; background: var(--primary); color: white; border-radius: 6px; font-size: 14px; text-align: center; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s;">Abrir Debt & Quality →</a>
           </div>
         </div>
       </section>

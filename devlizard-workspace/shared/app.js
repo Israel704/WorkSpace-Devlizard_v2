@@ -207,6 +207,7 @@ window.App = (() => {
   { label: "Visão Geral", href: "index.html" },
   { label: "Tech Intake", href: "intake.html" },
   { label: "Debt & Quality", href: "debt.html" },
+  { label: "Notas", href: "notes.html" },
   { label: "Propostas", href: "proposals.html" },
 ],
       cmo: [

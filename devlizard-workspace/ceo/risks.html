@@ -26,57 +26,73 @@
         </div>
 
         <!-- Editor -->
-        <form id="risk-form" class="card" style="margin-top: 20px;">
+        <form id="risk-form" class="card" style="margin-top: 20px; padding: 24px; background: var(--surface-secondary); border-radius: 12px;">
           <input type="hidden" id="risk-id" />
 
-          <div class="field">
-            <label for="risk-title">Risco</label>
-            <input id="risk-title" type="text" placeholder="Ex: Atraso no cronograma por falta de mão de obra" required />
-          </div>
-
-          <div class="field">
-            <label for="risk-owner">Responsável</label>
-            <input id="risk-owner" type="text" placeholder="Ex: COO / João / Time X" required />
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="field">
-              <label for="risk-prob">Probabilidade</label>
-              <select id="risk-prob" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
-                <option value="baixa">Baixa</option>
-                <option value="media">Média</option>
-                <option value="alta">Alta</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="risk-impact">Impacto</label>
-              <select id="risk-impact" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
-                <option value="baixo">Baixo</option>
-                <option value="medio">Médio</option>
-                <option value="alto">Alto</option>
-              </select>
+          <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 16px;">
+            <div class="field" style="margin: 0;">
+              <label for="risk-title" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Risco</label>
+              <input id="risk-title" type="text" placeholder="Ex: Atraso no cronograma por falta de mão de obra" required style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(0, 0, 0, 0.5); color: var(--text); box-sizing: border-box;" />
             </div>
           </div>
 
-          <div class="field">
-            <label for="risk-status">Status</label>
-            <select id="risk-status" style="padding:10px; background: transparent; border:1px solid var(--border); color: var(--text);">
-              <option value="aberto">Aberto</option>
-              <option value="mitigando">Mitigando</option>
-              <option value="mitigado">Mitigado</option>
-              <option value="aceito">Aceito</option>
-            </select>
+          <!-- Divisor Visual -->
+          <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent); margin-bottom: 16px;"></div>
+
+          <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 4px solid var(--warning); margin-bottom: 16px;">
+            <h3 style="margin: 0 0 16px 0; color: var(--text); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Avaliação</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div class="field" style="margin: 0;">
+                <label for="risk-prob" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Probabilidade</label>
+                <select id="risk-prob" style="width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: var(--text); font-family: inherit; cursor: pointer;">
+                  <option value="baixa">Baixa</option>
+                  <option value="media">Média</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+
+              <div class="field" style="margin: 0;">
+                <label for="risk-impact" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Impacto</label>
+                <select id="risk-impact" style="width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: var(--text); font-family: inherit; cursor: pointer;">
+                  <option value="baixo">Baixo</option>
+                  <option value="medio">Médio</option>
+                  <option value="alto">Alto</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field" style="margin: 0;">
+              <label for="risk-status" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Status</label>
+              <select id="risk-status" style="width: 100%; padding: 10px 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: var(--text); font-family: inherit; cursor: pointer;">
+                <option value="aberto">Aberto</option>
+                <option value="mitigando">Mitigando</option>
+                <option value="mitigado">Mitigado</option>
+                <option value="aceito">Aceito</option>
+              </select>
+            </div>
           </div>
 
-          <div class="field">
-            <label for="risk-mitigation">Plano de mitigação</label>
-            <input id="risk-mitigation" type="text" placeholder="Ex: contratar freelancer / reduzir escopo / plano B" required />
+          <!-- Divisor Visual -->
+          <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent); margin-bottom: 16px;"></div>
+
+          <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 4px solid var(--info); margin-bottom: 16px;">
+            <div class="field" style="margin: 0; margin-bottom: 16px;">
+              <label for="risk-owner" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Responsável</label>
+              <input id="risk-owner" type="text" placeholder="Ex: COO / João / Time X" required style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(0, 0, 0, 0.5); color: var(--text); box-sizing: border-box;" />
+            </div>
+
+            <div class="field" style="margin: 0;">
+              <label for="risk-mitigation" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Plano de mitigação</label>
+              <input id="risk-mitigation" type="text" placeholder="Ex: contratar freelancer / reduzir escopo / plano B" required style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(0, 0, 0, 0.5); color: var(--text); box-sizing: border-box;" />
+            </div>
           </div>
+
+          <!-- Divisor Visual -->
+          <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent); margin-bottom: 16px;"></div>
 
           <div style="display:flex; gap:10px; justify-content:flex-end;">
-            <button type="button" id="risk-cancel" style="display:none;">Cancelar</button>
-            <button type="submit" id="risk-save">Salvar</button>
+            <button type="button" id="risk-cancel" style="display:none; padding: 10px 20px; background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-weight: 500;">Cancelar</button>
+            <button type="submit" id="risk-save" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Salvar</button>
           </div>
         </form>
 

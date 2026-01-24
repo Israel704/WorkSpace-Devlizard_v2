@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CTO • Notas Técnicas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cto">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1>Notas Técnicas</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Crie, edite e mantenha histórico. Clique em uma nota para editar.
+            </p>
+          </div>
+
+          <a href="index.html" style="color: var(--muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <!-- Editor -->
+        <form id="note-form" style="margin-top: 32px; padding: 24px; background: var(--surface-secondary); border-radius: 12px;">
+          <input type="hidden" id="note-id" />
+
+          <h2 style="margin: 0 0 24px 0; padding-bottom: 16px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);">Nova Nota</h2>
+
+          <div style="display: grid; gap: 20px;">
+            <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 4px solid var(--primary);">
+              <label for="note-title" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Título</label>
+              <input id="note-title" type="text" placeholder="Ex: Refatoração de arquitetura, upgrade de dependências" required style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(0, 0, 0, 0.5); color: var(--text); box-sizing: border-box; font-family: inherit;" />
+            </div>
+
+            <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);"></div>
+
+            <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 4px solid var(--info);">
+              <label for="note-text" style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--text);">Conteúdo</label>
+              <input id="note-text" type="text" placeholder="Escreva a nota técnica (detalhes e contexto)" required style="width: 100%; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(0, 0, 0, 0.5); color: var(--text); box-sizing: border-box; font-family: inherit;" />
+            </div>
+
+            <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);"></div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+              <button type="button" id="note-cancel" style="display:none; padding: 10px 20px; background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;">Cancelar</button>
+              <button type="submit" id="note-save" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;">Salvar</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Lista -->
+        <div style="margin-top: 40px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 20px; flex-wrap: wrap;">
+            <h2 style="font-size: 1.2rem; margin: 0;">Histórico de Notas</h2>
+            <input id="note-search" type="text" style="max-width: 320px; padding: 10px 12px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(0, 0, 0, 0.3); color: var(--text); font-family: inherit;" placeholder="Buscar notas..." />
+          </div>
+
+          <div id="notes-list" style="display: flex; flex-direction: column; gap: 16px;"></div>
+          <p id="notes-empty" style="color: var(--muted); margin-top: 32px; text-align: center; display:none;">
+            Nenhuma nota registrada ainda.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cto.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="notes.js"></script>
+</body>
+
+</html>
