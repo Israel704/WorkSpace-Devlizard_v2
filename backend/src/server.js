@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
@@ -51,9 +52,16 @@ app.use('/api/coo', cooRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/proposals', proposalsRoutes);
 
-// Rota 404
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint não encontrado' });
+// Servir arquivos estáticos do frontend
+app.use(express.static(path.join(__dirname, '../../docs')));
+
+// Fallback para rotas do frontend (SPA)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/index.html'));
+});
+
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/index.html'));
 });
 
 // Error handler global
