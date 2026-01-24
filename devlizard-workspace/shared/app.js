@@ -24,13 +24,38 @@ window.App = (() => {
     theme: "dark",
   };
 
+  // ===================================================
+  // CHAVES CENTRALIZADAS DE STORAGE (compatíveis)
+  // ===================================================
+  const STORAGE_KEYS = {
+    AUTH: "auth",
+    ROLE: "role",
+    USER: "user",
+    TOKEN: "token",
+    SELECTED_ROLE: "selectedRole",
+    COO_KANBAN: "coo_kanban_tasks",
+    COO_KANBAN_SETTINGS: "coo_kanban_settings",
+    CEO_REPORTS: "ceo_reports_data",
+    COO_REPORTS: "coo_reports_data",
+    SHARED_REPORTS: "shared_reports_data",
+  };
+
+  // Tornar disponível globalmente sem mudar stack
+  window.STORAGE_KEYS = STORAGE_KEYS;
+
   // Chaves de sessão (não apagar dados de ferramentas!)
-  const SESSION_KEYS = ["user", "role", "auth", "selectedRole"];
+  const SESSION_KEYS = [
+    STORAGE_KEYS.USER,
+    STORAGE_KEYS.ROLE,
+    STORAGE_KEYS.AUTH,
+    STORAGE_KEYS.SELECTED_ROLE,
+    STORAGE_KEYS.TOKEN,
+  ];
 
   function initializeState() {
-    const storedUser = localStorage.getItem("user");
-    const storedRole = localStorage.getItem("role");
-    const storedAuth = localStorage.getItem("auth");
+    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
+    const storedRole = localStorage.getItem(STORAGE_KEYS.ROLE);
+    const storedAuth = localStorage.getItem(STORAGE_KEYS.AUTH);
 
     if (storedUser && storedRole) {
       state.user = storedUser;
@@ -58,9 +83,9 @@ window.App = (() => {
     state.role = String(role).toLowerCase();
     state.isAuthenticated = true;
 
-    localStorage.setItem("user", username);
-    localStorage.setItem("role", state.role);
-    localStorage.setItem("auth", "true");
+    localStorage.setItem(STORAGE_KEYS.USER, username);
+    localStorage.setItem(STORAGE_KEYS.ROLE, state.role);
+    localStorage.setItem(STORAGE_KEYS.AUTH, "true");
 
     applyRoleStyles();
     updateUserUI();
@@ -79,6 +104,10 @@ window.App = (() => {
     SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
 
     removeRoleStyles();
+  };
+
+  const clearSession = () => {
+    SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
   };
 
   // ===================================================
@@ -112,23 +141,21 @@ window.App = (() => {
 
   const updateUserUI = () => {
     // Nome do usuário
-    const userInfo = document.getElementById("userInfo");
-    if (userInfo && state.user) userInfo.textContent = state.user;
+    const userInfo = byId("userInfo");
+    if (state.user) safeText(userInfo, state.user);
 
     // Avatar letra
-    const userAvatar = document.getElementById("userAvatar");
-    if (userAvatar && state.user) userAvatar.textContent = state.user.charAt(0).toUpperCase();
+    const userAvatar = byId("userAvatar");
+    if (state.user) safeText(userAvatar, state.user.charAt(0).toUpperCase());
 
     // Badge role
-    const roleIndicator = document.getElementById("roleIndicator");
-    if (roleIndicator && state.role) roleIndicator.textContent = state.role.toUpperCase();
+    const roleIndicator = byId("roleIndicator");
+    if (state.role) safeText(roleIndicator, state.role.toUpperCase());
   };
 
   const setupLogout = () => {
     // suporta ids diferentes
-    const logoutBtn =
-      document.getElementById("logoutBtn") ||
-      document.getElementById("logout");
+    const logoutBtn = byId("logoutBtn") || byId("logout");
 
     if (logoutBtn) {
       // evita duplicar listener
@@ -145,7 +172,7 @@ window.App = (() => {
 
   const buildSidebar = () => {
     // sidebar pode ainda não ter sido injetada pelo layout.js
-    const nav = document.getElementById("nav");
+    const nav = byId("nav");
     if (!nav) return false;
 
     const role = state.role;
@@ -188,12 +215,13 @@ window.App = (() => {
     };
 
     const items = menus[role] || [];
-    nav.innerHTML = items
+    const html = items
       .map((item) => {
         const active = item.href === current ? "active" : "";
         return `<a href="${item.href}" class="${active}">${item.label}</a>`;
       })
       .join("");
+    safeHTML(nav, html);
 
     return true;
   };
@@ -219,8 +247,8 @@ window.App = (() => {
     if (className) element.className = className;
 
     Object.entries(attributes).forEach(([key, value]) => {
-      if (key === "text") element.textContent = value;
-      else if (key === "html") element.innerHTML = value;
+      if (key === "text") safeText(element, value);
+      else if (key === "html") safeHTML(element, value);
       else element.setAttribute(key, value);
     });
 
@@ -271,11 +299,110 @@ window.App = (() => {
     return await response.json();
   };
 
-  const log = (message, data = null) => {
+  // ===================================================
+  // DOM HELPERS (blindagem contra DOM inexistente)
+  // ===================================================
+  const byId = (id) => {
+    if (!id) return null;
+    try {
+      return document.getElementById(id) || null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  const qs = (selector) => {
+    if (!selector) return null;
+    try {
+      return document.querySelector(selector) || null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  const safeText = (el, value) => {
+    if (!el) return;
+    try {
+      el.textContent = String(value ?? "");
+    } catch (_) {}
+  };
+
+  const safeHTML = (el, value) => {
+    if (!el) return;
+    try {
+      el.innerHTML = String(value ?? "");
+    } catch (_) {}
+  };
+
+  // ===================================================
+  // FETCH PADRONIZADO (injeta token, trata 401)
+  // ===================================================
+  const apiFetch = async (path, options = {}) => {
+    const opts = { ...options };
+    opts.headers = { ...(options.headers || {}) };
+
+    // Injeta token automaticamente se não houver Authorization
+    const hasAuthHeader = Object.keys(opts.headers).some(
+      (h) => h.toLowerCase() === "authorization"
+    );
+    if (!hasAuthHeader) {
+      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+      if (token) opts.headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    try {
+      const res = await fetch(path, opts);
+
+      if (res.status === 401) {
+        // Sessão inválida: limpa apenas chaves de sessão e redireciona
+        clearSession();
+        // Tenta ir para login relativo às páginas internas
+        window.location.href = "../auth/login.html";
+        throw new Error("Não autorizado (401)");
+      }
+
+      const contentType = res.headers.get("content-type") || "";
+      if (!res.ok) {
+        // Tenta ler JSON de erro
+        if (contentType.includes("application/json")) {
+          const err = await res.json();
+          throw new Error(err.error || err.message || `HTTP ${res.status}`);
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      if (contentType.includes("application/json")) {
+        return await res.json();
+      }
+      // fallback: retorna Response para quem precisar blob/text
+      return res;
+    } catch (e) {
+      // Log controlado
+      log("apiFetch", e.message);
+      throw e;
+    }
+  };
+
+  const log = (contextOrMessage, messageOrData = null, maybeData = null) => {
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     const roleTag = state.role ? `[${state.role.toUpperCase()}]` : "";
-    if (data) console.log(`[${timestamp}] ${roleTag} ${message}`, data);
-    else console.log(`[${timestamp}] ${roleTag} ${message}`);
+
+    // Compat: log(message, data)
+    if (maybeData === null && typeof messageOrData !== "string") {
+      const msg = contextOrMessage;
+      const data = messageOrData;
+      if (data) console.log(`[${timestamp}] ${roleTag} ${msg}`, data);
+      else console.log(`[${timestamp}] ${roleTag} ${msg}`);
+      return;
+    }
+
+    // Novo formato: log(context, message, data?)
+    const ctx = String(contextOrMessage || "").toUpperCase();
+    const msg = String(messageOrData || "");
+    const data = maybeData;
+    const ctxTag = ctx ? `[${ctx}]` : "";
+    if (data) console.log(`[${timestamp}] ${roleTag} ${ctxTag} ${msg}`, data);
+    else console.log(`[${timestamp}] ${roleTag} ${ctxTag} ${msg}`);
   };
 
   // ===================================================
@@ -288,7 +415,7 @@ window.App = (() => {
     updateUserUI();
     setupLogout();
     buildSidebarWithRetry(); // importante por causa do layout.js
-    log("Aplicação inicializada");
+    log("INIT", "Aplicação inicializada");
   };
 
   // ===================================================
@@ -296,6 +423,8 @@ window.App = (() => {
   // ===================================================
 
   return {
+    // Storage keys
+    STORAGE_KEYS,
     // Estado
     getState,
     getUser,
@@ -303,6 +432,7 @@ window.App = (() => {
     isAuthenticated,
     setUser,
     clearState,
+    clearSession,
 
     // UI
     updateUserUI,
@@ -318,6 +448,11 @@ window.App = (() => {
     debounce,
     throttle,
     fetchData,
+    byId,
+    qs,
+    safeText,
+    safeHTML,
+    apiFetch,
     log,
 
     // Init

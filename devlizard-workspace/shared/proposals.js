@@ -4,11 +4,11 @@ const API_URL = 'http://localhost:3000/api';
 // ==================== UTILIDADES ====================
 
 function getToken() {
-  return localStorage.getItem('token');
+  return localStorage.getItem((window.STORAGE_KEYS?.TOKEN) || 'token');
 }
 
 function getRole() {
-  return localStorage.getItem('role');
+  return localStorage.getItem((window.STORAGE_KEYS?.ROLE) || 'role');
 }
 
 function formatDate(timestamp) {
@@ -84,21 +84,26 @@ function initTabs() {
 
 async function createProposal(title, description, toRole) {
   try {
-    const response = await fetch(`${API_URL}/proposals`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({ title, description, toRole })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Erro ao criar proposta');
-    }
-
+    const data = await (window.App?.apiFetch
+      ? window.App.apiFetch(`${API_URL}/proposals`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, toRole })
+        })
+      : (async () => {
+          const response = await fetch(`${API_URL}/proposals`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({ title, description, toRole })
+          });
+          const json = await response.json();
+          if (!response.ok) throw new Error(json.error || 'Erro ao criar proposta');
+          return json;
+        })()
+    );
     return data;
   } catch (error) {
     console.error('Erro ao criar proposta:', error);
@@ -113,9 +118,31 @@ function initCreateForm() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const title = document.getElementById('proposalTitle').value;
-    const description = document.getElementById('proposalDescription').value;
-    const toRole = document.getElementById('proposalToRole').value;
+    const title = (document.getElementById('proposalTitle')?.value || '').trim();
+    const description = (document.getElementById('proposalDescription')?.value || '').trim();
+    const toRole = (document.getElementById('proposalToRole')?.value || '').trim();
+
+    // Validações defensivas sem alterar UX
+    if (!title) {
+      alert('Título é obrigatório.');
+      document.getElementById('proposalTitle')?.focus();
+      return;
+    }
+    if (title.length > 255) {
+      alert('Título muito longo (máx. 255 caracteres).');
+      document.getElementById('proposalTitle')?.focus();
+      return;
+    }
+    if (description.length > 1000) {
+      alert('Descrição muito longa (máx. 1000 caracteres).');
+      document.getElementById('proposalDescription')?.focus();
+      return;
+    }
+    if (!toRole) {
+      alert('Selecione o destino da proposta.');
+      document.getElementById('proposalToRole')?.focus();
+      return;
+    }
 
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
@@ -143,18 +170,17 @@ function initCreateForm() {
 
 async function fetchInboxProposals() {
   try {
-    const response = await fetch(`${API_URL}/proposals/inbox`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Erro ao buscar propostas');
-    }
-
+    const data = await (window.App?.apiFetch
+      ? window.App.apiFetch(`${API_URL}/proposals/inbox`, {})
+      : (async () => {
+          const response = await fetch(`${API_URL}/proposals/inbox`, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+          });
+          const json = await response.json();
+          if (!response.ok) throw new Error(json.error || 'Erro ao buscar propostas');
+          return json;
+        })()
+    );
     return data;
   } catch (error) {
     console.error('Erro ao buscar propostas recebidas:', error);
@@ -167,15 +193,16 @@ function renderInboxProposals(proposals) {
   if (!container) return;
 
   if (proposals.length === 0) {
-    container.innerHTML = `
+    const html = `
       <div class="card">
         <p style="color: var(--muted); text-align: center;">Nenhuma proposta recebida.</p>
       </div>
     `;
+    if (window.App?.safeHTML) window.App.safeHTML(container, html); else container.innerHTML = html;
     return;
   }
 
-  container.innerHTML = proposals.map(proposal => `
+  const htmlList = proposals.map(proposal => `
     <div class="card" style="margin-bottom: 16px;">
       <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
         <div>
@@ -223,19 +250,22 @@ function renderInboxProposals(proposals) {
       `}
     </div>
   `).join('');
+  if (window.App?.safeHTML) window.App.safeHTML(container, htmlList); else container.innerHTML = htmlList;
 }
 
 async function loadInboxProposals() {
   const container = document.getElementById('inboxProposals');
   if (!container) return;
 
-  container.innerHTML = '<div class="card"><p style="text-align: center;">Carregando...</p></div>';
+  const loadingHtml = '<div class="card"><p style="text-align: center;">Carregando...</p></div>';
+  if (window.App?.safeHTML) window.App.safeHTML(container, loadingHtml); else container.innerHTML = loadingHtml;
 
   try {
     const proposals = await fetchInboxProposals();
     renderInboxProposals(proposals);
   } catch (error) {
-    container.innerHTML = `<div class="card"><p style="color: #dc3545; text-align: center;">Erro ao carregar propostas: ${error.message}</p></div>`;
+    const errHtml = `<div class="card"><p style="color: #dc3545; text-align: center;">Erro ao carregar propostas: ${error.message}</p></div>`;
+    if (window.App?.safeHTML) window.App.safeHTML(container, errHtml); else container.innerHTML = errHtml;
   }
 }
 
@@ -243,18 +273,17 @@ async function loadInboxProposals() {
 
 async function fetchSentProposals() {
   try {
-    const response = await fetch(`${API_URL}/proposals/sent`, {
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Erro ao buscar propostas');
-    }
-
+    const data = await (window.App?.apiFetch
+      ? window.App.apiFetch(`${API_URL}/proposals/sent`, {})
+      : (async () => {
+          const response = await fetch(`${API_URL}/proposals/sent`, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+          });
+          const json = await response.json();
+          if (!response.ok) throw new Error(json.error || 'Erro ao buscar propostas');
+          return json;
+        })()
+    );
     return data;
   } catch (error) {
     console.error('Erro ao buscar propostas enviadas:', error);
@@ -267,15 +296,16 @@ function renderSentProposals(proposals) {
   if (!container) return;
 
   if (proposals.length === 0) {
-    container.innerHTML = `
+    const html = `
       <div class="card">
         <p style="color: var(--muted); text-align: center;">Nenhuma proposta enviada.</p>
       </div>
     `;
+    if (window.App?.safeHTML) window.App.safeHTML(container, html); else container.innerHTML = html;
     return;
   }
 
-  container.innerHTML = proposals.map(proposal => `
+  const htmlList = proposals.map(proposal => `
     <div class="card" style="margin-bottom: 16px;">
       <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
         <div>
@@ -314,19 +344,22 @@ function renderSentProposals(proposals) {
       `}
     </div>
   `).join('');
+  if (window.App?.safeHTML) window.App.safeHTML(container, htmlList); else container.innerHTML = htmlList;
 }
 
 async function loadSentProposals() {
   const container = document.getElementById('sentProposals');
   if (!container) return;
 
-  container.innerHTML = '<div class="card"><p style="text-align: center;">Carregando...</p></div>';
+  const loadingHtml = '<div class="card"><p style="text-align: center;">Carregando...</p></div>';
+  if (window.App?.safeHTML) window.App.safeHTML(container, loadingHtml); else container.innerHTML = loadingHtml;
 
   try {
     const proposals = await fetchSentProposals();
     renderSentProposals(proposals);
   } catch (error) {
-    container.innerHTML = `<div class="card"><p style="color: #dc3545; text-align: center;">Erro ao carregar propostas: ${error.message}</p></div>`;
+    const errHtml = `<div class="card"><p style="color: #dc3545; text-align: center;">Erro ao carregar propostas: ${error.message}</p></div>`;
+    if (window.App?.safeHTML) window.App.safeHTML(container, errHtml); else container.innerHTML = errHtml;
   }
 }
 
@@ -347,20 +380,26 @@ async function decideProposal(proposalId, decision) {
   }
 
   try {
-    const response = await fetch(`${API_URL}/proposals/${proposalId}/decide`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({ decision, comment })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Erro ao decidir proposta');
-    }
+    const data = await (window.App?.apiFetch
+      ? window.App.apiFetch(`${API_URL}/proposals/${proposalId}/decide`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decision, comment })
+        })
+      : (async () => {
+          const response = await fetch(`${API_URL}/proposals/${proposalId}/decide`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${getToken()}`
+            },
+            body: JSON.stringify({ decision, comment })
+          });
+          const json = await response.json();
+          if (!response.ok) throw new Error(json.error || 'Erro ao decidir proposta');
+          return json;
+        })()
+    );
 
     alert(`Proposta ${decision === 'approved' ? 'aprovada' : 'rejeitada'} com sucesso!`);
     loadInboxProposals();
@@ -377,18 +416,18 @@ async function deleteProposal(proposalId) {
   }
 
   try {
-    const response = await fetch(`${API_URL}/proposals/${proposalId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${getToken()}`
-      }
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Erro ao excluir proposta');
-    }
+    const data = await (window.App?.apiFetch
+      ? window.App.apiFetch(`${API_URL}/proposals/${proposalId}`, { method: 'DELETE' })
+      : (async () => {
+          const response = await fetch(`${API_URL}/proposals/${proposalId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+          });
+          const json = await response.json();
+          if (!response.ok) throw new Error(json.error || 'Erro ao excluir proposta');
+          return json;
+        })()
+    );
 
     alert('Proposta excluída com sucesso!');
     loadSentProposals();
@@ -402,6 +441,7 @@ async function deleteProposal(proposalId) {
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initCreateForm();
+  if (window.App?.log) window.App.log('INIT', 'Proposals module carregado');
   
   // Carregar propostas recebidas por padrão
   // (aba "Criar" está ativa por padrão, então não carregamos nada)

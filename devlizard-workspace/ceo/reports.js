@@ -2,8 +2,9 @@
 // Comunicação com COO para análise integrada de dados estratégicos e operacionais
 
 const CEOReports = (() => {
-  const STORAGE_KEY_CEO = 'ceo_reports_data';
-  const STORAGE_KEY_SHARED = 'shared_reports_data'; // Compartilhado entre CEO e COO
+  const K = window.STORAGE_KEYS || {};
+  const STORAGE_KEY_CEO = K.CEO_REPORTS || 'ceo_reports_data';
+  const STORAGE_KEY_SHARED = K.SHARED_REPORTS || 'shared_reports_data'; // Compartilhado entre CEO e COO
   const REFRESH_INTERVAL = 5000; // 5 segundos
 
   let refreshTimer = null;

@@ -17,26 +17,27 @@ const FilesManager = (() => {
         formData.append('note', note);
       }
 
-      const response = await fetch(`${API_BASE}/forward`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Erro ao enviar arquivo';
-        try {
-          const error = await response.json();
-          errorMessage = error.error || error.message || errorMessage;
-        } catch (e) {
-          errorMessage = `Erro ${response.status}: ${response.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
+      const data = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/forward`, { method: 'POST', body: formData })
+        : (async () => {
+            const response = await fetch(`${API_BASE}/forward`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${getToken()}` },
+              body: formData
+            });
+            if (!response.ok) {
+              let errorMessage = 'Erro ao enviar arquivo';
+              try {
+                const error = await response.json();
+                errorMessage = error.error || error.message || errorMessage;
+              } catch (e) {
+                errorMessage = `Erro ${response.status}: ${response.statusText}`;
+              }
+              throw new Error(errorMessage);
+            }
+            return await response.json();
+          })()
+      );
       return { success: true, message: 'Arquivo enviado com sucesso!', data };
     } catch (error) {
       console.error('Erro ao enviar arquivo:', error);
@@ -47,18 +48,17 @@ const FilesManager = (() => {
   // Carregar inbox (arquivos recebidos)
   async function loadInbox() {
     try {
-      const response = await fetch(`${API_BASE}/inbox`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao carregar inbox');
-      }
-
-      const messages = await response.json();
+      const messages = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/inbox`, {})
+        : (async () => {
+            const response = await fetch(`${API_BASE}/inbox`, {
+              method: 'GET',
+              headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+            if (!response.ok) throw new Error('Erro ao carregar inbox');
+            return await response.json();
+          })()
+      );
       return { success: true, data: messages };
     } catch (error) {
       console.error('Erro ao carregar inbox:', error);
@@ -69,19 +69,20 @@ const FilesManager = (() => {
   // Marcar como lida
   async function markAsRead(messageId) {
     try {
-      const response = await fetch(`${API_BASE}/${messageId}/read`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao marcar como lida');
-      }
-
-      const data = await response.json();
+      const data = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/${messageId}/read`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' } })
+        : (async () => {
+            const response = await fetch(`${API_BASE}/${messageId}/read`, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            if (!response.ok) throw new Error('Erro ao marcar como lida');
+            return await response.json();
+          })()
+      );
       return { success: true, data };
     } catch (error) {
       console.error('Erro ao marcar como lida:', error);
@@ -92,14 +93,15 @@ const FilesManager = (() => {
   // Download de arquivo
   async function downloadFile(messageId, originalName) {
     try {
-      const response = await fetch(`${API_BASE}/${messageId}/download`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`
-        }
-      });
+      const response = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/${messageId}/download`, {})
+        : fetch(`${API_BASE}/${messageId}/download`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+          })
+      );
 
-      if (!response.ok) {
+      if (!response || (response.status && !response.ok)) {
         throw new Error('Erro ao fazer download');
       }
 
@@ -126,14 +128,15 @@ const FilesManager = (() => {
   // Abrir arquivo (visualizar)
   async function openFile(messageId) {
     try {
-      const response = await fetch(`${API_BASE}/${messageId}/download`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`
-        }
-      });
+      const response = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/${messageId}/download`, {})
+        : fetch(`${API_BASE}/${messageId}/download`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+          })
+      );
 
-      if (!response.ok) {
+      if (!response || (response.status && !response.ok)) {
         throw new Error('Erro ao abrir arquivo');
       }
 
@@ -169,17 +172,20 @@ const FilesManager = (() => {
   // Deletar arquivo
   async function deleteFile(messageId) {
     try {
-      const response = await fetch(`${API_BASE}/${messageId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${getToken()}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao deletar arquivo');
-      }
+      const result = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/${messageId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
+        : (async () => {
+            const response = await fetch(`${API_BASE}/${messageId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            if (!response.ok) throw new Error('Erro ao deletar arquivo');
+            return { ok: true };
+          })()
+      );
 
       return { success: true, message: 'Arquivo deletado com sucesso' };
     } catch (error) {
@@ -194,11 +200,12 @@ const FilesManager = (() => {
     if (!container) return;
 
     if (!messages || messages.length === 0) {
-      container.innerHTML = '<p style="color: var(--muted); text-align: center; padding: 20px;">Nenhum arquivo recebido</p>';
+      const html = '<p style="color: var(--muted); text-align: center; padding: 20px;">Nenhum arquivo recebido</p>';
+      if (window.App?.safeHTML) window.App.safeHTML(container, html); else container.innerHTML = html;
       return;
     }
 
-    container.innerHTML = messages.map(msg => `
+    const htmlList = messages.map(msg => `
       <div style="
         border: 1px solid #ddd;
         border-radius: 4px;
@@ -252,6 +259,7 @@ const FilesManager = (() => {
         </div>
       </div>
     `).join('');
+    if (window.App?.safeHTML) window.App.safeHTML(container, htmlList); else container.innerHTML = htmlList;
   }
 
   // Inicializar form de envio
@@ -311,7 +319,11 @@ const FilesManager = (() => {
       renderInbox(result.data, inboxContainerId);
       return result.data;
     } else {
-      document.getElementById(inboxContainerId).innerHTML = '<p style="color: #d32f2f; text-align: center; padding: 20px;">Erro ao carregar arquivos</p>';
+      const el = document.getElementById(inboxContainerId);
+      if (el) {
+        const html = '<p style="color: #d32f2f; text-align: center; padding: 20px;">Erro ao carregar arquivos</p>';
+        if (window.App?.safeHTML) window.App.safeHTML(el, html); else el.innerHTML = html;
+      }
       return [];
     }
   }

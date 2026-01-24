@@ -14,7 +14,7 @@
   const allowedRoles = ['ceo', 'cfo', 'cto', 'cmo', 'coo', 'comercial'];
 
   const setStatus = (msg, type = 'info') => {
-    statusEl.textContent = msg;
+    if (window.App?.safeText) window.App.safeText(statusEl, msg); else statusEl.textContent = msg;
     statusEl.style.display = 'block';
     statusEl.style.color = type === 'error' ? '#f85149' : '#6ad1b9';
   };
@@ -29,7 +29,7 @@
 
     clearStatus();
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem((window.STORAGE_KEYS?.TOKEN) || 'token');
     if (!token) {
       setStatus('Token não encontrado. Faça login para obter acesso.', 'error');
       return;
@@ -58,19 +58,19 @@
     submitBtn.textContent = 'Enviando...';
 
     try {
-      const response = await fetch(`${API_BASE}/files/forward`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Falha ao encaminhar arquivo');
-      }
+      const data = await (window.App?.apiFetch
+        ? window.App.apiFetch(`${API_BASE}/files/forward`, { method: 'POST', body: formData })
+        : (async () => {
+            const response = await fetch(`${API_BASE}/files/forward`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+              body: formData,
+            });
+            const json = await response.json();
+            if (!response.ok) throw new Error(json.error || 'Falha ao encaminhar arquivo');
+            return json;
+          })()
+      );
 
       setStatus('Arquivo enviado com sucesso!', 'success');
       form.reset();

@@ -6,12 +6,13 @@ buttons.forEach(btn => {
     const role = btn.dataset.role;
 
     // NÃO apagar tudo - só remover sessão
-    localStorage.removeItem('selectedRole');
-    localStorage.removeItem('user');
-    localStorage.removeItem('role');
-    localStorage.removeItem('auth');
+    const K = window.STORAGE_KEYS || {};
+    localStorage.removeItem(K.SELECTED_ROLE || 'selectedRole');
+    localStorage.removeItem(K.USER || 'user');
+    localStorage.removeItem(K.ROLE || 'role');
+    localStorage.removeItem(K.AUTH || 'auth');
     
-    localStorage.setItem('selectedRole', role);
+    localStorage.setItem((K.SELECTED_ROLE || 'selectedRole'), role);
 
     window.location.href = 'auth/login.html';
   });

@@ -1,6 +1,7 @@
 // Proteção de acesso (middleware simples)
-const auth = localStorage.getItem('auth');
-const role = localStorage.getItem('role');
+const K = window.STORAGE_KEYS || {};
+const auth = localStorage.getItem(K.AUTH || 'auth');
+const role = localStorage.getItem(K.ROLE || 'role');
 
 if (!auth) {
   window.location.href = '../index.html';

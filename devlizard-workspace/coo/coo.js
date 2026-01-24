@@ -179,7 +179,7 @@ const COOKanban = (() => {
     // Menu de ações
     const menu = document.createElement('div');
     menu.className = 'kanban-card-menu';
-    menu.innerHTML = '⋯';
+    if (window.App?.safeHTML) window.App.safeHTML(menu, '⋯'); else menu.innerHTML = '⋯';
     
     const dropdown = document.createElement('div');
     dropdown.className = 'kanban-card-dropdown';
@@ -262,14 +262,14 @@ const COOKanban = (() => {
       const count = document.getElementById(`count-${status}`);
       
       const statusTasks = filteredTasks.filter(t => t.status === status);
-      count.textContent = statusTasks.length;
+      if (count) { if (window.App?.safeText) window.App.safeText(count, statusTasks.length); else count.textContent = statusTasks.length; }
       
-      column.innerHTML = '';
+      if (window.App?.safeHTML) window.App.safeHTML(column, ''); else column.innerHTML = '';
       
       if (statusTasks.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.className = 'kanban-empty';
-        emptyMsg.textContent = 'Sem itens';
+        if (window.App?.safeText) window.App.safeText(emptyMsg, 'Sem itens'); else emptyMsg.textContent = 'Sem itens';
         column.appendChild(emptyMsg);
       } else {
         statusTasks.forEach(task => {
@@ -380,7 +380,7 @@ const COOKanban = (() => {
     if (!task) return;
     
     editingTaskId = taskId;
-    document.getElementById('modalTitle').textContent = 'Editar Tarefa';
+    if (window.App?.safeText) window.App.safeText(document.getElementById('modalTitle'), 'Editar Tarefa'); else document.getElementById('modalTitle').textContent = 'Editar Tarefa';
     document.getElementById('taskTitle').value = task.title;
     document.getElementById('taskDescription').value = task.description || '';
     document.getElementById('taskModal').style.display = 'flex';
@@ -433,11 +433,19 @@ const COOKanban = (() => {
     document.getElementById('taskForm').addEventListener('submit', (e) => {
       e.preventDefault();
       
-      const title = document.getElementById('taskTitle').value.trim();
-      const description = document.getElementById('taskDescription').value.trim();
+      const title = (document.getElementById('taskTitle')?.value || '').trim();
+      const description = (document.getElementById('taskDescription')?.value || '').trim();
       
       if (!title) {
         showToast('⚠️ O título é obrigatório!', 'error');
+        return;
+      }
+      if (title.length > 255) {
+        showToast('⚠️ Título muito longo (máx. 255).', 'error');
+        return;
+      }
+      if (description.length > 1000) {
+        showToast('⚠️ Descrição muito longa (máx. 1000).', 'error');
         return;
       }
       

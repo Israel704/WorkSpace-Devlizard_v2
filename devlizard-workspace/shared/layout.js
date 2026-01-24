@@ -33,17 +33,27 @@ const Layout = (() => {
         throw new Error(`HTTP Error: ${response.status}`);
       }
 
-      container.innerHTML = await response.text();
+      const html = await response.text();
+      if (window.App?.safeHTML) {
+        window.App.safeHTML(container, html);
+      } else {
+        container.innerHTML = html;
+      }
     } catch (error) {
       console.error(`Erro ao carregar ${filePath}:`, error);
 
       const container = document.querySelector(selector);
       if (container) {
-        container.innerHTML = `
+        const html = `
           <div style="padding: 1rem; color: #f85149; background: rgba(248, 81, 73, 0.1); border-radius: 4px;">
             ⚠️ Erro ao carregar componente
           </div>
         `;
+        if (window.App?.safeHTML) {
+          window.App.safeHTML(container, html);
+        } else {
+          container.innerHTML = html;
+        }
       }
     }
   };
