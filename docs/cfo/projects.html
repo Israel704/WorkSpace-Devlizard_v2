@@ -41,8 +41,27 @@
               <input id="projectTech" name="techStack" type="text" placeholder="Node + SQLite + HTML" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
             <div>
+              <label for="projectAcquisitionType">Forma de aquisição *</label>
+              <select id="projectAcquisitionType" name="acquisitionType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>
+                <option value="purchase">Compra</option>
+                <option value="rental">Aluguel</option>
+              </select>
+            </div>
+            <div>
               <label for="projectValue">Valor do projeto (R$)</label>
               <input id="projectValue" name="value" type="number" min="0" step="0.01" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div id="rentalMonthlyContainer" style="display: none;">
+              <label for="projectMonthlyRental">Valor mensal do aluguel (R$)</label>
+              <input id="projectMonthlyRental" name="monthlyRental" type="number" min="0" step="0.01" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div id="rentalMonthsContainer" style="display: none;">
+              <label for="projectRentalMonths">Período de aluguel (meses)</label>
+              <input id="projectRentalMonths" name="rentalMonths" type="number" min="1" step="1" placeholder="12" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div id="rentalTotalContainer" style="display: none;">
+              <label for="projectRentalTotal">Total do aluguel (R$)</label>
+              <input id="projectRentalTotal" name="rentalTotal" type="text" placeholder="0,00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f5f5f5;" readonly>
             </div>
             <div>
               <label for="projectCost">Investimento / Custo (R$)</label>

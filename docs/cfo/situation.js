@@ -102,7 +102,7 @@
             </div>
             <p style="margin: 0; color: var(--muted);">${item.count} projeto(s)</p>
             <p style="margin: 4px 0 0 0;">Valor: ${formatCurrency(item.value)}</p>
-            <p style="margin: 4px 0 0 0;">Investido: ${formatCurrency(item.invested)}</p>
+            <p style="margin: 4px 0 0 0;">Gasto: ${formatCurrency(item.invested)}</p>
           </div>
         `;
       }).join('');

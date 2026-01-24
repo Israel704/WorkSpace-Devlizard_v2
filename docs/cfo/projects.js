@@ -10,6 +10,36 @@
     return `R$ ${n.toFixed(2)}`;
   };
 
+  const calculateRentalTotal = () => {
+    const monthlyValue = Number(document.getElementById('projectMonthlyRental')?.value || 0);
+    const months = Number(document.getElementById('projectRentalMonths')?.value || 0);
+    const total = monthlyValue * months;
+    const totalInput = document.getElementById('projectRentalTotal');
+    if (totalInput) {
+      totalInput.value = formatCurrency(total);
+    }
+  };
+
+  const toggleRentalFields = () => {
+    const acquisitionType = document.getElementById('projectAcquisitionType')?.value;
+    const rentalMonthlyContainer = document.getElementById('rentalMonthlyContainer');
+    const rentalMonthsContainer = document.getElementById('rentalMonthsContainer');
+    const rentalTotalContainer = document.getElementById('rentalTotalContainer');
+    const projectValueInput = document.getElementById('projectValue');
+
+    if (acquisitionType === 'rental') {
+      if (rentalMonthlyContainer) rentalMonthlyContainer.style.display = 'block';
+      if (rentalMonthsContainer) rentalMonthsContainer.style.display = 'block';
+      if (rentalTotalContainer) rentalTotalContainer.style.display = 'block';
+      if (projectValueInput) projectValueInput.style.display = 'none';
+    } else {
+      if (rentalMonthlyContainer) rentalMonthlyContainer.style.display = 'none';
+      if (rentalMonthsContainer) rentalMonthsContainer.style.display = 'none';
+      if (rentalTotalContainer) rentalTotalContainer.style.display = 'none';
+      if (projectValueInput) projectValueInput.style.display = 'block';
+    }
+  };
+
   const loadClients = () => {
     try {
       const raw = localStorage.getItem(CLIENTS_KEY);
@@ -77,6 +107,7 @@
     if (submitBtn) submitBtn.textContent = 'Salvar projeto';
     const cancelBtn = document.getElementById('cancelProjectEdit');
     if (cancelBtn) cancelBtn.style.display = 'none';
+    toggleRentalFields();
     populateClientsSelect();
   };
 
@@ -88,7 +119,10 @@
     const title = document.getElementById('projectTitle')?.value.trim();
     const description = document.getElementById('projectDescription')?.value.trim() || '';
     const techStack = document.getElementById('projectTech')?.value.trim() || '';
-    const value = Number(document.getElementById('projectValue')?.value || 0);
+    const acquisitionType = document.getElementById('projectAcquisitionType')?.value || 'purchase';
+    let value = Number(document.getElementById('projectValue')?.value || 0);
+    const monthlyRental = Number(document.getElementById('projectMonthlyRental')?.value || 0);
+    const rentalMonths = Number(document.getElementById('projectRentalMonths')?.value || 0);
     const costInvested = Number(document.getElementById('projectCost')?.value || 0);
     const status = document.getElementById('projectStatus')?.value || 'prospect';
     const expectedEntryDate = document.getElementById('projectDate')?.value || '';
@@ -108,8 +142,26 @@
       return;
     }
 
-    if (value < 0 || costInvested < 0) {
-      alert('Valor e investimento devem ser iguais ou maiores que zero.');
+    // Validação específica para aluguel
+    if (acquisitionType === 'rental') {
+      if (monthlyRental <= 0) {
+        alert('Valor mensal do aluguel deve ser maior que zero.');
+        return;
+      }
+      if (rentalMonths <= 0) {
+        alert('Período de aluguel deve ser maior que zero meses.');
+        return;
+      }
+      value = monthlyRental * rentalMonths;
+    } else {
+      if (value < 0) {
+        alert('Valor do projeto deve ser igual ou maior que zero.');
+        return;
+      }
+    }
+
+    if (costInvested < 0) {
+      alert('Investimento deve ser igual ou maior que zero.');
       return;
     }
 
@@ -128,7 +180,10 @@
         title,
         description,
         techStack,
+        acquisitionType,
         value,
+        monthlyRental: acquisitionType === 'rental' ? monthlyRental : 0,
+        rentalMonths: acquisitionType === 'rental' ? rentalMonths : 0,
         costInvested,
         status,
         expectedEntryDate,
@@ -143,7 +198,10 @@
         title,
         description,
         techStack,
+        acquisitionType,
         value,
+        monthlyRental: acquisitionType === 'rental' ? monthlyRental : 0,
+        rentalMonths: acquisitionType === 'rental' ? rentalMonths : 0,
         costInvested,
         status,
         expectedEntryDate,
@@ -224,6 +282,13 @@
     const html = projects
       .map((project) => {
         const clientName = getClientName(project.clientId);
+        const acquisitionType = project.acquisitionType || 'purchase';
+        let valueDisplay = formatCurrency(project.value);
+        
+        if (acquisitionType === 'rental') {
+          valueDisplay = `${formatCurrency(project.monthlyRental)}/mês (${project.rentalMonths} meses) = ${formatCurrency(project.value)}`;
+        }
+
         return `
           <div class="card" style="margin-bottom: 12px;">
             <div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start;">
@@ -234,7 +299,7 @@
                 </div>
                 <p style="margin: 6px 0 0 0; color: var(--muted);">Cliente: ${clientName}</p>
                 <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Entrada prevista: ${formatDate(project.expectedEntryDate)}</p>
-                <p style="margin: 10px 0 0 0;">Valor: <strong>${formatCurrency(project.value)}</strong> • Investido: <strong>${formatCurrency(project.costInvested)}</strong></p>
+                <p style="margin: 10px 0 0 0;">Valor: <strong>${valueDisplay}</strong> • Investido: <strong>${formatCurrency(project.costInvested)}</strong></p>
                 <p style="margin: 8px 0 0 0; color: var(--muted); white-space: pre-wrap;">${project.description || 'Sem descrição.'}</p>
                 ${project.techStack ? `<p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Stack: ${project.techStack}</p>` : ''}
               </div>
@@ -261,10 +326,16 @@
     document.getElementById('projectTitle').value = project.title || '';
     document.getElementById('projectDescription').value = project.description || '';
     document.getElementById('projectTech').value = project.techStack || '';
-    document.getElementById('projectValue').value = project.value ?? 0;
+    document.getElementById('projectAcquisitionType').value = project.acquisitionType || 'purchase';
+    document.getElementById('projectValue').value = (project.acquisitionType === 'rental' ? 0 : project.value) ?? 0;
+    document.getElementById('projectMonthlyRental').value = project.monthlyRental ?? 0;
+    document.getElementById('projectRentalMonths').value = project.rentalMonths ?? 0;
     document.getElementById('projectCost').value = project.costInvested ?? 0;
     document.getElementById('projectStatus').value = project.status || 'prospect';
     document.getElementById('projectDate').value = project.expectedEntryDate || '';
+
+    toggleRentalFields();
+    calculateRentalTotal();
 
     const submitBtn = document.getElementById('submitProject');
     if (submitBtn) submitBtn.textContent = 'Atualizar projeto';
@@ -290,6 +361,9 @@
     document.getElementById('cancelProjectEdit')?.addEventListener('click', resetForm);
     document.getElementById('filterStatus')?.addEventListener('change', renderProjects);
     document.getElementById('sortBy')?.addEventListener('change', renderProjects);
+    document.getElementById('projectAcquisitionType')?.addEventListener('change', toggleRentalFields);
+    document.getElementById('projectMonthlyRental')?.addEventListener('input', calculateRentalTotal);
+    document.getElementById('projectRentalMonths')?.addEventListener('input', calculateRentalTotal);
   };
 
   document.addEventListener('DOMContentLoaded', () => {
