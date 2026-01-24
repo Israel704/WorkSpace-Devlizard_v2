@@ -2,22 +2,24 @@
    DECISIONS WIDGET
 
    Renderiza:
-   - Painel resumido (últimas N decisões)
+   - Painel resumido (decisão mais recente)
    - Lista completa com filtros
 
    Uso:
-   - DecisionsWidget.renderSummary('#container', { limit: 5 })
+   - DecisionsWidget.renderSummary('#container')
    - DecisionsWidget.renderFullList('#container', { filters: true })
 ====================================================== */
 
 window.DecisionsWidget = (() => {
+  const renderCallbacks = {}; // Rastreia callbacks para cada selector
+
   /**
-   * Renderiza o painel resumido (últimas N decisões)
+   * Renderiza o painel resumido (apenas a decisão mais recente)
    * @param {string} selector - Seletor CSS do container
-   * @param {Object} options - { limit: 5, onViewAll: callback }
+   * @param {Object} options - { autoRefresh: true }
    */
   const renderSummary = (selector, options = {}) => {
-    const limit = options.limit || 5;
+    const autoRefresh = options.autoRefresh !== false; // true por padrão
     const container = document.querySelector(selector);
 
     if (!container) {
@@ -26,7 +28,9 @@ window.DecisionsWidget = (() => {
     }
 
     const decisions = DecisionsStore.getDecisions();
-    const recent = decisions.slice(-limit).reverse();
+    // Pega apenas a última decisão (mais recente)
+    // Como decisões são adicionadas com unshift, [0] é a mais recente
+    const recent = decisions.length > 0 ? [decisions[0]] : [];
 
     if (recent.length === 0) {
       container.innerHTML = `
@@ -41,7 +45,7 @@ window.DecisionsWidget = (() => {
 
     const html = `
       <div class="decisions-summary-header">
-        <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Decisões Recentes</h3>
+        <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Decisão Mais Recente</h3>
       </div>
       <div class="decisions-summary-list">
         ${recent
@@ -78,6 +82,15 @@ window.DecisionsWidget = (() => {
     `;
 
     container.innerHTML = html;
+
+    // Auto-refresh: Registrar listener se não estiver já registrado
+    if (autoRefresh && !renderCallbacks[selector]) {
+      const refreshCallback = () => {
+        renderSummary(selector, options); // Re-render ao detectar mudanças
+      };
+      renderCallbacks[selector] = refreshCallback;
+      DecisionsStore.onChange(refreshCallback);
+    }
   };
 
   /**

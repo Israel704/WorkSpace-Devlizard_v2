@@ -12,6 +12,41 @@
 
 window.DecisionsStore = (() => {
   const STORAGE_KEY = "global_decisions";
+  const listeners = []; // Array de callbacks para mudanças
+
+  /**
+   * Notifica todos os listeners sobre mudanças
+   */
+  const notifyListeners = () => {
+    listeners.forEach(callback => {
+      try {
+        callback();
+      } catch (error) {
+        console.error("Erro ao executar listener:", error);
+      }
+    });
+  };
+
+  /**
+   * Registra um listener para mudanças na store
+   * @param {Function} callback - Função a ser chamada quando houver mudanças
+   */
+  const onChange = (callback) => {
+    if (typeof callback === "function") {
+      listeners.push(callback);
+    }
+  };
+
+  /**
+   * Remove um listener
+   * @param {Function} callback - Função a remover
+   */
+  const offChange = (callback) => {
+    const index = listeners.indexOf(callback);
+    if (index > -1) {
+      listeners.splice(index, 1);
+    }
+  };
 
   /**
    * Carrega todas as decisões do storage
@@ -88,6 +123,7 @@ window.DecisionsStore = (() => {
 
       decisions.push(newDecision);
       setDecisions(decisions);
+      notifyListeners(); // Notifica todos os listeners
       return newDecision;
     } catch (error) {
       console.error("Erro ao adicionar decisão:", error);
@@ -123,6 +159,7 @@ window.DecisionsStore = (() => {
       };
 
       setDecisions(decisions);
+      notifyListeners(); // Notifica todos os listeners
       return decisions[index];
     } catch (error) {
       console.error("Erro ao atualizar decisão:", error);
@@ -145,6 +182,7 @@ window.DecisionsStore = (() => {
       const decisions = getDecisions();
       const filtered = decisions.filter(d => d.id !== id);
       setDecisions(filtered);
+      notifyListeners(); // Notifica todos os listeners
       return true;
     } catch (error) {
       console.error("Erro ao remover decisão:", error);
@@ -211,5 +249,7 @@ window.DecisionsStore = (() => {
     filterDecisions,
     formatDate,
     isCOO,
+    onChange,
+    offChange,
   };
 })();
