@@ -29,7 +29,11 @@
   }
 
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions));
+    } catch (e) {
+      console.error('Erro ao salvar decisões:', e);
+    }
   }
 
   function now() {

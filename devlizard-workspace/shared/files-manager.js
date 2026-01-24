@@ -265,14 +265,26 @@ const FilesManager = (() => {
   // Inicializar form de envio
   function initSendFileForm(formId, inboxContainerId, onSuccess) {
     const form = document.getElementById(formId);
-    if (!form) return;
+    if (!form) {
+      console.warn(`Formulário ${formId} não encontrado`);
+      return;
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const toRole = document.getElementById('toRole').value;
-      const fileInput = document.getElementById('fileInput');
-      const fileNote = document.getElementById('fileNote').value;
+      const toRoleEl = document.getElementById('toRole');
+      const fileInputEl = document.getElementById('fileInput');
+      const fileNoteEl = document.getElementById('fileNote');
+
+      if (!toRoleEl || !fileInputEl) {
+        alert('Erro: elementos do formulário não encontrados');
+        return;
+      }
+
+      const toRole = toRoleEl.value;
+      const fileInput = fileInputEl;
+      const fileNote = fileNoteEl ? fileNoteEl.value : '';
 
       if (!toRole || !fileInput.files[0]) {
         alert('Por favor, preencha todos os campos obrigatórios');

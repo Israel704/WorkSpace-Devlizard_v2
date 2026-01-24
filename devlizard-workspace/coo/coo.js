@@ -41,7 +41,8 @@ const COOKanban = (() => {
         nextId = settings.nextId || 1;
         filterText = settings.filterText || '';
         if (filterText) {
-          document.getElementById('kanbanFilterInput').value = filterText;
+          const filterInput = document.getElementById('kanbanFilterInput');
+          if (filterInput) filterInput.value = filterText;
         }
       }
       
@@ -120,9 +121,13 @@ const COOKanban = (() => {
     filterText = searchText.toLowerCase();
     
     // Salvar filtro nas configurações
-    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-    settings.filterText = filterText;
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    try {
+      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      settings.filterText = filterText;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {
+      console.error('Erro ao salvar filtro:', e);
+    }
     
     renderKanban();
   }
@@ -139,11 +144,16 @@ const COOKanban = (() => {
 
   function clearFilter() {
     filterText = '';
-    document.getElementById('kanbanFilterInput').value = '';
+    const filterInput = document.getElementById('kanbanFilterInput');
+    if (filterInput) filterInput.value = '';
     
-    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-    settings.filterText = '';
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    try {
+      const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      settings.filterText = '';
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (e) {
+      console.error('Erro ao limpar filtro:', e);
+    }
     
     renderKanban();
     showToast('🔍 Filtro limpo!');
@@ -367,12 +377,18 @@ const COOKanban = (() => {
   // ==================== MODAL ====================
   function openModal(status = 'backlog') {
     editingTaskId = null;
-    document.getElementById('modalTitle').textContent = 'Nova Tarefa';
-    document.getElementById('taskTitle').value = '';
-    document.getElementById('taskDescription').value = '';
-    document.getElementById('taskModal').style.display = 'flex';
-    document.getElementById('taskModal').dataset.status = status;
-    document.getElementById('taskTitle').focus();
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) modalTitle.textContent = 'Nova Tarefa';
+    const titleInput = document.getElementById('taskTitle');
+    if (titleInput) titleInput.value = '';
+    const descInput = document.getElementById('taskDescription');
+    if (descInput) descInput.value = '';
+    const modal = document.getElementById('taskModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.dataset.status = status;
+    }
+    if (titleInput) titleInput.focus();
   }
 
   function openEditModal(taskId) {
@@ -380,21 +396,29 @@ const COOKanban = (() => {
     if (!task) return;
     
     editingTaskId = taskId;
-    if (window.App?.safeText) window.App.safeText(document.getElementById('modalTitle'), 'Editar Tarefa'); else document.getElementById('modalTitle').textContent = 'Editar Tarefa';
-    document.getElementById('taskTitle').value = task.title;
-    document.getElementById('taskDescription').value = task.description || '';
-    document.getElementById('taskModal').style.display = 'flex';
-    document.getElementById('taskTitle').focus();
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) {
+      if (window.App?.safeText) window.App.safeText(modalTitle, 'Editar Tarefa'); else modalTitle.textContent = 'Editar Tarefa';
+    }
+    const titleInput = document.getElementById('taskTitle');
+    if (titleInput) titleInput.value = task.title;
+    const descInput = document.getElementById('taskDescription');
+    if (descInput) descInput.value = task.description || '';
+    const modal = document.getElementById('taskModal');
+    if (modal) modal.style.display = 'flex';
+    if (titleInput) titleInput.focus();
   }
 
   function closeModal() {
-    document.getElementById('taskModal').style.display = 'none';
+    const modal = document.getElementById('taskModal');
+    if (modal) modal.style.display = 'none';
     editingTaskId = null;
   }
 
   // ==================== TOAST ====================
   function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.textContent = message;
     toast.className = `toast toast-${type} show`;
     
@@ -406,9 +430,12 @@ const COOKanban = (() => {
   // ==================== EVENT HANDLERS ====================
   function setupEventListeners() {
     // Botão Nova Tarefa
-    document.getElementById('btnNewTask').addEventListener('click', () => {
-      openModal('backlog');
-    });
+    const btnNewTask = document.getElementById('btnNewTask');
+    if (btnNewTask) {
+      btnNewTask.addEventListener('click', () => {
+        openModal('backlog');
+      });
+    }
     
     // Botões Add Item nas colunas
     document.querySelectorAll('.kanban-add-btn').forEach(btn => {
@@ -419,18 +446,25 @@ const COOKanban = (() => {
     });
     
     // Modal - Fechar
-    document.getElementById('closeModal').addEventListener('click', closeModal);
-    document.getElementById('cancelTaskBtn').addEventListener('click', closeModal);
+    const closeModalBtn = document.getElementById('closeModal');
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    const cancelBtn = document.getElementById('cancelTaskBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
     
     // Modal - Fechar ao clicar fora
-    document.getElementById('taskModal').addEventListener('click', (e) => {
-      if (e.target.id === 'taskModal') {
-        closeModal();
-      }
-    });
+    const taskModal = document.getElementById('taskModal');
+    if (taskModal) {
+      taskModal.addEventListener('click', (e) => {
+        if (e.target.id === 'taskModal') {
+          closeModal();
+        }
+      });
+    }
     
     // Form Submit
-    document.getElementById('taskForm').addEventListener('submit', (e) => {
+    const taskForm = document.getElementById('taskForm');
+    if (taskForm) {
+      taskForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
       const title = (document.getElementById('taskTitle')?.value || '').trim();
@@ -456,25 +490,33 @@ const COOKanban = (() => {
         createTask({ title, description, status });
       }
       
-      closeModal();
-    });
+        closeModal();
+      });
+    }
     
     // Filtro com debounce
-    document.getElementById('kanbanFilterInput').addEventListener('input', (e) => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        filterTasks(e.target.value);
-      }, 200);
-    });
+    const filterInput = document.getElementById('kanbanFilterInput');
+    if (filterInput) {
+      filterInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          filterTasks(e.target.value);
+        }, 200);
+      });
+    }
     
     // Limpar Filtro
-    document.getElementById('btnClearFilter').addEventListener('click', clearFilter);
+    const btnClearFilter = document.getElementById('btnClearFilter');
+    if (btnClearFilter) btnClearFilter.addEventListener('click', clearFilter);
     
     // Botão Salvar
-    document.getElementById('btnSaveKanban').addEventListener('click', () => {
-      saveTasks();
-      showToast('💾 Salvo ✅');
-    });
+    const btnSave = document.getElementById('btnSaveKanban');
+    if (btnSave) {
+      btnSave.addEventListener('click', () => {
+        saveTasks();
+        showToast('💾 Salvo ✅');
+      });
+    }
     
     // Fechar dropdowns ao clicar fora
     document.addEventListener('click', (e) => {

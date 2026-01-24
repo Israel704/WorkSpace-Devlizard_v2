@@ -46,8 +46,13 @@ window.DecisionsStore = (() => {
    * @returns {boolean}
    */
   const isCOO = () => {
-    const role = localStorage.getItem("role");
-    return role && String(role).toLowerCase() === "coo";
+    try {
+      const role = localStorage.getItem("role");
+      return role && String(role).toLowerCase() === "coo";
+    } catch (e) {
+      console.error('Erro ao verificar role:', e);
+      return false;
+    }
   };
 
   /**
@@ -71,7 +76,13 @@ window.DecisionsStore = (() => {
         toRole: decision.toRole || "",
         status: decision.status || "pending",
         decidedAt: Date.now(),
-        decidedBy: localStorage.getItem("role") || "coo",
+        decidedBy: (() => {
+          try {
+            return localStorage.getItem("role") || "coo";
+          } catch (e) {
+            return "coo";
+          }
+        })(),
         tags: decision.tags || [],
       };
 

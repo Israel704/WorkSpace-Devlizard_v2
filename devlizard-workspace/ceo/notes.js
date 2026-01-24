@@ -23,13 +23,18 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       notes = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(notes)) notes = [];
-    } catch {
+    } catch (e) {
+      console.error('Erro ao carregar notas:', e);
       notes = [];
     }
   }
 
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    } catch (e) {
+      console.error('Erro ao salvar notas:', e);
+    }
   }
 
   function now() {

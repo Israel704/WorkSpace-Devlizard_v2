@@ -3,6 +3,10 @@
 const CEO = (() => {
   // Inicializar gerenciador de arquivos
   function initFileManager() {
+    if (typeof FilesManager === 'undefined') {
+      console.warn('FilesManager não disponível');
+      return;
+    }
     FilesManager.initSendFileForm('sendFileForm', 'inboxContainer');
     FilesManager.loadAndDisplayInbox('inboxContainer');
   }

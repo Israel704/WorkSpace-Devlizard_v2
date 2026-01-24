@@ -9,13 +9,18 @@ if (!selectedRole) {
   window.location.href = '../index.html';
 }
 
-if (window.App?.safeText) {
-  window.App.safeText(roleInfo, `Área selecionada: ${selectedRole.toUpperCase()}`);
-} else {
-  roleInfo.textContent = `Área selecionada: ${selectedRole.toUpperCase()}`;
+if (roleInfo) {
+  if (window.App?.safeText) {
+    window.App.safeText(roleInfo, `Área selecionada: ${selectedRole.toUpperCase()}`);
+  } else {
+    roleInfo.textContent = `Área selecionada: ${selectedRole.toUpperCase()}`;
+  }
 }
 
-form.addEventListener('submit', async (e) => {
+if (!form) {
+  console.error('Formulário de login não encontrado');
+} else {
+  form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const user = document.getElementById('user')?.value.trim() || '';
@@ -63,4 +68,5 @@ form.addEventListener('submit', async (e) => {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Entrar';
   }
-});
+  });
+}

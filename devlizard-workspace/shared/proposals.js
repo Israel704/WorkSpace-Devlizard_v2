@@ -49,6 +49,11 @@ function initTabs() {
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
 
+  if (!tabButtons.length || !tabContents.length) {
+    console.warn('Tabs não encontradas');
+    return;
+  }
+
   tabButtons.forEach(button => {
     button.addEventListener('click', () => {
       const targetTab = button.getAttribute('data-tab');

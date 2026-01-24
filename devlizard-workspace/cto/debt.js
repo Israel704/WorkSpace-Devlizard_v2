@@ -24,12 +24,21 @@ const Debt = (() => {
 
   // Load all items
   function getAllItems() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    } catch (e) {
+      console.error('Erro ao carregar debt items:', e);
+      return [];
+    }
   }
 
   // Save items
   function saveItems(items) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch (e) {
+      console.error('Erro ao salvar debt items:', e);
+    }
   }
 
   // Add new item

@@ -25,13 +25,18 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       risks = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(risks)) risks = [];
-    } catch {
+    } catch (e) {
+      console.error('Erro ao carregar riscos:', e);
       risks = [];
     }
   }
 
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(risks));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(risks));
+    } catch (e) {
+      console.error('Erro ao salvar riscos:', e);
+    }
   }
 
   function now() {
