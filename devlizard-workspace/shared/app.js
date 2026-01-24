@@ -206,6 +206,7 @@ window.App = (() => {
   { label: "Clientes", href: "clients.html" },
   { label: "Projetos", href: "projects.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Precificação", href: "pricing.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],
       cto: [

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CFO • Precificação • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cfo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div class="page-head" style="margin-bottom: 12px;">
+          <div class="page-head-left">
+            <h1>Precificação</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Calculadora de preços por tipo, complexidade, funcionalidades e devs. Mantém histórico local.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0;">Parâmetros</h3>
+          <form id="pricingForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px;">
+            <div>
+              <label for="projectType">Tipo de projeto *</label>
+              <select id="projectType" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Selecione</option>
+                <option>Web Site</option>
+                <option>App</option>
+                <option>Sistema</option>
+                <option>Consultoria</option>
+                <option>Landing Page</option>
+                <option>E-commerce</option>
+                <option>Integração/API</option>
+              </select>
+            </div>
+            <div>
+              <label for="complexity">Complexidade *</label>
+              <select id="complexity" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Selecione</option>
+                <option>Fácil</option>
+                <option>Médio</option>
+                <option>Difícil</option>
+                <option>Complexo</option>
+              </select>
+            </div>
+            <div>
+              <label for="features">Funcionalidades *</label>
+              <input id="features" type="number" min="1" max="200" required placeholder="Ex.: 12" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              <small style="color: var(--muted);">1 a 200</small>
+            </div>
+            <div>
+              <label for="devs">Devs *</label>
+              <input id="devs" type="number" min="1" max="20" required placeholder="Ex.: 3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              <small style="color: var(--muted);">1 a 20</small>
+            </div>
+            <div>
+              <label>Modelo de aquisição *</label>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;">
+                <label style="display: flex; align-items: center; gap: 6px;">
+                  <input type="radio" name="acquisition" value="Compra" /> Compra
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px;">
+                  <input type="radio" name="acquisition" value="Aluguel" /> Aluguel (mensal)
+                </label>
+              </div>
+            </div>
+            <div>
+              <label for="maintenance">Manutenção</label>
+              <select id="maintenance" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option>Nenhuma</option>
+                <option>3 meses</option>
+                <option>6 meses</option>
+                <option>12 meses</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 24px;">
+              <input id="discount" type="checkbox" />
+              <label for="discount">Aplicar 45% de desconto (valor de mercado)</label>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px;">
+              <button type="submit" style="padding: 12px 16px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Calcular</button>
+              <button id="clearBtn" type="button" style="padding: 12px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Limpar</button>
+              <button id="saveBtn" type="button" style="padding: 12px 16px; background: #198754; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Salvar estimativa</button>
+            </div>
+          </form>
+        </div>
+
+        <div id="resultCard" class="card" style="margin-top: 16px; display: none;">
+          <h3 style="margin-top: 0;">Breakdown da estimativa</h3>
+          <div id="resultContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px;"></div>
+          <div id="resultSummary" style="margin-top: 12px; padding: 12px; border: 1px solid #eee; border-radius: 6px; background: rgba(0, 123, 255, 0.06);"></div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <h3 style="margin: 0;">Histórico (últimas 10 estimativas)</h3>
+            <button id="clearHistory" type="button" style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Limpar histórico</button>
+          </div>
+          <div id="historyList" style="margin-top: 12px;"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cfo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="pricing.js"></script>
+</body>
+</html>
