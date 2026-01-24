@@ -1,6 +1,6 @@
 // Gerenciador de Arquivos - Shared Module
 const FilesManager = (() => {
-  const API_BASE = 'http://localhost:3000/api/files';
+  const API_BASE = '/api/files';
 
   // Obter token do localStorage
   function getToken() {

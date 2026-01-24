@@ -1,6 +1,6 @@
 // approvals.js - Caixa de Aprovações Financeiras do CFO
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 function getToken() {
   return localStorage.getItem((window.STORAGE_KEYS?.TOKEN) || 'token');

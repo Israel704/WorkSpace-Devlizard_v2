@@ -118,7 +118,7 @@ if (document.readyState === 'loading') {
 
 async function loadApprovalsStats() {
   try {
-    const API_URL = 'http://localhost:3000/api';
+    const API_URL = '/api';
     const token = localStorage.getItem((window.STORAGE_KEYS?.TOKEN) || 'token');
 
     const response = await fetch(`${API_URL}/proposals/inbox`, {

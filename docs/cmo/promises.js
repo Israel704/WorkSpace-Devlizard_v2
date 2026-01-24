@@ -172,7 +172,7 @@
     const payload = { title, description, toRole, category: "promessa" };
 
     if (window.App?.apiFetch) {
-      return window.App.apiFetch("http://localhost:3000/api/proposals", {
+      return window.App.apiFetch("/api/proposals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -180,7 +180,7 @@
     }
 
     const token = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.TOKEN) || "token");
-    const response = await fetch("http://localhost:3000/api/proposals", {
+    const response = await fetch("/api/proposals", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -249,11 +249,11 @@
   const fetchSentProposals = async () => {
     try {
       if (window.App?.apiFetch) {
-        return await window.App.apiFetch("http://localhost:3000/api/proposals/sent", {});
+        return await window.App.apiFetch("/api/proposals/sent", {});
       }
 
       const token = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.TOKEN) || "token");
-      const response = await fetch("http://localhost:3000/api/proposals/sent", {
+      const response = await fetch("/api/proposals/sent", {
         headers: { Authorization: token ? `Bearer ${token}` : "" },
       });
       const json = await response.json();
