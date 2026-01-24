@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roteiro de Promessas • CMO • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cmo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+          <div>
+            <h1 style="margin: 0;">Roteiro de Promessas</h1>
+            <p style="color: var(--muted); margin-top: 8px;">Cadastre, edite e envie promessas para validação do CTO/CFO.</p>
+          </div>
+          <a href="index.html" style="padding: 10px 16px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 500;">← Voltar</a>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+          <h2 style="margin-top: 0;">Nova Promessa</h2>
+          <form id="promiseForm" style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: 12px;">
+            <input type="hidden" id="promiseId" />
+
+            <div style="grid-column: 1 / -1;">
+              <label for="promiseTitle">Título *</label>
+              <input id="promiseTitle" type="text" placeholder="Ex: Prazo reduzido para onboarding" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;" />
+            </div>
+
+            <div>
+              <label for="promiseType">Tipo *</label>
+              <select id="promiseType" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;">
+                <option value="funcionalidade">Funcionalidade</option>
+                <option value="sistema">Sistema</option>
+                <option value="prazo">Prazo</option>
+                <option value="preco">Preço</option>
+                <option value="aluguel_venda">Aluguel/Venda</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="promiseAudience">Público-alvo</label>
+              <input id="promiseAudience" type="text" placeholder="Ex: Clientes enterprise" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;" />
+            </div>
+
+            <div>
+              <label for="promiseDeadline">Prazo prometido (dias)</label>
+              <input id="promiseDeadline" type="number" min="0" placeholder="Ex: 30" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;" />
+            </div>
+
+            <div>
+              <label for="promisePrice">Preço prometido</label>
+              <input id="promisePrice" type="number" min="0" step="0.01" placeholder="Ex: 1999" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;" />
+            </div>
+
+            <div>
+              <label for="promiseAcquisitionModel">Modelo de aquisição</label>
+              <select id="promiseAcquisitionModel" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px;">
+                <option value="">Selecione...</option>
+                <option value="compra">Compra</option>
+                <option value="aluguel">Aluguel</option>
+              </select>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label for="promiseDescription">Descrição *</label>
+              <textarea id="promiseDescription" required placeholder="Detalhe a promessa, contexto e escopo." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 120px; font-family: inherit; margin-top: 4px;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="requiresCTO" /> Requer validação do CTO
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="requiresCFO" /> Requer validação do CFO
+              </label>
+            </div>
+
+            <div style="grid-column: 1 / -1; display: flex; gap: 12px;">
+              <button type="submit" style="padding: 12px 18px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Salvar rascunho</button>
+              <button type="button" id="resetFormBtn" style="padding: 12px 18px; background: #6c757d; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Limpar formulário</button>
+            </div>
+          </form>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <h2 style="margin-bottom: 12px;">Promessas</h2>
+          <div id="promisesList"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cmo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="promises.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Biblioteca de Promessas • CMO • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cmo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+          <div>
+            <h1 style="margin: 0;">Biblioteca de Promessas</h1>
+            <p style="color: var(--muted); margin-top: 8px;">Somente promessas aprovadas. Marque obsoletas para retirar do uso.</p>
+          </div>
+          <a href="index.html" style="padding: 10px 16px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 500;">← Voltar</a>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <div id="libraryList"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cmo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="promises.js"></script>
+  <script src="library.js"></script>
+</body>
+</html>

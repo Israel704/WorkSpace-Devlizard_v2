@@ -219,6 +219,9 @@ window.App = (() => {
 ],
       cmo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Roteiro de Promessas", href: "promises.html" },
+  { label: "Status", href: "status.html" },
+  { label: "Biblioteca", href: "library.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],

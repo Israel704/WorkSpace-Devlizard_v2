@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Status das Promessas • CMO • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-cmo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+          <div>
+            <h1 style="margin: 0;">Status de Validações</h1>
+            <p style="color: var(--muted); margin-top: 8px;">Acompanhe aprovações e rejeições das promessas enviadas.</p>
+          </div>
+          <a href="index.html" style="padding: 10px 16px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 4px; font-weight: 500;">← Voltar</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px;">
+          <div>
+            <h3>Aguardando CTO</h3>
+            <div id="waitingCTO"></div>
+          </div>
+          <div>
+            <h3>Aguardando CFO</h3>
+            <div id="waitingCFO"></div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 20px;">
+          <div>
+            <h3>Aprovadas</h3>
+            <div id="approved"></div>
+          </div>
+          <div>
+            <h3>Rejeitadas</h3>
+            <div id="rejected"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cmo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="promises.js"></script>
+  <script src="status.js"></script>
+</body>
+</html>

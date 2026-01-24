@@ -26,27 +26,46 @@
           <aside id="decisionsSummary" class="decisions-summary"></aside>
         </div>
 
-        <div class="cards" style="margin-top: 20px;">
+        <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
           <div class="card">
-            <h3>Campanhas</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Gestão de campanhas.
-            </p>
+            <p style="margin: 0; color: var(--muted);">Rascunhos</p>
+            <h2 id="countDraft" style="margin: 4px 0 0 0;">0</h2>
           </div>
+          <div class="card">
+            <p style="margin: 0; color: var(--muted);">Aguardando CTO</p>
+            <h2 id="countWaitingCTO" style="margin: 4px 0 0 0;">0</h2>
+          </div>
+          <div class="card">
+            <p style="margin: 0; color: var(--muted);">Aguardando CFO</p>
+            <h2 id="countWaitingCFO" style="margin: 4px 0 0 0;">0</h2>
+          </div>
+          <div class="card">
+            <p style="margin: 0; color: var(--muted);">Aprovadas</p>
+            <h2 id="countApproved" style="margin: 4px 0 0 0;">0</h2>
+          </div>
+          <div class="card">
+            <p style="margin: 0; color: var(--muted);">Rejeitadas</p>
+            <h2 id="countRejected" style="margin: 4px 0 0 0;">0</h2>
+          </div>
+        </div>
 
-          <div class="card">
-            <h3>Métricas</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              KPIs de marketing.
-            </p>
-          </div>
-
-          <div class="card">
-            <h3>Conteúdo</h3>
-            <p style="color: var(--muted); margin-top: 8px;">
-              Planejamento de conteúdo.
-            </p>
-          </div>
+        <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+          <a class="card" href="promises.html" style="text-decoration: none; color: inherit;">
+            <h3 style="margin-top: 0;">Roteiro de Promessas</h3>
+            <p style="color: var(--muted); margin-top: 6px;">Criar, editar e enviar promessas para validação.</p>
+          </a>
+          <a class="card" href="status.html" style="text-decoration: none; color: inherit;">
+            <h3 style="margin-top: 0;">Status</h3>
+            <p style="color: var(--muted); margin-top: 6px;">Acompanhe aprovações e rejeições.</p>
+          </a>
+          <a class="card" href="library.html" style="text-decoration: none; color: inherit;">
+            <h3 style="margin-top: 0;">Biblioteca</h3>
+            <p style="color: var(--muted); margin-top: 6px;">Lista de promessas aprovadas para uso comercial.</p>
+          </a>
+          <a class="card" href="proposals.html" style="text-decoration: none; color: inherit;">
+            <h3 style="margin-top: 0;">Propostas</h3>
+            <p style="color: var(--muted); margin-top: 6px;">Canal padrão de propostas entre C-levels.</p>
+          </a>
         </div>
       </section>
     </main>
@@ -57,6 +76,7 @@
   <script src="../shared/app.js"></script>
   <script src="../shared/decisions.store.js"></script>
   <script src="../shared/decisions.widget.js"></script>
+  <script src="promises.js"></script>
   <script src="cmo.js"></script>
 </body>
 </html>
