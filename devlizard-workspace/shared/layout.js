@@ -14,6 +14,25 @@
 
 const Layout = (() => {
   /**
+   * Detecta o caminho base para os assets 'shared' automaticamente
+   * Suporta páginas em diferentes níveis:
+   * - Se está em /cto/, /coo/, etc. → base = "../shared/"
+   * - Se está em /shared/pages/ → base = "../"
+   */
+  const getSharedBase = () => {
+    const path = window.location.pathname.toLowerCase();
+    
+    // Se a página está dentro de /shared/ (como /shared/pages/)
+    if (path.includes('/shared/')) {
+      return '../';
+    }
+    
+    // Padrão para páginas em pastas como /cto/, /coo/, /cfo/, etc.
+    return '../shared/';
+  };
+
+  const sharedBase = getSharedBase();
+  /**
    * Carrega um componente HTML de forma segura
    * @param {string} selector - Seletor CSS do container
    * @param {string} filePath - Caminho do arquivo HTML
@@ -64,9 +83,9 @@ const Layout = (() => {
   const injectStyles = async () => {
     try {
       const stylePaths = [
-        "../shared/css/global.css",
-        "../shared/css/components.css",
-        "../shared/css/roles.css",
+        sharedBase + "css/global.css",
+        sharedBase + "css/components.css",
+        sharedBase + "css/roles.css",
       ];
 
       const existingLinks = document.querySelectorAll('link[rel="stylesheet"]');
@@ -96,8 +115,8 @@ const Layout = (() => {
 
     // Carregar componentes em paralelo
     await Promise.all([
-      loadComponent("#sidebar", "../shared/components/sidebar.html"),
-      loadComponent("#header", "../shared/components/header.html"),
+      loadComponent("#sidebar", sharedBase + "components/sidebar.html"),
+      loadComponent("#header", sharedBase + "components/header.html"),
     ]);
 
     // Depois que sidebar/header existem, sincroniza com App

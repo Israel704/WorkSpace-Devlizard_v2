@@ -14,7 +14,22 @@
       <div id="header"></div>
 
       <section class="content">
-        <h1>Painel de Decisões</h1>
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+          <button id="backBtn" style="
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 14px;
+          " onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+            ← Voltar
+          </button>
+          <h1 style="margin: 0;">Painel de Decisões</h1>
+        </div>
         <p style="color: var(--muted); margin-top: 8px;">
           Decisões globais da empresa. Somente visualização para sua função.
         </p>
@@ -31,8 +46,48 @@
   <link rel="stylesheet" href="../decisions.css" />
 
   <script>
+    /**
+     * Navega de volta para a página inicial do cargo logado
+     * Se não houver role, volta para a home raiz
+     */
+    function goBackToRoleHome() {
+      const role = (localStorage.getItem('role') || '').toLowerCase().trim();
+      const allowed = ['ceo', 'coo', 'cto', 'cfo', 'cmo', 'comercial'];
+
+      if (allowed.includes(role)) {
+        // Página está em shared/pages/decisions.html, então subir dois níveis
+        window.location.href = `../../${role}/index.html`;
+        return;
+      }
+
+      // Fallback seguro: volta para raiz
+      window.location.href = '../../index.html';
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      // Renderizar lista de decisões
       DecisionsWidget.renderFullList("#decisionsFull", { filters: true });
+
+      // Conectar botão "Voltar"
+      const backBtn = document.getElementById('backBtn');
+      if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          goBackToRoleHome();
+        });
+      }
+
+      // Interceptar cliques em links que tentam ir para ../shared/pages/index.html
+      document.addEventListener('click', (e) => {
+        const target = e.target.closest('a[href]');
+        if (target) {
+          const href = target.getAttribute('href') || '';
+          if (href.includes('../shared/pages/index') || href === '../shared/pages/index.html') {
+            e.preventDefault();
+            goBackToRoleHome();
+          }
+        }
+      }, true);
     });
   </script>
 </body>
