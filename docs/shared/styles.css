@@ -56,6 +56,30 @@ body {
   margin-top: 8px;
 }
 
+.instructions-link {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.instructions-btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--muted);
+  color: var(--muted);
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.instructions-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .roles-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(160px, 1fr));

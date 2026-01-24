@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Instruções do Sistema - DevLizard Workspace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .instructions-container {
+      min-height: 100vh;
+      padding: 40px 20px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .instructions-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .instructions-header {
+      text-align: center;
+      margin-bottom: 50px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 30px;
+    }
+
+    .instructions-header h1 {
+      font-size: 2rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .instructions-header p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .instructions-content {
+      line-height: 1.8;
+    }
+
+    .instructions-section {
+      margin-bottom: 40px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: var(--radius-md);
+    }
+
+    .instructions-section h2 {
+      font-size: 1.3rem;
+      color: var(--accent-primary);
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    .instructions-section p {
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .instructions-section ul {
+      list-style: none;
+      padding-left: 20px;
+    }
+
+    .instructions-section li {
+      margin-bottom: 10px;
+      padding-left: 20px;
+      position: relative;
+      color: var(--text-primary);
+    }
+
+    .instructions-section li:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent-primary);
+      font-weight: bold;
+    }
+
+    .subsection {
+      margin-top: 15px;
+      padding-left: 15px;
+      border-left: 2px solid var(--accent-secondary);
+    }
+
+    .subsection h3 {
+      font-size: 1rem;
+      color: var(--accent-secondary);
+      margin-bottom: 10px;
+    }
+
+    .subsection-content {
+      margin-left: 10px;
+    }
+
+    .subsection-content p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .subsection-content ul {
+      list-style: none;
+      padding-left: 20px;
+    }
+
+    .subsection-content li {
+      margin-bottom: 6px;
+      padding-left: 15px;
+      position: relative;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .subsection-content li:before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent-secondary);
+    }
+
+    .highlight-box {
+      background: rgba(60, 255, 143, 0.05);
+      border: 1px solid var(--accent-primary);
+      padding: 15px;
+      border-radius: var(--radius-md);
+      margin: 15px 0;
+      color: var(--text-secondary);
+    }
+
+    .final-commitment {
+      background: rgba(88, 166, 255, 0.05);
+      border: 2px solid var(--accent-secondary);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .final-commitment p {
+      color: var(--text-primary);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    .button-back {
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+
+    .btn-back {
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-secondary);
+      color: var(--accent-secondary);
+      padding: 12px 30px;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      border-radius: var(--radius-md);
+    }
+
+    .btn-back:hover {
+      background: var(--accent-secondary);
+      color: var(--bg-primary);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .instructions-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .instructions-section {
+        padding: 15px;
+      }
+
+      .instructions-section h2 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="instructions-container">
+    <div class="instructions-wrapper">
+
+      <div class="instructions-header">
+        <h1>DevLizard Workspace</h1>
+        <p>Orientações Gerais e Responsabilidades por Cargo</p>
+      </div>
+
+      <div class="instructions-content">
+
+        <!-- SEÇÃO 1 -->
+        <div class="instructions-section">
+          <h2>Antes de acessar o sistema</h2>
+          <p>Este ambiente é interno e existe para organizar decisões, evitar conflitos entre áreas e garantir que tudo o que for combinado possa ser rastreado.</p>
+          <div class="highlight-box">
+            <p><strong>O que estiver aqui registrado é oficial.</strong></p>
+            <p><strong>O que não estiver aqui não existe como decisão válida.</strong></p>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 2 -->
+        <div class="instructions-section">
+          <h2>O que é este sistema</h2>
+          <p><strong>Ambiente de tomada de decisão estruturada</strong></p>
+          <ul>
+            <li>Registro de propostas e aprovações</li>
+            <li>Acompanhamento de execução</li>
+            <li>Alinhamento entre áreas</li>
+          </ul>
+          <p style="margin-top: 15px;"><strong>Este sistema não é:</strong></p>
+          <ul>
+            <li>Chat</li>
+            <li>Rede social</li>
+            <li>Gerenciador informal</li>
+            <li>Espaço para "combinar depois"</li>
+          </ul>
+        </div>
+
+        <!-- SEÇÃO 3 -->
+        <div class="instructions-section">
+          <h2>Regras gerais (para todos)</h2>
+          <ul>
+            <li>Toda decisão relevante deve passar pelo sistema</li>
+            <li>Propostas devem ser direcionadas ao C-level responsável</li>
+            <li>Nenhum cargo decide fora do seu domínio</li>
+            <li>Decisões aprovadas geram responsabilidade de execução</li>
+            <li>O sistema é a fonte oficial da verdade</li>
+          </ul>
+          <div class="subsection">
+            <h3>Em caso de dúvida:</h3>
+            <div class="subsection-content">
+              <p><strong>Não decida. Crie uma proposta e direcione ao C correto.</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 4 -->
+        <div class="instructions-section">
+          <h2>Como o sistema funciona</h2>
+          <ul>
+            <li>Uma proposta é criada</li>
+            <li>A proposta é enviada ao C-level responsável</li>
+            <li>O C-level decide</li>
+            <li>A decisão fica registrada</li>
+            <li>A execução acontece</li>
+            <li>A comunicação externa só usa o que foi aprovado</li>
+          </ul>
+        </div>
+
+        <!-- SEÇÃO 5 -->
+        <div class="instructions-section">
+          <h2>Responsabilidades por cargo</h2>
+
+          <!-- CEO -->
+          <div class="subsection">
+            <h3>CEO – Direção Estratégica</h3>
+            <div class="subsection-content">
+              <p><strong>Responsável por:</strong></p>
+              <ul>
+                <li>Direção da empresa</li>
+                <li>Prioridades estratégicas</li>
+                <li>Acompanhamento de decisões</li>
+              </ul>
+              <p style="margin-top: 12px;"><strong>Não é responsabilidade do CEO:</strong></p>
+              <ul>
+                <li>Execução operacional</li>
+                <li>Definição técnica</li>
+                <li>Precificação</li>
+                <li>Promessas comerciais</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- COO -->
+          <div class="subsection">
+            <h3>COO – Operações</h3>
+            <div class="subsection-content">
+              <p><strong>Responsável por:</strong></p>
+              <ul>
+                <li>Execução das decisões</li>
+                <li>Organização do fluxo de trabalho</li>
+                <li>Garantia de entregas</li>
+              </ul>
+              <p style="margin-top: 12px;"><strong>Não é responsabilidade do COO:</strong></p>
+              <ul>
+                <li>Decisões financeiras</li>
+                <li>Decisões técnicas</li>
+                <li>Promessas comerciais</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CTO -->
+          <div class="subsection">
+            <h3>CTO – Tecnologia</h3>
+            <div class="subsection-content">
+              <p><strong>Responsável por:</strong></p>
+              <ul>
+                <li>Viabilidade técnica</li>
+                <li>Complexidade e riscos</li>
+                <li>Padrões técnicos</li>
+              </ul>
+              <p style="margin-top: 12px;"><strong>Não é responsabilidade do CTO:</strong></p>
+              <ul>
+                <li>Preços</li>
+                <li>Discurso comercial</li>
+                <li>Vendas</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CFO -->
+          <div class="subsection">
+            <h3>CFO – Financeiro</h3>
+            <div class="subsection-content">
+              <p><strong>Responsável por:</strong></p>
+              <ul>
+                <li>Preços e custos</li>
+                <li>Modelos de venda</li>
+                <li>Compromissos financeiros</li>
+              </ul>
+              <p style="margin-top: 12px;"><strong>Não é responsabilidade do CFO:</strong></p>
+              <ul>
+                <li>Escopo técnico</li>
+                <li>Prazos</li>
+                <li>Execução</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CMO -->
+          <div class="subsection">
+            <h3>CMO – Comunicação</h3>
+            <div class="subsection-content">
+              <p><strong>Responsável por:</strong></p>
+              <ul>
+                <li>Roteiro de promessas</li>
+                <li>Discurso comercial</li>
+                <li>Reputação da empresa</li>
+              </ul>
+              <p style="margin-top: 12px;"><strong>Obrigatório:</strong></p>
+              <ul>
+                <li>Validar promessas técnicas com o CTO</li>
+                <li>Validar preços com o CFO</li>
+              </ul>
+              <p style="margin-top: 12px;"><strong>Não é responsabilidade do CMO:</strong></p>
+              <ul>
+                <li>Prometer prazos sem validação</li>
+                <li>Prometer funcionalidades sem aprovação</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SEÇÃO 6 -->
+        <div class="instructions-section">
+          <h2>Promessas</h2>
+          <p>Nenhuma promessa pode ser usada se:</p>
+          <ul>
+            <li>Não estiver registrada</li>
+            <li>Não tiver validação técnica quando necessário</li>
+            <li>Não tiver validação financeira quando envolver preço</li>
+          </ul>
+          <div class="highlight-box">
+            <p><strong>Somente promessas aprovadas podem ser comunicadas.</strong></p>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 7 -->
+        <div class="instructions-section">
+          <h2>Conflitos</h2>
+          <ul>
+            <li>O que está registrado prevalece</li>
+            <li>Se não está registrado, não é válido</li>
+          </ul>
+        </div>
+
+        <!-- COMPROMISSO FINAL -->
+        <div class="final-commitment">
+          <p>
+            <strong>Decidir fora do sistema gera ruído.</strong><br>
+            <strong>Executar sem decisão gera retrabalho.</strong><br>
+            <strong>Prometer sem validação gera prejuízo.</strong>
+          </p>
+        </div>
+
+      </div>
+
+      <div class="button-back">
+        <button class="btn-back" onclick="window.location.href = '../../index.html'">
+          Voltar para seleção de acesso
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
