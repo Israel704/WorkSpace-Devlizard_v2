@@ -38,6 +38,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Validar JWT_SECRET antes de gerar token
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ ERRO CRÍTICO: JWT_SECRET não está configurado nas variáveis de ambiente');
+      return res.status(500).json({ 
+        error: 'Erro de configuração do servidor. Contate o administrador.' 
+      });
+    }
+
     // Gerar token JWT
     const token = jwt.sign(
       { 
