@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Decisões • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <h1>Painel de Decisões</h1>
+        <p style="color: var(--muted); margin-top: 8px;">
+          Decisões globais da empresa. Somente visualização para sua função.
+        </p>
+
+        <div id="decisionsFull" style="margin-top: 24px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../layout.js"></script>
+  <script src="../app.js"></script>
+  <script src="../decisions.store.js"></script>
+  <script src="../decisions.widget.js"></script>
+  <link rel="stylesheet" href="../decisions.css" />
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      DecisionsWidget.renderFullList("#decisionsFull", { filters: true });
+    });
+  </script>
+</body>
+</html>

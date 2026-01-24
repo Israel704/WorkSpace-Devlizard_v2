@@ -185,23 +185,25 @@ window.App = (() => {
     const menus = {
       ceo: [
   { label: "Visão Geral", href: "index.html" },
-  { label: "Encaminhar Arquivo", href: "forward.html" },
-  { label: "Caixa de Entrada", href: "inbox.html" },
   { label: "Decisões", href: "decisions.html" },
   { label: "Riscos", href: "risks.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Relatórios", href: "reports.html" },
   { label: "Relatório Operacional", href: "ops-report.html" },
+  { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],
       coo: [
   { label: "Visão Geral", href: "index.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Relatórios", href: "reports.html" },
+  { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
+  { label: "Gerenciar Decisões", href: "decisions-admin.html" },
 ],
       cfo: [
   { label: "Visão Geral", href: "index.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],
       cto: [
   { label: "Visão Geral", href: "index.html" },
@@ -209,10 +211,12 @@ window.App = (() => {
   { label: "Debt & Quality", href: "debt.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],
       cmo: [
   { label: "Visão Geral", href: "index.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
 ],
 
     };

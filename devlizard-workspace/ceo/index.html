@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>CEO • DevLizard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../shared/decisions.css" />
 </head>
 
 <body class="role-ceo">
@@ -14,10 +15,16 @@
       <div id="header"></div>
 
       <section class="content">
-        <h1>Visão Geral</h1>
-        <p style="color: var(--muted); margin-top: 8px;">
-          Atalhos rápidos para as ferramentas do CEO.
-        </p>
+        <div class="page-head">
+          <div class="page-head-left">
+            <h1>Visão Geral</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Atalhos rápidos para as ferramentas do CEO.
+            </p>
+          </div>
+
+          <aside id="decisionsSummary" class="decisions-summary"></aside>
+        </div>
 
         <div class="cards" style="margin-top: 20px;">
           <a class="card" href="notes.html" style="text-decoration:none; color:inherit;">
@@ -84,6 +91,8 @@
   <script src="../shared/layout.js"></script>
   <script src="../shared/app.js"></script>
   <script src="../shared/files-manager.js"></script>
+  <script src="../shared/decisions.store.js"></script>
+  <script src="../shared/decisions.widget.js"></script>
   <script src="ceo.js"></script>
 </body>
 </html>

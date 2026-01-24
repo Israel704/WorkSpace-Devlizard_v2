@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>COO • Operações</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../shared/decisions.css" />
 </head>
 
 <body class="role-coo">
@@ -14,10 +15,16 @@
       <div id="header"></div>
 
       <section class="content">
-        <h1>Operações</h1>
-        <p style="color: var(--muted); margin-top: 6px;">
-          Gestão operacional com Kanban Board
-        </p>
+        <div class="page-head">
+          <div class="page-head-left">
+            <h1>Operações</h1>
+            <p style="color: var(--muted); margin-top: 6px;">
+              Gestão operacional com Kanban Board
+            </p>
+          </div>
+
+          <aside id="decisionsSummary" class="decisions-summary"></aside>
+        </div>
 
         <!-- Kanban Operacional -->
         <section style="margin-top: 32px;">
@@ -150,6 +157,8 @@
   <script src="../shared/layout.js"></script>
   <script src="../shared/app.js"></script>
   <script src="../shared/files-manager.js"></script>
+  <script src="../shared/decisions.store.js"></script>
+  <script src="../shared/decisions.widget.js"></script>
   <script src="coo.js"></script>
 
   <!-- Modal para Criar/Editar Tarefa -->

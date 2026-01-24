@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerenciar Decisões • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body class="role-coo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div id="accessDenied" style="display: none; padding: 40px 20px; text-align: center;">
+          <h1 style="color: var(--danger); margin-bottom: 16px;">Acesso Restrito</h1>
+          <p style="color: var(--muted);">
+            Apenas o COO tem permissão para gerenciar decisões.
+          </p>
+          <a href="index.html" class="btn" style="margin-top: 24px; display: inline-block; padding: 12px 24px; background: var(--primary); color: white; border-radius: 6px; text-decoration: none; font-weight: 600;">
+            Voltar
+          </a>
+        </div>
+
+        <div id="adminContainer" style="display: none;">
+          <h1>Gerenciar Decisões</h1>
+          <p style="color: var(--muted); margin-top: 8px;">
+            Crie, edite e exclua decisões globais da empresa.
+          </p>
+
+          <div class="decisions-admin-container" style="margin-top: 24px;">
+            <!-- Formulário à esquerda -->
+            <div>
+              <h2 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; font-weight: 600;">
+                Nova Decisão
+              </h2>
+
+              <form id="decisionForm" class="decisions-form">
+                <div class="form-group">
+                  <label for="title">Título *</label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    placeholder="Ex: Aprovação de novo cliente"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="summary">Resumo *</label>
+                  <textarea
+                    id="summary"
+                    name="summary"
+                    placeholder="Descreva a decisão em detalhes..."
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="fromRole">De (Cargo) *</label>
+                  <select id="fromRole" name="fromRole" required>
+                    <option value="">Selecione...</option>
+                    <option value="ceo">CEO</option>
+                    <option value="coo">COO</option>
+                    <option value="cfo">CFO</option>
+                    <option value="cto">CTO</option>
+                    <option value="cmo">CMO</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="toRole">Para (Cargo) *</label>
+                  <select id="toRole" name="toRole" required>
+                    <option value="">Selecione...</option>
+                    <option value="ceo">CEO</option>
+                    <option value="coo">COO</option>
+                    <option value="cfo">CFO</option>
+                    <option value="cto">CTO</option>
+                    <option value="cmo">CMO</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="status">Status *</label>
+                  <select id="status" name="status" required>
+                    <option value="approved">✓ Aprovada</option>
+                    <option value="rejected">✗ Rejeitada</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="tags">Tags (separadas por vírgula)</label>
+                  <input
+                    type="text"
+                    id="tags"
+                    name="tags"
+                    placeholder="Ex: urgente, financeiro, cliente"
+                  />
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-submit">
+                    Salvar Decisão
+                  </button>
+                  <button type="reset" class="btn-reset">
+                    Limpar
+                  </button>
+                </div>
+              </form>
+
+              <div id="formMessage" style="margin-top: 16px; display: none;"></div>
+            </div>
+
+            <!-- Lista à direita -->
+            <div>
+              <h2 style="margin-top: 0; margin-bottom: 16px; font-size: 18px; font-weight: 600;">
+                Decisões Registradas
+              </h2>
+
+              <div class="decisions-list-admin" id="decisionsList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="coo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="../shared/decisions.store.js"></script>
+  <script src="../shared/decisions.widget.js"></script>
+  <link rel="stylesheet" href="../shared/decisions.css" />
+
+  <script>
+    // Admin Controller
+    const DecisionsAdmin = (() => {
+      const form = document.getElementById("decisionForm");
+      const formMessage = document.getElementById("formMessage");
+      const adminContainer = document.getElementById("adminContainer");
+      const accessDenied = document.getElementById("accessDenied");
+      const decisionsList = document.getElementById("decisionsList");
+      let editingId = null;
+
+      function checkAccess() {
+        const role = localStorage.getItem("role");
+        const isCOO = role && String(role).toLowerCase() === "coo";
+
+        if (!isCOO) {
+          accessDenied.style.display = "block";
+          adminContainer.style.display = "none";
+          return false;
+        }
+
+        adminContainer.style.display = "block";
+        accessDenied.style.display = "none";
+        return true;
+      }
+
+      function showMessage(text, type = "success") {
+        formMessage.textContent = text;
+        formMessage.className = `alert alert-${type}`;
+        formMessage.style.display = "block";
+        setTimeout(() => {
+          formMessage.style.display = "none";
+        }, 3000);
+      }
+
+      function renderList() {
+        const decisions = DecisionsStore.getDecisions();
+
+        if (decisions.length === 0) {
+          decisionsList.innerHTML =
+            '<p style="text-align: center; color: var(--muted); padding: 40px 20px;">Nenhuma decisão registrada.</p>';
+          return;
+        }
+
+        const html = decisions
+          .reverse()
+          .map(
+            (decision) => `
+          <div class="decision-item-admin" data-id="${decision.id}">
+            <div class="decision-admin-title">
+              <strong>${escapeHtml(decision.title)}</strong><br />
+              <span style="font-size: 11px; color: var(--muted);">
+                ${decision.fromRole.toUpperCase()} → ${decision.toRole.toUpperCase()} | ${
+                  decision.status === "approved" ? "✓ Aprovada" : "✗ Rejeitada"
+                }
+              </span>
+            </div>
+            <div class="decision-admin-actions">
+              <button class="btn-sm btn-edit" onclick="DecisionsAdmin.editDecision(${decision.id})">
+                ✏️ Editar
+              </button>
+              <button class="btn-sm btn-delete" onclick="DecisionsAdmin.deleteDecision(${decision.id})">
+                🗑️ Deletar
+              </button>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        decisionsList.innerHTML = html;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function resetForm() {
+        form.reset();
+        editingId = null;
+        document.querySelector('button[type="submit"]').textContent =
+          "Salvar Decisão";
+      }
+
+      function loadDecisionToForm(id) {
+        const decision = DecisionsStore.getDecisionById(id);
+        if (!decision) return;
+
+        document.getElementById("title").value = decision.title;
+        document.getElementById("summary").value = decision.summary;
+        document.getElementById("fromRole").value = decision.fromRole;
+        document.getElementById("toRole").value = decision.toRole;
+        document.getElementById("status").value = decision.status;
+        document.getElementById("tags").value =
+          decision.tags && decision.tags.length > 0
+            ? decision.tags.join(", ")
+            : "";
+
+        editingId = id;
+        document.querySelector('button[type="submit"]').textContent =
+          "Atualizar Decisão";
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+
+        const title = document.getElementById("title").value.trim();
+        const summary = document.getElementById("summary").value.trim();
+        const fromRole = document.getElementById("fromRole").value;
+        const toRole = document.getElementById("toRole").value;
+        const status = document.getElementById("status").value;
+        const tagsInput = document.getElementById("tags").value.trim();
+
+        if (!title || !summary || !fromRole || !toRole) {
+          showMessage("Todos os campos obrigatórios devem ser preenchidos.", "error");
+          return;
+        }
+
+        const tags = tagsInput
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t.length > 0);
+
+        if (editingId) {
+          const result = DecisionsStore.updateDecision(editingId, {
+            title,
+            summary,
+            fromRole,
+            toRole,
+            status,
+            tags,
+          });
+
+          if (result) {
+            showMessage("Decisão atualizada com sucesso!", "success");
+            resetForm();
+            renderList();
+          } else {
+            showMessage("Erro ao atualizar decisão.", "error");
+          }
+        } else {
+          const result = DecisionsStore.addDecision({
+            title,
+            summary,
+            fromRole,
+            toRole,
+            status,
+            tags,
+          });
+
+          if (result) {
+            showMessage("Decisão criada com sucesso!", "success");
+            resetForm();
+            renderList();
+          } else {
+            showMessage("Erro ao criar decisão.", "error");
+          }
+        }
+      }
+
+      function editDecision(id) {
+        loadDecisionToForm(id);
+      }
+
+      function deleteDecision(id) {
+        if (
+          confirm(
+            "Tem certeza que deseja excluir essa decisão? Essa ação não pode ser desfeita."
+          )
+        ) {
+          const success = DecisionsStore.deleteDecision(id);
+          if (success) {
+            showMessage("Decisão deletada com sucesso!", "success");
+            editingId = null;
+            resetForm();
+            renderList();
+          } else {
+            showMessage("Erro ao deletar decisão.", "error");
+          }
+        }
+      }
+
+      function init() {
+        if (!checkAccess()) return;
+
+        form.addEventListener("submit", handleSubmit);
+        renderList();
+      }
+
+      return {
+        init,
+        editDecision,
+        deleteDecision,
+      };
+    })();
+
+    document.addEventListener("DOMContentLoaded", () => {
+      DecisionsAdmin.init();
+    });
+  </script>
+</body>
+</html>
