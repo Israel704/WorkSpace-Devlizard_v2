@@ -10,7 +10,13 @@ function getRole() {
   return localStorage.getItem((window.STORAGE_KEYS?.ROLE) || 'role');
 }
 
+// Usar window.App.formatDate se disponível, senão fallback
 function formatDate(timestamp) {
+  if (window.App?.formatDate) {
+    const d = new Date(timestamp * 1000);
+    return window.App.formatDate(d);
+  }
+  // Fallback
   if (!timestamp) return '-';
   const date = new Date(timestamp * 1000);
   return date.toLocaleString('pt-BR', {

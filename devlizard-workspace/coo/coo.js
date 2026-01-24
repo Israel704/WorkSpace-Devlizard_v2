@@ -416,16 +416,7 @@ const COOKanban = (() => {
   }
 
   // ==================== TOAST ====================
-  function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.className = `toast toast-${type} show`;
-    
-    setTimeout(() => {
-      toast.className = 'toast';
-    }, 3000);
-  }
+  // Usar showToast() do shared/utils.js (carregado via HTML)
 
   // ==================== EVENT HANDLERS ====================
   function setupEventListeners() {
