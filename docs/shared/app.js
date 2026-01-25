@@ -193,6 +193,7 @@ window.App = (() => {
   { label: "Relatórios", href: "reports.html" },
   { label: "Relatório Operacional", href: "ops-report.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
+  { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
 ],
       coo: [
   { label: "Visão Geral", href: "index.html" },
@@ -200,6 +201,7 @@ window.App = (() => {
   { label: "Relatórios", href: "reports.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Gerenciar Decisões", href: "decisions-admin.html" },
+  { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
 ],
       cfo: [
   { label: "Visão Geral", href: "index.html" },
@@ -209,6 +211,7 @@ window.App = (() => {
   { label: "Propostas", href: "proposals.html" },
   { label: "Precificação", href: "pricing.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
+  { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
 ],
       cto: [
   { label: "Visão Geral", href: "index.html" },
@@ -217,6 +220,7 @@ window.App = (() => {
   { label: "Notas", href: "notes.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
+  { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
 ],
       cmo: [
   { label: "Visão Geral", href: "index.html" },
@@ -225,6 +229,11 @@ window.App = (() => {
   { label: "Biblioteca", href: "library.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
+  { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+],
+      comercial: [
+  { label: "Visão Geral", href: "index.html" },
+  { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
 ],
 
     };
