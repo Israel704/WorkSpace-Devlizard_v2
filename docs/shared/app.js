@@ -188,6 +188,7 @@ window.App = (() => {
   { label: "Decisões", href: "decisions.html" },
   { label: "Riscos", href: "risks.html" },
   { label: "Notas", href: "notes.html" },
+  { label: "Roadmap Estratégico", href: "roadmap.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Relatórios", href: "reports.html" },
   { label: "Relatório Operacional", href: "ops-report.html" },

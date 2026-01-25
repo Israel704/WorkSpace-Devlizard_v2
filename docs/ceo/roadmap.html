@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CEO • Roadmap Estratégico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    .tab-buttons {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .tab-button {
+      padding: 10px 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .tab-button.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent-primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .roadmap-status {
+      display: inline-block;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .roadmap-status.ativo {
+      background-color: rgba(60, 255, 143, 0.1);
+      color: #3cff8f;
+    }
+
+    .roadmap-status.substituido {
+      background-color: rgba(88, 166, 255, 0.1);
+      color: #58a6ff;
+    }
+
+    .roadmap-status.arquivado {
+      background-color: rgba(248, 81, 73, 0.1);
+      color: #f85149;
+    }
+
+    .initiative-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .type-produto { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .type-operacional { background-color: rgba(8, 145, 178, 0.1); color: #0891b2; }
+    .type-financeiro { background-color: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    .type-comercial { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; }
+    .type-estrutural { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .type-estrategico { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+    .priority-alta { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .priority-media { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .priority-baixa { background-color: rgba(156, 163, 175, 0.1); color: #6b7280; }
+
+    .initiative-status {
+      display: inline-block;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .status-planejada { background-color: rgba(156, 163, 175, 0.1); color: #6b7280; }
+    .status-em_validacao { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .status-aprovada { background-color: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    .status-em_execucao { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .status-pausada { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .status-concluida { background-color: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    .status-cancelada { background-color: rgba(107, 114, 128, 0.1); color: #4b5563; }
+
+    .impact-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 4px;
+    }
+
+    .impact-baixo { background-color: rgba(156, 163, 175, 0.1); color: #6b7280; }
+    .impact-medio { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .impact-alto { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+    .roadmap-card {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: background-color 0.2s;
+      background-color: var(--bg-secondary);
+    }
+
+    .roadmap-card:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    .initiative-card {
+      border-left: 4px solid var(--border-color);
+      padding: 12px;
+      margin-top: 8px;
+      background-color: rgba(0, 0, 0, 0.02);
+      border-radius: 4px;
+    }
+
+    .initiative-card.status-pausada {
+      border-left-color: #ef4444;
+    }
+
+    .initiative-card.status-em_execucao {
+      border-left-color: #f59e0b;
+    }
+
+    .initiative-card.status-concluida {
+      border-left-color: #22c55e;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .readonly {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .btn-small {
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .history-card {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      background-color: var(--bg-secondary);
+    }
+
+    .history-card h3 {
+      margin: 0 0 8px 0;
+    }
+
+    .history-card p {
+      margin: 4px 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+
+<body class="role-ceo">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+          <div>
+            <h1>Roadmap Estratégico</h1>
+            <p style="color: var(--text-muted); margin-top: 8px;">
+              Define a direção, prioridades e iniciativas estratégicas da empresa.
+            </p>
+          </div>
+
+          <a href="index.html" style="color: var(--text-muted); text-decoration:none;">← Voltar</a>
+        </div>
+
+        <!-- Abas -->
+        <div class="tab-buttons">
+          <button class="tab-button active" data-tab="current">Roadmap Ativo</button>
+          <button class="tab-button" data-tab="create">Novo Roadmap</button>
+          <button class="tab-button" data-tab="history">Histórico</button>
+        </div>
+
+        <!-- Tab 1: Roadmap Ativo -->
+        <div class="tab-content active" id="tab-current">
+          <div id="current-roadmap-container"></div>
+        </div>
+
+        <!-- Tab 2: Criar Novo Roadmap -->
+        <div class="tab-content" id="tab-create">
+          <form id="roadmap-form" class="card">
+            <h2 style="margin-top: 0;">Criar Novo Roadmap</h2>
+            <p style="color: var(--text-muted); margin-bottom: 16px;">
+              O roadmap ativo será automaticamente marcado como substituído.
+            </p>
+
+            <div class="field">
+              <label for="roadmap-title">Título *</label>
+              <input id="roadmap-title" type="text" placeholder="Ex: Roadmap 2025 - Transformação Digital" required />
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="roadmap-version">Versão *</label>
+                <input id="roadmap-version" type="text" placeholder="Ex: 1.0, Q1-2025" required />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="roadmap-periodStart">Período Início (MM/YYYY) *</label>
+                <input id="roadmap-periodStart" type="text" placeholder="01/2025" required />
+              </div>
+              <div class="field">
+                <label for="roadmap-periodEnd">Período Fim (MM/YYYY) *</label>
+                <input id="roadmap-periodEnd" type="text" placeholder="12/2025" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="roadmap-objective">Objetivo do Roadmap *</label>
+              <textarea id="roadmap-objective" placeholder="Qual é o objetivo estratégico principal?" required></textarea>
+            </div>
+
+            <div class="field">
+              <label for="roadmap-premises">Premissas</label>
+              <textarea id="roadmap-premises" placeholder="Quais são as premissas de negócio?" style="min-height: 60px;"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="roadmap-restrictions">Restrições</label>
+              <textarea id="roadmap-restrictions" placeholder="Quais são as restrições (orçamento, time, tecnologia)?" style="min-height: 60px;"></textarea>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+              <button type="submit">Criar Roadmap</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tab 3: Histórico -->
+        <div class="tab-content" id="tab-history">
+          <div id="history-container"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal para Editar Roadmap -->
+  <div id="modal-edit-roadmap" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Editar Roadmap</h2>
+        <button class="modal-close" type="button">×</button>
+      </div>
+      <form id="form-edit-roadmap">
+        <div class="field">
+          <label for="edit-objective">Objetivo *</label>
+          <textarea id="edit-objective" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="edit-premises">Premissas</label>
+          <textarea id="edit-premises" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="edit-restrictions">Restrições</label>
+          <textarea id="edit-restrictions" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="edit-revision-reason">Motivo da Revisão *</label>
+          <textarea id="edit-revision-reason" placeholder="Por que está sendo revisado?" required></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="modal-close-btn">Cancelar</button>
+          <button type="submit">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Criar/Editar Iniciativa -->
+  <div id="modal-initiative" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="initiative-modal-title">Nova Iniciativa</h2>
+        <button class="modal-close" type="button">×</button>
+      </div>
+      <form id="form-initiative">
+        <div class="field">
+          <label for="init-title">Título da Iniciativa *</label>
+          <input id="init-title" type="text" placeholder="Ex: Implementar novo sistema de CRM" required />
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="init-type">Tipo *</label>
+            <select id="init-type" required>
+              <option value="">Selecione...</option>
+              <option value="produto">Produto</option>
+              <option value="operacional">Operacional</option>
+              <option value="financeiro">Financeiro</option>
+              <option value="comercial">Comercial</option>
+              <option value="estrutural">Estrutural</option>
+              <option value="estrategico">Estratégico</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="init-priority">Prioridade *</label>
+            <select id="init-priority" required>
+              <option value="">Selecione...</option>
+              <option value="alta">Alta</option>
+              <option value="media">Média</option>
+              <option value="baixa">Baixa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="init-timeframe">Horizonte de Tempo *</label>
+            <select id="init-timeframe" required>
+              <option value="">Selecione...</option>
+              <option value="curto">Curto (< 3 meses)</option>
+              <option value="medio">Médio (3-6 meses)</option>
+              <option value="longo">Longo (> 6 meses)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="init-order">Ordem Estratégica (1-10) *</label>
+            <input id="init-order" type="number" min="1" max="10" placeholder="1" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="init-description">Descrição</label>
+          <textarea id="init-description" placeholder="O que é esta iniciativa?" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="init-problem">Problema a Resolver</label>
+          <textarea id="init-problem" placeholder="Qual problema será resolvido?" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="init-result">Resultado Esperado</label>
+          <textarea id="init-result" placeholder="Qual é o resultado esperado?" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 16px;">
+          <h4 style="margin-top: 0;">Impactos Estimados</h4>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="init-impactTech">Impacto Técnico *</label>
+              <select id="init-impactTech" required>
+                <option value="">Selecione...</option>
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="init-impactFinance">Impacto Financeiro *</label>
+              <select id="init-impactFinance" required>
+                <option value="">Selecione...</option>
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="init-impactOps">Impacto Operacional *</label>
+              <select id="init-impactOps" required>
+                <option value="">Selecione...</option>
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="init-impactComm">Impacto Comercial *</label>
+              <select id="init-impactComm" required>
+                <option value="">Selecione...</option>
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="init-status">Status *</label>
+          <select id="init-status" required>
+            <option value="">Selecione...</option>
+            <option value="planejada">Planejada</option>
+            <option value="em_validacao">Em Validação</option>
+            <option value="aprovada">Aprovada</option>
+            <option value="em_execucao">Em Execução</option>
+            <option value="pausada">Pausada</option>
+            <option value="concluida">Concluída</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+
+        <div class="field" id="pause-reason-field" style="display:none;">
+          <label for="init-pauseReason">Motivo (Pausa/Cancelamento) *</label>
+          <textarea id="init-pauseReason" placeholder="Qual é o motivo?" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="init-notes">Notas Adicionais</label>
+          <textarea id="init-notes" placeholder="Notas internas" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="init-risks">Riscos Identificados</label>
+          <textarea id="init-risks" placeholder="Quais riscos você vê?" style="min-height: 60px;"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="init-relatedDecisions">Decisões Relacionadas</label>
+          <input id="init-relatedDecisions" type="text" placeholder="Ref. às decisões relacionadas (opcional)" />
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="modal-close-btn">Cancelar</button>
+          <button type="submit">Salvar Iniciativa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Pausar/Cancelar Iniciativa -->
+  <div id="modal-pause-initiative" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="pause-modal-title">Pausar Iniciativa</h2>
+        <button class="modal-close" type="button">×</button>
+      </div>
+      <form id="form-pause-initiative">
+        <p id="pause-initiative-name" style="color: var(--text-muted); margin-bottom: 16px;"></p>
+
+        <div class="field">
+          <label for="pause-new-status">Novo Status *</label>
+          <select id="pause-new-status" required>
+            <option value="">Selecione...</option>
+            <option value="pausada">Pausada</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="pause-reason">Motivo *</label>
+          <textarea id="pause-reason" placeholder="Por que está sendo pausada/cancelada?" required style="min-height: 80px;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="modal-close-btn">Cancelar</button>
+          <button type="submit">Confirmar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Deletar Roadmap -->
+  <div id="modal-delete-roadmap" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Deletar Roadmap</h2>
+        <button class="modal-close" type="button">×</button>
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 16px;">
+        Tem certeza que deseja deletar este roadmap? Esta ação é irreversível.
+      </p>
+      <p id="delete-roadmap-name" style="font-weight: 600; margin-bottom: 16px;"></p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="modal-close-btn">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirm-delete-roadmap">Deletar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="ceo.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="../shared/notifications.js"></script>
+  <script src="roadmap.js"></script>
+</body>
+</html>
