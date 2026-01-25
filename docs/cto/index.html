@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>CTO • DevLizard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../shared/decisions.css" />
 </head>
 
 <body class="role-cto">
@@ -18,13 +19,101 @@
           <div class="page-head-left">
             <h1>Visão Geral do CTO</h1>
             <p style="color: var(--muted); margin-top: 8px;">
-              Atalhos rápidos para as ferramentas de gestão técnica.
+              Gestão técnica com Kanban Board
             </p>
           </div>
 
           <aside id="decisionsSummary" class="decisions-summary"></aside>
         </div>
 
+        <!-- Kanban Técnico -->
+        <section style="margin-top: 32px;">
+          <!-- Barra Superior -->
+          <div class="kanban-toolbar">
+            <h2 style="margin: 0;">Kanban Técnico</h2>
+            <div class="kanban-toolbar-actions">
+              <input 
+                type="text" 
+                id="kanbanFilterInput" 
+                class="kanban-filter-input" 
+                placeholder="🔍 Filtrar por palavra..."
+              />
+              <button id="btnNewTask" class="btn btn-primary">+ Nova tarefa</button>
+              <button id="btnClearFilter" class="btn btn-secondary">Limpar filtros</button>
+              <button id="btnSaveKanban" class="btn btn-success">💾 Salvar</button>
+            </div>
+          </div>
+
+          <!-- Kanban Board -->
+          <div id="kanbanBoard" class="kanban-board">
+            <!-- Coluna: Backlog -->
+            <div class="kanban-column" data-status="backlog">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Backlog</span>
+                  <span class="kanban-count" id="count-backlog">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Não estão prontos para ser desenvolvido</p>
+              </div>
+              <div id="column-backlog" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="backlog">+ Add item</button>
+            </div>
+
+            <!-- Coluna: Disponíveis -->
+            <div class="kanban-column" data-status="ready">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Disponíveis</span>
+                  <span class="kanban-count" id="count-ready">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Prontos para serem desenvolvidos</p>
+              </div>
+              <div id="column-ready" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="ready">+ Add item</button>
+            </div>
+
+            <!-- Coluna: Em progresso -->
+            <div class="kanban-column" data-status="doing">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Em progresso</span>
+                  <span class="kanban-count" id="count-doing">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Desenvolvimento em andamento</p>
+              </div>
+              <div id="column-doing" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="doing">+ Add item</button>
+            </div>
+
+            <!-- Coluna: Aguardando revisão -->
+            <div class="kanban-column" data-status="review_wait">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Aguardando revisão</span>
+                  <span class="kanban-count" id="count-review_wait">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Esperando revisão de um membro diferente</p>
+              </div>
+              <div id="column-review_wait" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="review_wait">+ Add item</button>
+            </div>
+
+            <!-- Coluna: Em revisão -->
+            <div class="kanban-column" data-status="reviewing">
+              <div class="kanban-column-header">
+                <div class="kanban-column-title">
+                  <span>Em revisão</span>
+                  <span class="kanban-count" id="count-reviewing">0</span>
+                </div>
+                <p class="kanban-column-subtitle">Revisão em andamento</p>
+              </div>
+              <div id="column-reviewing" class="kanban-column-content"></div>
+              <button class="kanban-add-btn" data-status="reviewing">+ Add item</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cards de Atalhos -->
         <div class="cards" style="margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
           <!-- Card: Tech Intake -->
           <div class="card" style="padding: 24px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; border-left: 4px solid var(--primary);">
@@ -94,6 +183,33 @@
   <script src="../shared/decisions.widget.js"></script>
   <link rel="stylesheet" href="../shared/decisions.css" />
   <script src="cto.js"></script>
+
+  <!-- Modal para Criar/Editar Tarefa -->
+  <div id="taskModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Nova Tarefa</h3>
+        <button id="closeModal" class="modal-close">&times;</button>
+      </div>
+      <form id="taskForm">
+        <div class="form-group">
+          <label for="taskTitle">Título *</label>
+          <input type="text" id="taskTitle" required placeholder="Ex: Tela de login">
+        </div>
+        <div class="form-group">
+          <label for="taskDescription">Descrição</label>
+          <textarea id="taskDescription" rows="4" placeholder="Descrição da tarefa..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancelTaskBtn" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast de notificação -->
+  <div id="toast" class="toast"></div>
   <script>
     // Renderizar painel de decisões
     document.addEventListener("DOMContentLoaded", () => {
