@@ -65,6 +65,15 @@ app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../../docs/auth/login.html'));
 });
 
+// Compat: shared pages sem extensao
+app.get('/shared/pages/decisions', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/decisions.html'));
+});
+
+app.get('/shared/pages/roadmap-view', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/roadmap-view.html'));
+});
+
 // Error handler global
 app.use((err, req, res, next) => {
   console.error('Erro não tratado:', err);
