@@ -25,6 +25,22 @@ window.App = (() => {
   };
 
   // ===================================================
+  // API BASE (suporte a Live Server e backend local)
+  // ===================================================
+
+  const resolveApiBase = () => {
+    const port = window.location.port;
+    if (port === "5500" || port === "5501") {
+      return "http://localhost:3000/api";
+    }
+    return "/api";
+  };
+
+  const API_BASE = resolveApiBase();
+  window.API_BASE = API_BASE;
+
+
+  // ===================================================
   // CHAVES CENTRALIZADAS DE STORAGE (compatíveis)
   // ===================================================
   const STORAGE_KEYS = {
@@ -477,7 +493,7 @@ window.App = (() => {
     safeText,
     safeHTML,
     apiFetch,
-    log,
+    getApiBase: () => API_BASE,
 
     // Init
     init,

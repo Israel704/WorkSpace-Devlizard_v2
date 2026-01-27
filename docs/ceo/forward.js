@@ -1,6 +1,6 @@
 // forward.js - Envio de arquivos para outras roles via backend
 (() => {
-  const API_BASE = '/api';
+  const API_BASE = (window.App?.getApiBase ? window.App.getApiBase() : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
 
   const form = document.getElementById('forward-form');
   const toRoleEl = document.getElementById('to-role');

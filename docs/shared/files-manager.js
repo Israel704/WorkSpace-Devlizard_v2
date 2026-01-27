@@ -1,6 +1,7 @@
 // Gerenciador de Arquivos - Shared Module
 const FilesManager = (() => {
-  const API_BASE = '/api/files';
+  const API_ROOT = (window.App?.getApiBase ? window.App.getApiBase() : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
+  const API_BASE = `${API_ROOT}/files`;
 
   // Obter token do localStorage
   function getToken() {

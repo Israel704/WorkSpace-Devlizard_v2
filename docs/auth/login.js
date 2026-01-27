@@ -3,7 +3,7 @@ const selectedRole = localStorage.getItem((window.STORAGE_KEYS?.SELECTED_ROLE) |
 const roleInfo = document.getElementById('roleInfo');
 const form = document.getElementById('loginForm');
 
-const API_BASE = '/api';
+const API_BASE = (window.App?.getApiBase ? window.App.getApiBase() : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
 
 if (!selectedRole) {
   window.location.href = '../index.html';
