@@ -12,14 +12,18 @@
 const NotificationSystem = (() => {
   let pollInterval = null;
   const POLL_INTERVAL_MS = 30000; // 30 segundos
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = (window.App?.getApiBase
+    ? window.App.getApiBase()
+    : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
+
+  const getToken = () => localStorage.getItem((window.STORAGE_KEYS?.TOKEN) || 'token');
 
   /**
    * Busca a contagem de propostas pendentes do backend
    */
   const fetchPendingCount = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       if (!token) {
         console.warn('Token não encontrado. Usuário não autenticado.');
         return 0;
