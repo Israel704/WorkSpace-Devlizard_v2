@@ -1,5 +1,5 @@
 // Sistema de Propostas
-const API_URL = '/api';
+const API_URL = (window.App?.getApiBase ? window.App.getApiBase() : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
 
 // ==================== UTILIDADES ====================
 

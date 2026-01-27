@@ -10,6 +10,8 @@
 
   let lastSentProposals = [];
 
+  const API_ROOT = (window.App?.getApiBase ? window.App.getApiBase() : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
+
   const getNow = () => Date.now();
 
   const read = () => {
@@ -172,7 +174,7 @@
     const payload = { title, description, toRole, category: "promessa" };
 
     if (window.App?.apiFetch) {
-      return window.App.apiFetch("/api/proposals", {
+      return window.App.apiFetch(`${API_ROOT}/proposals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -180,7 +182,7 @@
     }
 
     const token = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.TOKEN) || "token");
-    const response = await fetch("/api/proposals", {
+    const response = await fetch(`${API_ROOT}/proposals`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -249,11 +251,11 @@
   const fetchSentProposals = async () => {
     try {
       if (window.App?.apiFetch) {
-        return await window.App.apiFetch("/api/proposals/sent", {});
+        return await window.App.apiFetch(`${API_ROOT}/proposals/sent`, {});
       }
 
       const token = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.TOKEN) || "token");
-      const response = await fetch("/api/proposals/sent", {
+      const response = await fetch(`${API_ROOT}/proposals/sent`, {
         headers: { Authorization: token ? `Bearer ${token}` : "" },
       });
       const json = await response.json();

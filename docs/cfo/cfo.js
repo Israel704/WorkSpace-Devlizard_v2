@@ -118,7 +118,7 @@ if (document.readyState === 'loading') {
 
 async function loadApprovalsStats() {
   try {
-    const API_URL = '/api';
+    const API_URL = (window.App?.getApiBase ? window.App.getApiBase() : (window.API_BASE || ((window.location.port === '5500' || window.location.port === '5501') ? 'http://localhost:3000/api' : '/api')));
     const token = localStorage.getItem((window.STORAGE_KEYS?.TOKEN) || 'token');
 
     const response = await fetch(`${API_URL}/proposals/inbox`, {
