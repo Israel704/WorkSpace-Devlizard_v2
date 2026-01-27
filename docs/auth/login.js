@@ -58,7 +58,9 @@ if (!form) {
     const K = window.STORAGE_KEYS || {};
     localStorage.setItem(K.AUTH || 'auth', 'true');
     localStorage.setItem(K.ROLE || 'role', data.user?.role || selectedRole);
-    localStorage.setItem(K.USER || 'user', data.user?.email || user);
+    localStorage.setItem(K.USER || 'user', data.user?.name || data.user?.email || user);
+    localStorage.setItem(K.PROFILE_NAME || 'profile_name', data.user?.name || '');
+    localStorage.setItem(K.AVATAR || 'profile_avatar', data.user?.avatar || '');
     localStorage.setItem(K.TOKEN || 'token', data.token);
 
     window.location.href = `../${selectedRole}/index.html`;

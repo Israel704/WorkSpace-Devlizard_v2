@@ -10,6 +10,7 @@ const ceoRoutes = require('./routes/ceo.routes');
 const cooRoutes = require('./routes/coo.routes');
 const filesRoutes = require('./routes/files.routes');
 const proposalsRoutes = require('./routes/proposals.routes');
+const usersRoutes = require('./routes/users.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,6 +52,10 @@ app.use('/api/ceo', ceoRoutes);
 app.use('/api/coo', cooRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/proposals', proposalsRoutes);
+app.use('/api/users', usersRoutes);
+
+// Servir uploads (avatars/arquivos)
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../../docs')));
@@ -72,6 +77,10 @@ app.get('/shared/pages/decisions', (req, res) => {
 
 app.get('/shared/pages/roadmap-view', (req, res) => {
   res.sendFile(path.join(__dirname, '../../docs/shared/pages/roadmap-view.html'));
+});
+
+app.get('/shared/pages/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/profile.html'));
 });
 
 // Error handler global
@@ -130,6 +139,9 @@ async function startServer() {
       console.log('   GET    /api/files/:id/download');
       console.log('   PATCH  /api/files/:id/read');
       console.log('   DELETE /api/files/:id');
+      console.log('   GET    /api/users/me');
+      console.log('   PATCH  /api/users/me');
+      console.log('   POST   /api/users/me/avatar');
       console.log('   POST   /api/proposals');
       console.log('   GET    /api/proposals/sent');
       console.log('   GET    /api/proposals/inbox');

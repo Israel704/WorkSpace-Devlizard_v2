@@ -208,6 +208,14 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 600;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.topbar-avatar.has-image {
+  color: transparent;
 }
 
 /* ======================================================

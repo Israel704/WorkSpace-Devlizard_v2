@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Configurações de Perfil • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/roles.css" />
+  <link rel="stylesheet" href="../css/profile.css" />
+</head>
+
+<body>
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div class="page-head">
+          <div>
+            <h1>Configurações de Perfil</h1>
+            <p class="text-muted" style="margin-top: 6px;">
+              Atualize seu nome, login, senha e foto de perfil.
+            </p>
+          </div>
+
+          <button id="backBtn" class="btn btn-ghost btn-sm">← Voltar</button>
+        </div>
+
+        <div id="profileAlert" class="alert hidden"></div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Dados de acesso</div>
+            </div>
+            <div class="card-content">
+              <form id="profileForm">
+                <div class="form-group">
+                  <label for="profileName">Nome</label>
+                  <input id="profileName" type="text" placeholder="Seu nome" />
+                </div>
+                <div class="form-group">
+                  <label for="profileEmail">Login (email)</label>
+                  <input id="profileEmail" type="email" placeholder="seu@email.com" />
+                </div>
+                <div class="form-group">
+                  <label for="profilePassword">Nova senha</label>
+                  <input id="profilePassword" type="password" placeholder="••••••••" />
+                  <span class="form-help">Deixe em branco para manter a senha atual.</span>
+                </div>
+                <div class="form-group">
+                  <label for="profilePasswordConfirm">Confirmar senha</label>
+                  <input id="profilePasswordConfirm" type="password" placeholder="••••••••" />
+                </div>
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-primary">Salvar alterações</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Foto de perfil</div>
+            </div>
+            <div class="card-content">
+              <div class="profile-avatar-preview">
+                <div id="avatarPreview" class="profile-avatar">U</div>
+                <div>
+                  <p class="text-muted" style="margin-bottom: 6px;">
+                    Envie uma imagem quadrada para melhor resultado.
+                  </p>
+                  <form id="avatarForm" class="profile-avatar-actions">
+                    <input id="avatarInput" type="file" accept="image/*" />
+                    <button type="submit" class="btn btn-secondary">Atualizar foto</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../layout.js"></script>
+  <script src="../app.js"></script>
+  <script src="../profile.js"></script>
+</body>
+</html>

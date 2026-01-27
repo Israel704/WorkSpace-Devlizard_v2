@@ -26,6 +26,7 @@ class Database {
   async initialize() {
     await this.connect();
     await this.createTables();
+    await this.ensureUserColumns();
     await this.seedData();
   }
 
@@ -38,6 +39,8 @@ class Database {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
+            name TEXT,
+            avatar TEXT,
             role TEXT NOT NULL,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
           )
@@ -147,6 +150,49 @@ class Database {
             resolve();
           }
         });
+      });
+    });
+  }
+
+  ensureUserColumns() {
+    return new Promise((resolve, reject) => {
+      this.db.all('PRAGMA table_info(users)', (err, rows) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const existing = new Set((rows || []).map((row) => row.name));
+        const missing = [];
+
+        if (!existing.has('name')) missing.push({ name: 'name', type: 'TEXT' });
+        if (!existing.has('avatar')) missing.push({ name: 'avatar', type: 'TEXT' });
+
+        if (!missing.length) {
+          resolve();
+          return;
+        }
+
+        const addNext = (index) => {
+          if (index >= missing.length) {
+            resolve();
+            return;
+          }
+
+          const column = missing[index];
+          this.db.run(
+            `ALTER TABLE users ADD COLUMN ${column.name} ${column.type}`,
+            (alterErr) => {
+              if (alterErr) {
+                reject(alterErr);
+                return;
+              }
+              addNext(index + 1);
+            }
+          );
+        };
+
+        addNext(0);
       });
     });
   }

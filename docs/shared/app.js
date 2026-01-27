@@ -49,6 +49,8 @@ window.App = (() => {
     USER: "user",
     TOKEN: "token",
     SELECTED_ROLE: "selectedRole",
+    PROFILE_NAME: "profile_name",
+    AVATAR: "profile_avatar",
     COO_KANBAN: "coo_kanban_tasks",
     COO_KANBAN_SETTINGS: "coo_kanban_settings",
     CEO_REPORTS: "ceo_reports_data",
@@ -66,6 +68,8 @@ window.App = (() => {
     STORAGE_KEYS.AUTH,
     STORAGE_KEYS.SELECTED_ROLE,
     STORAGE_KEYS.TOKEN,
+    STORAGE_KEYS.PROFILE_NAME,
+    STORAGE_KEYS.AVATAR,
   ];
 
   function initializeState() {
@@ -102,6 +106,7 @@ window.App = (() => {
     localStorage.setItem(STORAGE_KEYS.USER, username);
     localStorage.setItem(STORAGE_KEYS.ROLE, state.role);
     localStorage.setItem(STORAGE_KEYS.AUTH, "true");
+    localStorage.setItem(STORAGE_KEYS.PROFILE_NAME, username);
 
     applyRoleStyles();
     updateUserUI();
@@ -156,13 +161,28 @@ window.App = (() => {
   // ===================================================
 
   const updateUserUI = () => {
+    const displayName =
+      localStorage.getItem(STORAGE_KEYS.PROFILE_NAME) || state.user || "Usuário";
+
+    const avatarUrl = localStorage.getItem(STORAGE_KEYS.AVATAR);
+
     // Nome do usuário
     const userInfo = byId("userInfo");
-    if (state.user) safeText(userInfo, state.user);
+    safeText(userInfo, displayName);
 
     // Avatar letra
     const userAvatar = byId("userAvatar");
-    if (state.user) safeText(userAvatar, state.user.charAt(0).toUpperCase());
+    if (userAvatar) {
+      if (avatarUrl) {
+        userAvatar.style.backgroundImage = `url('${avatarUrl}')`;
+        userAvatar.classList.add("has-image");
+        safeText(userAvatar, "");
+      } else {
+        userAvatar.style.backgroundImage = "";
+        userAvatar.classList.remove("has-image");
+        safeText(userAvatar, displayName.charAt(0).toUpperCase());
+      }
+    }
 
     // Badge role
     const roleIndicator = byId("roleIndicator");
@@ -210,6 +230,7 @@ window.App = (() => {
   { label: "Relatório Operacional", href: "ops-report.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+  { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       coo: [
   { label: "Visão Geral", href: "index.html" },
@@ -218,6 +239,7 @@ window.App = (() => {
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Gerenciar Decisões", href: "decisions-admin.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+  { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cfo: [
   { label: "Visão Geral", href: "index.html" },
@@ -228,6 +250,7 @@ window.App = (() => {
   { label: "Precificação", href: "pricing.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+  { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cto: [
   { label: "Visão Geral", href: "index.html" },
@@ -237,6 +260,7 @@ window.App = (() => {
   { label: "Propostas", href: "proposals.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+  { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cmo: [
   { label: "Visão Geral", href: "index.html" },
@@ -246,10 +270,12 @@ window.App = (() => {
   { label: "Propostas", href: "proposals.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+  { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       comercial: [
   { label: "Visão Geral", href: "index.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
+  { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
 
     };
@@ -381,6 +407,14 @@ window.App = (() => {
     const opts = { ...options };
     opts.headers = { ...(options.headers || {}) };
 
+    const resolveLoginPath = () => {
+      const pathname = (window.location.pathname || "").toLowerCase();
+      if (pathname.includes("/shared/pages/")) {
+        return "../../auth/login.html";
+      }
+      return "../auth/login.html";
+    };
+
     // Injeta token automaticamente se não houver Authorization
     const hasAuthHeader = Object.keys(opts.headers).some(
       (h) => h.toLowerCase() === "authorization"
@@ -397,7 +431,7 @@ window.App = (() => {
         // Sessão inválida: limpa apenas chaves de sessão e redireciona
         clearSession();
         // Tenta ir para login relativo às páginas internas
-        window.location.href = "../auth/login.html";
+        window.location.href = resolveLoginPath();
         throw new Error("Não autorizado (401)");
       }
 
