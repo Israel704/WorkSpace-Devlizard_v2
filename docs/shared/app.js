@@ -61,6 +61,14 @@ window.App = (() => {
   // Tornar disponível globalmente sem mudar stack
   window.STORAGE_KEYS = STORAGE_KEYS;
 
+  const ROLE_LIST = ["ceo", "coo", "cto", "cfo", "cmo", "comercial"];
+  const PRESENCE_KEY_PREFIX = "role_presence_";
+  const PRESENCE_TTL_MS = 60 * 1000;
+  let presenceTimer = null;
+  let presenceListenerBound = false;
+  let presenceCache = null;
+  let presenceApiAvailable = true;
+
   // Chaves de sessão (não apagar dados de ferramentas!)
   const SESSION_KEYS = [
     STORAGE_KEYS.USER,
@@ -110,6 +118,25 @@ window.App = (() => {
 
     applyRoleStyles();
     updateUserUI();
+    touchPresence();
+    updatePresenceUI();
+    fetchPresence();
+    if (!presenceTimer) {
+      presenceTimer = setInterval(() => {
+        touchPresence();
+        fetchPresence();
+        updatePresenceUI();
+      }, 15000);
+    }
+
+    if (!presenceListenerBound) {
+      window.addEventListener("storage", (event) => {
+        if (event.key && event.key.startsWith(PRESENCE_KEY_PREFIX)) {
+          updatePresenceUI();
+        }
+      });
+      presenceListenerBound = true;
+    }
     buildSidebar(); // tenta montar menu imediatamente
   };
 
@@ -187,6 +214,72 @@ window.App = (() => {
     // Badge role
     const roleIndicator = byId("roleIndicator");
     if (state.role) safeText(roleIndicator, state.role.toUpperCase());
+
+    updatePresenceUI();
+  };
+
+  const touchPresence = async () => {
+    if (!state.role) return;
+    localStorage.setItem(`${PRESENCE_KEY_PREFIX}${state.role}`, String(Date.now()));
+
+    if (!presenceApiAvailable) return;
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    if (!token) return;
+
+    try {
+      await apiFetch(`${API_BASE}/users/presence`, { method: "POST" });
+      presenceApiAvailable = true;
+    } catch (e) {
+      presenceApiAvailable = false;
+    }
+  };
+
+  const getPresenceState = () => {
+    if (presenceCache && presenceCache.roles) {
+      return ROLE_LIST.map((role) => ({
+        role,
+        online: !!presenceCache.roles[role]?.online,
+      }));
+    }
+
+    const now = Date.now();
+    return ROLE_LIST.map((role) => {
+      const lastSeen = Number(localStorage.getItem(`${PRESENCE_KEY_PREFIX}${role}`)) || 0;
+      return { role, online: now - lastSeen <= PRESENCE_TTL_MS };
+    });
+  };
+
+  const fetchPresence = async () => {
+    if (!presenceApiAvailable) return;
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    if (!token) return;
+
+    try {
+      const data = await apiFetch(`${API_BASE}/users/presence`);
+      if (data && data.roles) {
+        presenceCache = data;
+        updatePresenceUI();
+      }
+      presenceApiAvailable = true;
+    } catch (e) {
+      presenceApiAvailable = false;
+    }
+  };
+
+  const updatePresenceUI = () => {
+    const container = byId("rolePresence");
+    if (!container) return;
+
+    const items = getPresenceState()
+      .filter(({ role }) => !state.role || role !== state.role)
+      .map(({ role, online }) => {
+        const label = role.toUpperCase();
+        const statusClass = online ? "online" : "offline";
+        return `<span class="role-pill ${statusClass}">(${label})</span>`;
+      })
+      .join("");
+
+    safeHTML(container, items);
   };
 
   const setupLogout = () => {
@@ -487,6 +580,25 @@ window.App = (() => {
     initializeState();
     applyRoleStyles();
     updateUserUI();
+    touchPresence();
+    updatePresenceUI();
+    fetchPresence();
+    if (!presenceTimer) {
+      presenceTimer = setInterval(() => {
+        touchPresence();
+        fetchPresence();
+        updatePresenceUI();
+      }, 15000);
+    }
+
+    if (!presenceListenerBound) {
+      window.addEventListener("storage", (event) => {
+        if (event.key && event.key.startsWith(PRESENCE_KEY_PREFIX)) {
+          updatePresenceUI();
+        }
+      });
+      presenceListenerBound = true;
+    }
     setupLogout();
     buildSidebarWithRetry(); // importante por causa do layout.js
     log("INIT", "Aplicação inicializada");

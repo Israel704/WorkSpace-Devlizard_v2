@@ -198,6 +198,37 @@ body {
   font-size: var(--font-size-sm);
 }
 
+.role-presence {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  opacity: 0.35;
+  transition: opacity var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.role-pill.online {
+  color: var(--accent-primary);
+  border-color: rgba(60, 255, 143, 0.5);
+  opacity: 1;
+}
+
+.role-pill.offline {
+  color: var(--text-muted);
+  opacity: 0.25;
+}
+
 .topbar-avatar {
   width: 36px;
   height: 36px;

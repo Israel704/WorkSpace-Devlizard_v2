@@ -9,6 +9,10 @@ const { authRequired } = require('../middleware/auth');
 
 const router = express.Router();
 
+const PRESENCE_TTL_MS = 60 * 1000;
+const ROLE_LIST = ['ceo', 'coo', 'cto', 'cfo', 'cmo', 'comercial'];
+const presenceStore = new Map();
+
 // Configurar pasta de uploads
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads');
 
@@ -143,6 +147,35 @@ router.post('/me/avatar', authRequired, avatarUpload.single('avatar'), async (re
     console.error('Erro ao atualizar avatar:', error);
     res.status(500).json({ error: 'Erro ao atualizar avatar' });
   }
+});
+
+// POST /api/users/presence
+router.post('/presence', authRequired, (req, res) => {
+  const role = String(req.user?.role || '').toLowerCase();
+  if (!role) {
+    return res.status(400).json({ error: 'Role invÃ¡lida' });
+  }
+
+  const lastSeen = Date.now();
+  presenceStore.set(role, { lastSeen });
+  res.json({ ok: true, role, lastSeen });
+});
+
+// GET /api/users/presence
+router.get('/presence', authRequired, (req, res) => {
+  const now = Date.now();
+  const roles = {};
+
+  ROLE_LIST.forEach((role) => {
+    const entry = presenceStore.get(role);
+    const lastSeen = entry ? entry.lastSeen : 0;
+    roles[role] = {
+      lastSeen,
+      online: !!lastSeen && now - lastSeen <= PRESENCE_TTL_MS,
+    };
+  });
+
+  res.json({ now, ttl: PRESENCE_TTL_MS, roles });
 });
 
 module.exports = router;
