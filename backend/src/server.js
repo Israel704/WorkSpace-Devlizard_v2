@@ -55,13 +55,14 @@ app.use('/api/proposals', proposalsRoutes);
 // Servir arquivos estáticos do frontend
 app.use(express.static(path.join(__dirname, '../../docs')));
 
-// Fallback para rotas do frontend (SPA)
+// Fallback simples para a pÃ¡gina inicial
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../docs/index.html'));
 });
 
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/index.html'));
+// Compat: permitir /auth/login (sem .html)
+app.get('/auth/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/auth/login.html'));
 });
 
 // Error handler global

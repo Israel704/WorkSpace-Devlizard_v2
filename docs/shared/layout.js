@@ -20,15 +20,20 @@ const Layout = (() => {
    * - Se está em /shared/pages/ → base = "../"
    */
   const getSharedBase = () => {
-    const path = window.location.pathname.toLowerCase();
-    
-    // Se a página está dentro de /shared/ (como /shared/pages/)
-    if (path.includes('/shared/')) {
-      return '../';
+    // Em file:// precisa ser relativo. Em http(s) usa caminho absoluto para evitar 404 por base relativa.
+    if (window.location.protocol !== "file:") {
+      return "/shared/";
     }
-    
-    // Padrão para páginas em pastas como /cto/, /coo/, /cfo/, etc.
-    return '../shared/';
+
+    const path = window.location.pathname.toLowerCase();
+
+    // Se a pagina esta dentro de /shared/ (como /shared/pages/)
+    if (path.includes("/shared/")) {
+      return "../";
+    }
+
+    // Padrao para paginas em pastas como /cto/, /coo/, /cfo/, etc.
+    return "../shared/";
   };
 
   const sharedBase = getSharedBase();
