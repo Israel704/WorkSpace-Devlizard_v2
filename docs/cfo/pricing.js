@@ -328,3 +328,628 @@
     init();
   }
 })();
+
+(() => {
+  const STORAGE_KEY = "cfm_project_costs_v2";
+  const CATEGORY_LIST = [
+    "Infraestrutura",
+    "Serviços técnicos",
+    "Comunicação/Transacional",
+    "Operação/Manutenção",
+  ];
+
+  const DEFAULT_STATE = {
+    projectType: "",
+    contractMonths: 12,
+    contingencyPct: 10,
+    serverMonthly: 0,
+    domainValue: 0,
+    domainFrequency: "mensal",
+    recurringItems: [],
+    oneTimeItems: [],
+  };
+
+  const TEMPLATES = {
+    site: {
+      recurring: [
+        { name: "Hospedagem (site)", category: "Infraestrutura" },
+        { name: "Monitoramento/Uptime", category: "Serviços técnicos" },
+        { name: "E-mail profissional (opcional)", category: "Comunicação/Transacional" },
+      ],
+      oneTime: [
+        { name: "Design/UI (one-time)" },
+        { name: "Implementação/Setup (one-time)" },
+        { name: "SEO básico (one-time)" },
+      ],
+    },
+    sistema: {
+      recurring: [
+        { name: "Servidor/Compute", category: "Infraestrutura" },
+        { name: "Banco de dados", category: "Infraestrutura" },
+        { name: "Storage/Arquivos", category: "Infraestrutura" },
+        { name: "Backups", category: "Serviços técnicos" },
+        { name: "Logs/Erros (Sentry etc.)", category: "Serviços técnicos" },
+        { name: "E-mail transacional", category: "Comunicação/Transacional" },
+      ],
+      oneTime: [
+        { name: "Setup/Implantação" },
+        { name: "Configuração de ambiente/CI-CD" },
+      ],
+    },
+    saas: {
+      recurring: [
+        { name: "Compute escalável", category: "Infraestrutura" },
+        { name: "Banco gerenciado", category: "Infraestrutura" },
+        { name: "Storage", category: "Infraestrutura" },
+        { name: "Cache (Redis)", category: "Infraestrutura" },
+        { name: "Monitoramento/Observabilidade", category: "Serviços técnicos" },
+        { name: "Backups/DR", category: "Serviços técnicos" },
+        { name: "E-mail transacional", category: "Comunicação/Transacional" },
+        { name: "SMS/WhatsApp (se aplicável)", category: "Comunicação/Transacional" },
+        { name: "Suporte/Operação mensal", category: "Operação/Manutenção" },
+        { name: "Custos de pagamento (gateway) (opcional mensal)", category: "Operação/Manutenção" },
+      ],
+      oneTime: [
+        { name: "Setup/Implantação" },
+        { name: "Config. pagamentos/assinaturas" },
+        { name: "Config. emissão de nota (se aplicável)" },
+      ],
+    },
+    app: {
+      recurring: [
+        { name: "Backend/Servidor", category: "Infraestrutura" },
+        { name: "Banco de dados", category: "Infraestrutura" },
+        { name: "Storage", category: "Infraestrutura" },
+        { name: "Crash/Analytics", category: "Serviços técnicos" },
+        { name: "Push notifications", category: "Comunicação/Transacional" },
+        { name: "Apple Developer (equiv. mensal)", category: "Operação/Manutenção" },
+      ],
+      oneTime: [
+        { name: "Publicação Google Play" },
+        { name: "Setup/Implantação" },
+      ],
+    },
+  };
+
+  let state = { ...DEFAULT_STATE };
+  let saveTimer = null;
+
+  const formatCurrency = (value) => {
+    if (window.App?.formatCurrency) return window.App.formatCurrency(value);
+    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+  };
+
+  const clampNumber = (value, min, max) => {
+    if (Number.isNaN(value)) return min;
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+  };
+
+  const parseValue = (value) => {
+    if (value === null || value === undefined || value === "") return 0;
+    const normalized = String(value).replace(",", ".");
+    const parsed = Number.parseFloat(normalized);
+    if (Number.isNaN(parsed) || parsed < 0) return 0;
+    return parsed;
+  };
+
+  const nextId = () => `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+  const domainMonthlyEquivalent = () => {
+    const base = parseValue(state.domainValue);
+    return state.domainFrequency === "anual" ? base / 12 : base;
+  };
+
+  const totals = () => {
+    const recurringSum = state.recurringItems.reduce((sum, item) => sum + parseValue(item.valueMonthly), 0);
+    const oneTimeSum = state.oneTimeItems.reduce((sum, item) => sum + parseValue(item.valueOneTime), 0);
+    const serverMonthly = parseValue(state.serverMonthly);
+    const domainMonthly = domainMonthlyEquivalent();
+    const totalRecurringMonthly = serverMonthly + domainMonthly + recurringSum;
+    const totalUnico = oneTimeSum;
+    const months = parseValue(state.contractMonths);
+    const basePeriod = (totalRecurringMonthly * months) + totalUnico;
+    const contingencyPct = clampNumber(parseValue(state.contingencyPct), 0, 30);
+    const contingencyValue = basePeriod * (contingencyPct / 100);
+    const totalWithContingency = basePeriod + contingencyValue;
+
+    return {
+      totalRecurringMonthly,
+      totalUnico,
+      basePeriod,
+      contingencyValue,
+      totalWithContingency,
+      contingencyPct,
+      serverMonthly,
+      domainMonthly,
+    };
+  };
+
+  const categoryTotals = () => {
+    const grouped = {};
+    CATEGORY_LIST.forEach((category) => {
+      grouped[category] = 0;
+    });
+    state.recurringItems.forEach((item) => {
+      const category = item.category || CATEGORY_LIST[0];
+      if (!grouped[category]) grouped[category] = 0;
+      grouped[category] += parseValue(item.valueMonthly);
+    });
+    return grouped;
+  };
+
+  const scheduleSave = () => {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("Erro ao salvar custos do projeto", e);
+      }
+    }, 300);
+  };
+
+  const setState = (patch) => {
+    state = { ...state, ...patch };
+    renderAll();
+    scheduleSave();
+  };
+
+  const hydrateState = (incoming) => {
+    if (!incoming || typeof incoming !== "object") return;
+    state = {
+      ...DEFAULT_STATE,
+      ...incoming,
+      recurringItems: Array.isArray(incoming.recurringItems) ? incoming.recurringItems : [],
+      oneTimeItems: Array.isArray(incoming.oneTimeItems) ? incoming.oneTimeItems : [],
+    };
+  };
+
+  const loadState = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      hydrateState(JSON.parse(raw));
+    } catch (e) {
+      console.warn("Erro ao carregar custos do projeto", e);
+    }
+  };
+
+  const renderCategoryOptions = () => {
+    const select = document.getElementById("costRecurringCategory");
+    if (!select) return;
+    select.innerHTML = CATEGORY_LIST.map((category) => `<option value="${category}">${category}</option>`).join("");
+  };
+
+  const renderProjectType = () => {
+    const select = document.getElementById("costProjectType");
+    if (select) select.value = state.projectType || "";
+  };
+
+  const renderInputs = () => {
+    const months = document.getElementById("costContractMonths");
+    const contingency = document.getElementById("costContingency");
+    const server = document.getElementById("costServerMonthly");
+    const domainValue = document.getElementById("costDomainValue");
+    const domainFreq = document.getElementById("costDomainFrequency");
+
+    if (months) months.value = String(state.contractMonths ?? 12);
+    if (contingency) contingency.value = state.contingencyPct ?? 10;
+    if (server) server.value = state.serverMonthly ?? 0;
+    if (domainValue) domainValue.value = state.domainValue ?? 0;
+    if (domainFreq) domainFreq.value = state.domainFrequency ?? "mensal";
+  };
+
+  const renderDomainEquivalent = () => {
+    const label = document.getElementById("costDomainEquivalent");
+    if (!label) return;
+    const monthly = domainMonthlyEquivalent();
+    const freqLabel = state.domainFrequency === "anual" ? "anual" : "mensal";
+    label.textContent = `Equivalente mensal: ${formatCurrency(monthly)} (${freqLabel})`;
+  };
+
+  const renderRecurring = () => {
+    const container = document.getElementById("costRecurringCategories");
+    if (!container) return;
+    const totalsByCategory = categoryTotals();
+
+    const sections = CATEGORY_LIST.map((category) => {
+      const items = state.recurringItems.filter((item) => item.category === category);
+      const rows = items.length
+        ? items.map((item) => `
+            <div class="cost-item-row" data-id="${item.id}" style="display: grid; grid-template-columns: 2fr 1fr 150px 90px; gap: 8px; align-items: center; padding: 8px; border: 1px solid #1f1f1f; border-radius: 6px; background: rgba(255,255,255,0.02);">
+              <input data-field="name" type="text" value="${item.name ?? ""}" style="width: 100%; padding: 8px; border: 1px solid #333; border-radius: 4px;" />
+              <input data-field="valueMonthly" type="number" min="0" step="0.01" value="${item.valueMonthly ?? 0}" style="width: 100%; padding: 8px; border: 1px solid #333; border-radius: 4px;" />
+              <select data-field="category" style="width: 100%; padding: 8px; border: 1px solid #333; border-radius: 4px;">
+                ${CATEGORY_LIST.map((opt) => `<option value="${opt}" ${opt === item.category ? "selected" : ""}>${opt}</option>`).join("")}
+              </select>
+              <button data-action="remove-recurring" style="padding: 8px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Remover</button>
+            </div>
+          `).join("")
+        : `<div style="color: var(--muted); font-size: 13px; padding: 8px;">Nenhum item.</div>`;
+
+      return `
+        <details open style="border: 1px solid #1f1f1f; border-radius: 6px; padding: 10px; background: rgba(255,255,255,0.02);">
+          <summary style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <strong>${category}</strong>
+            <span style="color: var(--muted);">${formatCurrency(totalsByCategory[category] || 0)}</span>
+          </summary>
+          <div style="display: grid; gap: 8px; margin-top: 10px;">
+            ${rows}
+          </div>
+        </details>
+      `;
+    });
+
+    container.innerHTML = sections.join("");
+  };
+
+  const renderOneTime = () => {
+    const container = document.getElementById("costOneTimeList");
+    if (!container) return;
+    if (!state.oneTimeItems.length) {
+      container.innerHTML = `<div style="color: var(--muted); font-size: 13px; padding: 8px; border: 1px solid #1f1f1f; border-radius: 6px; background: rgba(255,255,255,0.02);">Nenhum item.</div>`;
+      return;
+    }
+
+    container.innerHTML = state.oneTimeItems.map((item) => `
+      <div class="cost-item-row" data-id="${item.id}" style="display: grid; grid-template-columns: 2fr 1fr 90px; gap: 8px; align-items: center; padding: 8px; border: 1px solid #1f1f1f; border-radius: 6px; background: rgba(255,255,255,0.02);">
+        <input data-field="name" type="text" value="${item.name ?? ""}" style="width: 100%; padding: 8px; border: 1px solid #333; border-radius: 4px;" />
+        <input data-field="valueOneTime" type="number" min="0" step="0.01" value="${item.valueOneTime ?? 0}" style="width: 100%; padding: 8px; border: 1px solid #333; border-radius: 4px;" />
+        <button data-action="remove-one-time" style="padding: 8px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Remover</button>
+      </div>
+    `).join("");
+  };
+
+  const renderTotals = () => {
+    const container = document.getElementById("costTotals");
+    if (!container) return;
+    const summary = totals();
+    const categories = categoryTotals();
+
+    const categoryLines = CATEGORY_LIST.map((category) => {
+      return `<div style="display: flex; justify-content: space-between; gap: 8px;">
+        <span style="color: var(--muted);">${category}</span>
+        <strong>${formatCurrency(categories[category] || 0)}</strong>
+      </div>`;
+    }).join("");
+
+    container.innerHTML = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+        <div>
+          <p style="margin: 0; color: var(--muted);">Total recorrente mensal</p>
+          <strong style="font-size: 18px;">${formatCurrency(summary.totalRecurringMonthly)}</strong>
+        </div>
+        <div>
+          <p style="margin: 0; color: var(--muted);">Total único</p>
+          <strong style="font-size: 18px;">${formatCurrency(summary.totalUnico)}</strong>
+        </div>
+        <div>
+          <p style="margin: 0; color: var(--muted);">Total no período</p>
+          <strong style="font-size: 18px;">${formatCurrency(summary.basePeriod)}</strong>
+        </div>
+        <div>
+          <p style="margin: 0; color: var(--muted);">Contingência (${summary.contingencyPct}%)</p>
+          <strong style="font-size: 18px;">${formatCurrency(summary.contingencyValue)}</strong>
+        </div>
+        <div>
+          <p style="margin: 0; color: var(--muted);">Total com contingência</p>
+          <strong style="font-size: 18px;">${formatCurrency(summary.totalWithContingency)}</strong>
+        </div>
+      </div>
+      <div style="margin-top: 12px; border-top: 1px dashed #333; padding-top: 12px; display: grid; gap: 6px;">
+        <strong>Subtotais por categoria (recorrente)</strong>
+        ${categoryLines}
+      </div>
+      <div style="margin-top: 12px; border-top: 1px dashed #333; padding-top: 12px; display: grid; gap: 6px;">
+        <div style="display: flex; justify-content: space-between; gap: 8px;">
+          <span style="color: var(--muted);">Servidor</span>
+          <strong>${formatCurrency(summary.serverMonthly)}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; gap: 8px;">
+          <span style="color: var(--muted);">Domínio (equiv. mensal)</span>
+          <strong>${formatCurrency(summary.domainMonthly)}</strong>
+        </div>
+      </div>
+    `;
+  };
+
+  const renderAll = () => {
+    renderProjectType();
+    renderInputs();
+    renderDomainEquivalent();
+    renderRecurring();
+    renderOneTime();
+    renderTotals();
+  };
+
+  const updateRecurringItem = (id, field, value) => {
+    state.recurringItems = state.recurringItems.map((item) => {
+      if (item.id !== id) return item;
+      if (field === "name") return { ...item, name: value };
+      if (field === "valueMonthly") return { ...item, valueMonthly: parseValue(value) };
+      if (field === "category") return { ...item, category: value };
+      return item;
+    });
+    renderAll();
+    scheduleSave();
+  };
+
+  const updateOneTimeItem = (id, field, value) => {
+    state.oneTimeItems = state.oneTimeItems.map((item) => {
+      if (item.id !== id) return item;
+      if (field === "name") return { ...item, name: value };
+      if (field === "valueOneTime") return { ...item, valueOneTime: parseValue(value) };
+      return item;
+    });
+    renderAll();
+    scheduleSave();
+  };
+
+  const handleRecurringList = (event) => {
+    const target = event.target;
+    const row = target.closest(".cost-item-row");
+    if (!row) return;
+    const id = row.getAttribute("data-id");
+    if (!id) return;
+
+    if (target.dataset.action === "remove-recurring") {
+      state.recurringItems = state.recurringItems.filter((item) => item.id !== id);
+      renderAll();
+      scheduleSave();
+      return;
+    }
+
+    if (target.dataset.field) {
+      updateRecurringItem(id, target.dataset.field, target.value);
+    }
+  };
+
+  const handleOneTimeList = (event) => {
+    const target = event.target;
+    const row = target.closest(".cost-item-row");
+    if (!row) return;
+    const id = row.getAttribute("data-id");
+    if (!id) return;
+
+    if (target.dataset.action === "remove-one-time") {
+      state.oneTimeItems = state.oneTimeItems.filter((item) => item.id !== id);
+      renderAll();
+      scheduleSave();
+      return;
+    }
+
+    if (target.dataset.field) {
+      updateOneTimeItem(id, target.dataset.field, target.value);
+    }
+  };
+
+  const applyTemplate = () => {
+    const typeSelect = document.getElementById("costProjectType");
+    const selected = typeSelect?.value || "";
+    if (!selected) {
+      alert("Selecione o tipo de projeto antes de aplicar o modelo.");
+      return;
+    }
+    const confirmReplace = confirm("Substituir sua lista atual?");
+    if (!confirmReplace) return;
+
+    const template = TEMPLATES[selected];
+    const recurringItems = (template?.recurring || []).map((item) => ({
+      id: nextId(),
+      name: item.name,
+      category: item.category || CATEGORY_LIST[0],
+      valueMonthly: 0,
+    }));
+    const oneTimeItems = (template?.oneTime || []).map((item) => ({
+      id: nextId(),
+      name: item.name,
+      valueOneTime: 0,
+    }));
+
+    state = {
+      ...state,
+      projectType: selected,
+      serverMonthly: 0,
+      domainValue: 0,
+      domainFrequency: "mensal",
+      recurringItems,
+      oneTimeItems,
+    };
+    renderAll();
+    scheduleSave();
+  };
+
+  const handleAddRecurring = () => {
+    const category = document.getElementById("costRecurringCategory")?.value || CATEGORY_LIST[0];
+    const nameInput = document.getElementById("costRecurringName");
+    const valueInput = document.getElementById("costRecurringValue");
+    const name = nameInput?.value?.trim();
+    if (!name) {
+      alert("Informe o nome do custo recorrente.");
+      return;
+    }
+    const valueMonthly = parseValue(valueInput?.value);
+    state.recurringItems = [
+      ...state.recurringItems,
+      { id: nextId(), name, category, valueMonthly },
+    ];
+    if (nameInput) nameInput.value = "";
+    if (valueInput) valueInput.value = "";
+    renderAll();
+    scheduleSave();
+  };
+
+  const handleAddOneTime = () => {
+    const nameInput = document.getElementById("costOneTimeName");
+    const valueInput = document.getElementById("costOneTimeValue");
+    const name = nameInput?.value?.trim();
+    if (!name) {
+      alert("Informe o nome do custo único.");
+      return;
+    }
+    const valueOneTime = parseValue(valueInput?.value);
+    state.oneTimeItems = [
+      ...state.oneTimeItems,
+      { id: nextId(), name, valueOneTime },
+    ];
+    if (nameInput) nameInput.value = "";
+    if (valueInput) valueInput.value = "";
+    renderAll();
+    scheduleSave();
+  };
+
+  const handleClear = () => {
+    state = { ...DEFAULT_STATE };
+    renderAll();
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn("Erro ao limpar storage de custos", e);
+    }
+  };
+
+  const buildSummaryText = () => {
+    const summary = totals();
+    const categories = categoryTotals();
+    const recurringByCategory = CATEGORY_LIST.map((category) => {
+      const items = state.recurringItems.filter((item) => item.category === category);
+      const lines = items.length
+        ? items.map((item) => `- ${item.name}: ${formatCurrency(parseValue(item.valueMonthly))}`)
+        : ["- (sem itens)"];
+      return [`${category}:`, ...lines, `Subtotal: ${formatCurrency(categories[category] || 0)}`].join("\n");
+    }).join("\n");
+
+    const oneTimeLines = state.oneTimeItems.length
+      ? state.oneTimeItems.map((item) => `- ${item.name}: ${formatCurrency(parseValue(item.valueOneTime))}`).join("\n")
+      : "- (sem itens)";
+
+    const typeLabelMap = {
+      site: "Site (Landing/Institucional)",
+      sistema: "Sistema Web (Painel/CRM/ERP)",
+      saas: "SaaS (multi-tenant/assinaturas)",
+      app: "App (Android/iOS)",
+    };
+
+    const typeLabel = typeLabelMap[state.projectType] || "Não definido";
+
+    return [
+      "Resumo - Calculadora de Custos do Projeto",
+      `Tipo de projeto: ${typeLabel}`,
+      `Período do contrato: ${state.contractMonths} meses`,
+      `Contingência: ${summary.contingencyPct}%`,
+      "",
+      `Servidor: ${formatCurrency(summary.serverMonthly)} (R$/mês)`,
+      `Domínio: ${formatCurrency(parseValue(state.domainValue))} (${state.domainFrequency})`,
+      `Domínio (equiv. mensal): ${formatCurrency(summary.domainMonthly)}`,
+      "",
+      "Custos recorrentes por categoria:",
+      recurringByCategory,
+      "",
+      "Custos únicos:",
+      oneTimeLines,
+      "",
+      `Total recorrente mensal: ${formatCurrency(summary.totalRecurringMonthly)}`,
+      `Total único: ${formatCurrency(summary.totalUnico)}`,
+      `Total no período: ${formatCurrency(summary.basePeriod)}`,
+      `Contingência: ${formatCurrency(summary.contingencyValue)}`,
+      `Total no período + contingência: ${formatCurrency(summary.totalWithContingency)}`,
+    ].join("\n");
+  };
+
+  const handleCopy = async () => {
+    const text = buildSummaryText();
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Resumo copiado para a área de transferência.");
+    } catch (e) {
+      console.warn("Clipboard indisponível", e);
+      alert("Não foi possível copiar automaticamente. Tente em um navegador compatível.");
+    }
+  };
+
+  const bindInput = (id, handler) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", handler);
+  };
+
+  const initCosts = () => {
+    if (!document.getElementById("projectCostsCard")) return;
+    renderCategoryOptions();
+    loadState();
+    renderAll();
+
+    bindInput("costContractMonths", (event) => {
+      const value = parseValue(event.target.value);
+      setState({ contractMonths: value || 0 });
+    });
+    bindInput("costContingency", (event) => {
+      const value = clampNumber(parseValue(event.target.value), 0, 30);
+      setState({ contingencyPct: value });
+    });
+    bindInput("costServerMonthly", (event) => {
+      setState({ serverMonthly: parseValue(event.target.value) });
+    });
+    bindInput("costDomainValue", (event) => {
+      setState({ domainValue: parseValue(event.target.value) });
+    });
+    bindInput("costDomainFrequency", (event) => {
+      setState({ domainFrequency: event.target.value });
+    });
+
+    const typeSelect = document.getElementById("costProjectType");
+    if (typeSelect) {
+      typeSelect.addEventListener("change", (event) => {
+        setState({ projectType: event.target.value });
+      });
+    }
+
+    const monthsSelect = document.getElementById("costContractMonths");
+    if (monthsSelect) {
+      monthsSelect.addEventListener("change", (event) => {
+        const value = parseValue(event.target.value);
+        setState({ contractMonths: value || 0 });
+      });
+    }
+
+    const domainSelect = document.getElementById("costDomainFrequency");
+    if (domainSelect) {
+      domainSelect.addEventListener("change", (event) => {
+        setState({ domainFrequency: event.target.value });
+      });
+    }
+
+    const recurringContainer = document.getElementById("costRecurringCategories");
+    if (recurringContainer) {
+      recurringContainer.addEventListener("input", handleRecurringList);
+      recurringContainer.addEventListener("change", handleRecurringList);
+      recurringContainer.addEventListener("click", handleRecurringList);
+    }
+
+    const oneTimeContainer = document.getElementById("costOneTimeList");
+    if (oneTimeContainer) {
+      oneTimeContainer.addEventListener("input", handleOneTimeList);
+      oneTimeContainer.addEventListener("change", handleOneTimeList);
+      oneTimeContainer.addEventListener("click", handleOneTimeList);
+    }
+
+    const addRecurringBtn = document.getElementById("addRecurringBtn");
+    if (addRecurringBtn) addRecurringBtn.addEventListener("click", handleAddRecurring);
+    const addOneTimeBtn = document.getElementById("addOneTimeBtn");
+    if (addOneTimeBtn) addOneTimeBtn.addEventListener("click", handleAddOneTime);
+    const applyBtn = document.getElementById("applyCostTemplate");
+    if (applyBtn) applyBtn.addEventListener("click", applyTemplate);
+
+    const clearBtn = document.getElementById("costsClearBtn");
+    if (clearBtn) clearBtn.addEventListener("click", handleClear);
+    const copyBtn = document.getElementById("costsCopyBtn");
+    if (copyBtn) copyBtn.addEventListener("click", handleCopy);
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCosts);
+  } else {
+    initCosts();
+  }
+})();

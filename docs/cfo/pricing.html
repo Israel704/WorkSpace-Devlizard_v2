@@ -100,7 +100,110 @@
           <div id="resultSummary" style="margin-top: 12px; padding: 12px; border: 1px solid #eee; border-radius: 6px; background: rgba(0, 123, 255, 0.06);"></div>
         </div>
 
-        <div class="card" style="margin-top: 16px;">
+                <div class="card" id="projectCostsCard" style="margin-top: 16px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div>
+              <h3 style="margin: 0;">Calculadora de Custos do Projeto</h3>
+              <p style="color: var(--muted); margin: 6px 0 0;">Custos base, recorrentes e setup por tipo de projeto. Persistência local.</p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button id="costsClearBtn" type="button" style="padding: 10px 12px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Limpar</button>
+              <button id="costsCopyBtn" type="button" style="padding: 10px 12px; background: #198754; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Copiar resumo</button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px;">
+            <div>
+              <label for="costProjectType">Tipo de projeto</label>
+              <select id="costProjectType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Selecione</option>
+                <option value="site">Site (Landing/Institucional)</option>
+                <option value="sistema">Sistema Web (Painel/CRM/ERP)</option>
+                <option value="saas">SaaS (multi-tenant/assinaturas)</option>
+                <option value="app">App (Android/iOS)</option>
+              </select>
+            </div>
+            <div>
+              <label>&nbsp;</label>
+              <button id="applyCostTemplate" type="button" style="width: 100%; padding: 12px 14px; background: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Aplicar modelo</button>
+              <small style="color: var(--muted); display: block; margin-top: 6px;">Carrega lista de custos padrão.</small>
+            </div>
+            <div>
+              <label for="costContractMonths">Período do contrato (meses)</label>
+              <select id="costContractMonths" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">1</option>
+                <option value="3">3</option>
+                <option value="6">6</option>
+                <option value="12" selected>12</option>
+                <option value="24">24</option>
+                <option value="36">36</option>
+              </select>
+            </div>
+            <div>
+              <label for="costContingency">Contingência (%)</label>
+              <input id="costContingency" type="number" min="0" max="30" step="0.1" value="10" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              <small style="color: var(--muted);">0 a 30</small>
+            </div>
+            <div>
+              <label for="costServerMonthly">Servidor (R$/mês)</label>
+              <input id="costServerMonthly" type="number" min="0" step="0.01" placeholder="0,00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+              <label for="costDomainValue">Domínio</label>
+              <div style="display: grid; grid-template-columns: 1fr 120px; gap: 8px;">
+                <input id="costDomainValue" type="number" min="0" step="0.01" placeholder="0,00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+                <select id="costDomainFrequency" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                  <option value="mensal">mensal</option>
+                  <option value="anual">anual</option>
+                </select>
+              </div>
+              <small id="costDomainEquivalent" style="color: var(--muted); display: block; margin-top: 6px;"></small>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <h4 style="margin: 0 0 6px;">Custos recorrentes (R$/mês)</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+              <div>
+                <label for="costRecurringCategory">Categoria</label>
+                <select id="costRecurringCategory" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></select>
+              </div>
+              <div>
+                <label for="costRecurringName">Nome do custo</label>
+                <input id="costRecurringName" type="text" placeholder="Ex.: Monitoramento/Uptime" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+              <div>
+                <label for="costRecurringValue">Valor mensal (R$)</label>
+                <input id="costRecurringValue" type="number" min="0" step="0.01" placeholder="0,00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+              <div style="display: flex; align-items: flex-end;">
+                <button id="addRecurringBtn" type="button" style="width: 100%; padding: 12px 14px; background: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Adicionar</button>
+              </div>
+            </div>
+            <div id="costRecurringCategories" style="display: grid; gap: 10px;"></div>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <h4 style="margin: 0 0 6px;">Custos únicos (R$)</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+              <div>
+                <label for="costOneTimeName">Nome do custo</label>
+                <input id="costOneTimeName" type="text" placeholder="Ex.: Setup/Implantação" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+              <div>
+                <label for="costOneTimeValue">Valor único (R$)</label>
+                <input id="costOneTimeValue" type="number" min="0" step="0.01" placeholder="0,00" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+              </div>
+              <div style="display: flex; align-items: flex-end;">
+                <button id="addOneTimeBtn" type="button" style="width: 100%; padding: 12px 14px; background: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Adicionar</button>
+              </div>
+            </div>
+            <div id="costOneTimeList" style="display: grid; gap: 10px;"></div>
+          </div>
+
+          <div id="costTotals" style="margin-top: 20px; padding: 12px; border: 1px solid #eee; border-radius: 6px; background: rgba(255,255,255,0.04);"></div>
+        </div>
+<div class="card" style="margin-top: 16px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
             <h3 style="margin: 0;">HistÃ³rico (Ãºltimas 10 estimativas)</h3>
             <button id="clearHistory" type="button" style="padding: 8px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Limpar histÃ³rico</button>
@@ -117,3 +220,4 @@
   <script src="pricing.js"></script>
 </body>
 </html>
+
