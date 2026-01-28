@@ -148,10 +148,6 @@ async function startServer() {
       console.log('   PATCH  /api/proposals/:id/decide');
       console.log('   DELETE /api/proposals/:id');
       console.log('');
-      console.log('👤 Usuário padrão:');
-      console.log('   Email: admin@devlizard.com');
-      console.log('   Senha: 123456');
-      console.log('   Role: ceo');
       console.log('🦎 ========================================');
       console.log('');
     });
