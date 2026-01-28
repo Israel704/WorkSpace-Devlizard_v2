@@ -490,9 +490,15 @@
     }, 300);
   };
 
-  const setState = (patch) => {
+  const setState = (patch, renderMode = "all") => {
     state = { ...state, ...patch };
-    renderAll();
+    if (renderMode === "all") {
+      renderAll();
+    } else if (renderMode === "totals") {
+      renderDomainEquivalent();
+      updateCategorySubtotals();
+      renderTotals();
+    }
     scheduleSave();
   };
 
@@ -545,8 +551,7 @@
     const label = document.getElementById("costDomainEquivalent");
     if (!label) return;
     const monthly = domainMonthlyEquivalent();
-    const freqLabel = state.domainFrequency === "anual" ? "anual" : "mensal";
-    label.textContent = `Equivalente mensal: ${formatCurrency(monthly)} (${freqLabel})`;
+    label.textContent = `Equivalente mensal: ${formatCurrency(monthly)}`;
   };
 
   const renderRecurring = () => {
@@ -570,10 +575,10 @@
         : `<div style="color: var(--muted); font-size: 13px; padding: 8px;">Nenhum item.</div>`;
 
       return `
-        <details open style="border: 1px solid #1f1f1f; border-radius: 6px; padding: 10px; background: rgba(255,255,255,0.02);">
+        <details open data-category="${category}" style="border: 1px solid #1f1f1f; border-radius: 6px; padding: 10px; background: rgba(255,255,255,0.02);">
           <summary style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
             <strong>${category}</strong>
-            <span style="color: var(--muted);">${formatCurrency(totalsByCategory[category] || 0)}</span>
+            <span class="category-subtotal" style="color: var(--muted);">${formatCurrency(totalsByCategory[category] || 0)}</span>
           </summary>
           <div style="display: grid; gap: 8px; margin-top: 10px;">
             ${rows}
@@ -642,17 +647,16 @@
         <strong>Subtotais por categoria (recorrente)</strong>
         ${categoryLines}
       </div>
-      <div style="margin-top: 12px; border-top: 1px dashed #333; padding-top: 12px; display: grid; gap: 6px;">
-        <div style="display: flex; justify-content: space-between; gap: 8px;">
-          <span style="color: var(--muted);">Servidor</span>
-          <strong>${formatCurrency(summary.serverMonthly)}</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between; gap: 8px;">
-          <span style="color: var(--muted);">Domínio (equiv. mensal)</span>
-          <strong>${formatCurrency(summary.domainMonthly)}</strong>
-        </div>
-      </div>
     `;
+  };
+
+  const updateCategorySubtotals = () => {
+    const totalsByCategory = categoryTotals();
+    CATEGORY_LIST.forEach((category) => {
+      const details = document.querySelector(`details[data-category="${category}"]`);
+      const label = details?.querySelector(".category-subtotal");
+      if (label) label.textContent = formatCurrency(totalsByCategory[category] || 0);
+    });
   };
 
   const renderAll = () => {
@@ -665,14 +669,23 @@
   };
 
   const updateRecurringItem = (id, field, value) => {
+    let shouldRerender = false;
     state.recurringItems = state.recurringItems.map((item) => {
       if (item.id !== id) return item;
       if (field === "name") return { ...item, name: value };
       if (field === "valueMonthly") return { ...item, valueMonthly: parseValue(value) };
-      if (field === "category") return { ...item, category: value };
+      if (field === "category") {
+        shouldRerender = true;
+        return { ...item, category: value };
+      }
       return item;
     });
-    renderAll();
+    if (shouldRerender) {
+      renderAll();
+    } else {
+      updateCategorySubtotals();
+      renderTotals();
+    }
     scheduleSave();
   };
 
@@ -683,7 +696,7 @@
       if (field === "valueOneTime") return { ...item, valueOneTime: parseValue(value) };
       return item;
     });
-    renderAll();
+    renderTotals();
     scheduleSave();
   };
 
@@ -882,26 +895,26 @@
 
     bindInput("costContractMonths", (event) => {
       const value = parseValue(event.target.value);
-      setState({ contractMonths: value || 0 });
+      setState({ contractMonths: value || 0 }, "totals");
     });
     bindInput("costContingency", (event) => {
       const value = clampNumber(parseValue(event.target.value), 0, 30);
-      setState({ contingencyPct: value });
+      setState({ contingencyPct: value }, "totals");
     });
     bindInput("costServerMonthly", (event) => {
-      setState({ serverMonthly: parseValue(event.target.value) });
+      setState({ serverMonthly: parseValue(event.target.value) }, "totals");
     });
     bindInput("costDomainValue", (event) => {
-      setState({ domainValue: parseValue(event.target.value) });
+      setState({ domainValue: parseValue(event.target.value) }, "totals");
     });
     bindInput("costDomainFrequency", (event) => {
-      setState({ domainFrequency: event.target.value });
+      setState({ domainFrequency: event.target.value }, "totals");
     });
 
     const typeSelect = document.getElementById("costProjectType");
     if (typeSelect) {
       typeSelect.addEventListener("change", (event) => {
-        setState({ projectType: event.target.value });
+        setState({ projectType: event.target.value }, "none");
       });
     }
 
@@ -909,14 +922,14 @@
     if (monthsSelect) {
       monthsSelect.addEventListener("change", (event) => {
         const value = parseValue(event.target.value);
-        setState({ contractMonths: value || 0 });
+        setState({ contractMonths: value || 0 }, "totals");
       });
     }
 
     const domainSelect = document.getElementById("costDomainFrequency");
     if (domainSelect) {
       domainSelect.addEventListener("change", (event) => {
-        setState({ domainFrequency: event.target.value });
+        setState({ domainFrequency: event.target.value }, "totals");
       });
     }
 
