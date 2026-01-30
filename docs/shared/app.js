@@ -1,4 +1,4 @@
-/* ======================================================
+﻿/* ======================================================
    ESTADO GLOBAL DA APLICAÇÃO
 
    Gerencia:
@@ -314,11 +314,13 @@ window.App = (() => {
     const menus = {
       ceo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
   { label: "Decisões", href: "decisions.html" },
   { label: "Riscos", href: "risks.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Roadmap Estratégico", href: "roadmap.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Relatórios", href: "reports.html" },
   { label: "Relatório Operacional", href: "ops-report.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
@@ -327,7 +329,9 @@ window.App = (() => {
 ],
       coo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Relatórios", href: "reports.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Gerenciar Decisões", href: "decisions-admin.html" },
@@ -341,32 +345,41 @@ window.App = (() => {
   { label: "Projetos", href: "projects.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Precificação", href: "pricing.html" },
+  { label: "Precificação de Projetos", href: "pricing-projects.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cto: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
+  { label: "Cadastro de Projetos", href: "projects.html" },
   { label: "Tech Intake", href: "intake.html" },
   { label: "Debt & Quality", href: "debt.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cmo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
   { label: "Roteiro de Promessas", href: "promises.html" },
   { label: "Status", href: "status.html" },
   { label: "Biblioteca", href: "library.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       comercial: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
@@ -374,10 +387,17 @@ window.App = (() => {
     };
 
     const items = menus[role] || [];
+    const isSharedPage = window.location.pathname.toLowerCase().includes("/shared/pages/");
+    const resolveHref = (href) => {
+      if (!isSharedPage) return href;
+      if (href.startsWith("../shared/")) return href;
+      return `../../${role}/${href}`;
+    };
     const html = items
       .map((item) => {
+        const resolvedHref = resolveHref(item.href);
         const active = item.href === current ? "active" : "";
-        return `<a href="${item.href}" class="${active}">${item.label}</a>`;
+        return `<a href="${resolvedHref}" class="${active}">${item.label}</a>`;
       })
       .join("");
     safeHTML(nav, html);
@@ -652,3 +672,5 @@ if (document.readyState === "loading") {
 } else {
   window.App.init();
 }
+
+

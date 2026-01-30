@@ -2,14 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>CFO • Clientes • DevLizard</title>
+  <title>Clientes • DevLizard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="../shared/css/global.css" />
-  <link rel="stylesheet" href="../shared/css/components.css" />
-  <link rel="stylesheet" href="../shared/css/roles.css" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/roles.css" />
 </head>
 
-<body class="role-cfo">
+<body>
   <div class="app">
     <div id="sidebar"></div>
 
@@ -20,7 +20,12 @@
         <div class="page-head" style="margin-bottom: 12px;">
           <div class="page-head-left">
             <h1>Clientes</h1>
-            <p style="color: var(--muted); margin-top: 8px;">Cadastro global de clientes com histórico e responsáveis.</p>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Cadastro global de clientes com histórico e responsáveis por C-level.
+            </p>
+          </div>
+          <div class="page-head-right">
+            <button type="button" onclick="history.back()" style="padding: 10px 14px; background: #6c757d; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Voltar</button>
           </div>
         </div>
 
@@ -72,10 +77,9 @@
     </main>
   </div>
 
-  <script src="cfo.guard.js"></script>
-  <script src="../shared/layout.js"></script>
-  <script src="../shared/app.js"></script>
-  <script src="../shared/clients.store.js"></script>
-  <script src="../shared/clients.page.js"></script>
+  <script src="../layout.js"></script>
+  <script src="../app.js"></script>
+  <script src="../clients.store.js"></script>
+  <script src="../clients.page.js"></script>
 </body>
 </html>
