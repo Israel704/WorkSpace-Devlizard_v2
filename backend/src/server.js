@@ -1,3 +1,10 @@
+// Compat: shared pages index.html (mesmo não existindo, evita erro de navegação)
+app.get('/shared/pages/index', (req, res) => {
+  res.redirect('/');
+});
+app.get('/shared/pages/index.html', (req, res) => {
+  res.redirect('/');
+});
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -8,11 +15,13 @@ const db = require('./db');
 const authRoutes = require('./routes/auth.routes');
 const ceoRoutes = require('./routes/ceo.routes');
 const cooRoutes = require('./routes/coo.routes');
+
 const filesRoutes = require('./routes/files.routes');
 const proposalsRoutes = require('./routes/proposals.routes');
 const usersRoutes = require('./routes/users.routes');
 const clientsRoutes = require('./routes/clients.routes');
 const projectsRoutes = require('./routes/projects.routes');
+const opsTasksRoutes = require('./routes/opsTasks.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,7 +65,9 @@ app.use('/api/files', filesRoutes);
 app.use('/api/proposals', proposalsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/clients', clientsRoutes);
+
 app.use('/api/projects', projectsRoutes);
+app.use('/api/ops-tasks', opsTasksRoutes);
 
 // Servir uploads (avatars/arquivos)
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
