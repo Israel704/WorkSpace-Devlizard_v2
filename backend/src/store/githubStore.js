@@ -6,6 +6,54 @@ const USERS_PATH = 'data/users.json';
 const CLIENTS_PATH = 'data/clients.json';
 const FILES_PATH = 'data/files.json';
 const PROJECTS_PATH = 'data/projects.json';
+const STORAGE_ROOT = 'data/storage';
+
+const STORAGE_MAP = {
+  'devlizard:ceo:decisions': 'data/ceo/decisions.json',
+  'devlizard:ceo:notes': 'data/ceo/notes.json',
+  'devlizard:ceo:risks': 'data/ceo/risks.json',
+  'devlizard:ceo:roadmap': 'data/ceo/roadmap.json',
+  'ceo_roadmaps': 'data/ceo/roadmap.json',
+  'ceo_reports_data': 'data/ceo/reports.json',
+  'coo_reports_data': 'data/coo/reports.json',
+  'shared_reports_data': 'data/shared/reports.json',
+  'coo_kanban_tasks': 'data/coo/kanban_tasks.json',
+  'coo_kanban_settings': 'data/coo/kanban_settings.json',
+  'cto_kanban_tasks': 'data/cto/kanban_tasks.json',
+  'cto_kanban_settings': 'data/cto/kanban_settings.json',
+  'cmo_promises': 'data/cmo/promises.json',
+  'global_decisions': 'data/shared/global_decisions.json',
+  'dl_projects_v1': 'data/shared/projects.json',
+  'dl_proposals_v1': 'data/shared/proposals.json',
+  'dl_clients_v1': CLIENTS_PATH,
+  'cfo_clients': 'data/cfo/clients.json',
+  'cfo_projects': 'data/cfo/projects.json',
+  'cfo_invested_yield': 'data/cfo/yield.json',
+  'cfo_pricing_state': 'data/cfo/pricing_state.json',
+  'cfo_pricing_history': 'data/cfo/pricing_history.json',
+  'cfm_project_costs_v2': 'data/cfo/project_costs.json',
+  'cto_intake_items': 'data/cto/intake.json',
+  'cto_debt_items': 'data/cto/debt.json',
+  'devlizard:cto:notes': 'data/cto/notes.json'
+};
+
+function resolveStoragePath(key) {
+  if (STORAGE_MAP[key]) return STORAGE_MAP[key];
+  const safeKey = encodeURIComponent(String(key || ''));
+  return `${STORAGE_ROOT}/${safeKey}.json`;
+}
+
+async function getStorage(key, fallback = null) {
+  const path = resolveStoragePath(key);
+  const res = await github.getJson(path);
+  if (!res || res.json === undefined) return fallback;
+  return res.json;
+}
+
+async function setStorage(key, value, message) {
+  const path = resolveStoragePath(key);
+  return github.createOrUpdateJson(path, value, message || `Update ${key}`);
+}
 // Projetos
 async function _readProjects() {
   const res = await github.getJson(PROJECTS_PATH);
@@ -95,4 +143,6 @@ module.exports = {
   getFiles,
   addProject,
   getProjects,
+  getStorage,
+  setStorage,
 };

@@ -110,10 +110,12 @@ const boot = () => {
   setTimeout(loadApprovalsStats, 500);
 };
 
+const ready = window.App?.storageReady || Promise.resolve();
+const start = () => ready.then(() => boot());
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
+  document.addEventListener('DOMContentLoaded', start);
 } else {
-  boot();
+  start();
 }
 
 async function loadApprovalsStats() {

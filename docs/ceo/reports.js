@@ -331,5 +331,6 @@ const CEOReports = (() => {
 
 // Inicializar ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-  CEOReports.init();
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => CEOReports.init());
 });

@@ -323,5 +323,6 @@ const COOReports = (() => {
 
 // Inicializar ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-  COOReports.init();
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => COOReports.init());
 });

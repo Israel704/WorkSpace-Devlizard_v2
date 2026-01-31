@@ -431,11 +431,14 @@
   };
 
   document.addEventListener("DOMContentLoaded", () => {
-    populateClients();
-    renderModules([]);
-    updateComplexityCriteria();
-    bindEvents();
-    renderProjects();
+    const ready = window.App?.storageReady || Promise.resolve();
+    ready.then(() => {
+      populateClients();
+      renderModules([]);
+      updateComplexityCriteria();
+      bindEvents();
+      renderProjects();
+    });
   });
 
   window.CTOProjects = {

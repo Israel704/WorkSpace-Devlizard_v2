@@ -16,6 +16,7 @@ const usersRoutes = require('./routes/users.routes');
 const clientsRoutes = require('./routes/clients.routes');
 const projectsRoutes = require('./routes/projects.routes');
 const opsTasksRoutes = require('./routes/opsTasks.routes');
+const storageRoutes = require('./routes/storage.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,6 +65,7 @@ app.use('/api/clients', clientsRoutes);
 
 app.use('/api/projects', projectsRoutes);
 app.use('/api/ops-tasks', opsTasksRoutes);
+app.use('/api/storage', storageRoutes);
 
 // Compat: shared pages clients.html (evita erro de navegação)
 app.get('/shared/pages/clients', (req, res) => {

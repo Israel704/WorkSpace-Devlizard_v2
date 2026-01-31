@@ -513,12 +513,15 @@ async function deleteProposal(proposalId) {
 // ==================== INICIALIZAÇÃO ====================
 
 document.addEventListener('DOMContentLoaded', () => {
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => {
   initTabs();
   initCreateForm();
   if (window.App?.log) window.App.log('INIT', 'Proposals module carregado');
   
   // Carregar propostas recebidas por padrão
   // (aba "Criar" está ativa por padrão, então não carregamos nada)
+  });
 });
 
 // Adicionar estilos para badges

@@ -177,7 +177,10 @@
     renderProjects();
   };
 
-  document.addEventListener("DOMContentLoaded", renderProjects);
+  document.addEventListener("DOMContentLoaded", () => {
+    const ready = window.App?.storageReady || Promise.resolve();
+    ready.then(() => renderProjects());
+  });
 
   window.CFOProjectPricing = {
     calculate: calculatePrice,

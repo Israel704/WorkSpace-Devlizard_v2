@@ -528,10 +528,13 @@ const COOKanban = (() => {
 
   // ==================== INIT ====================
   function init() {
-    loadTasks();
-    setupEventListeners();
-    setupDragAndDrop();
-    renderKanban();
+    const ready = window.App?.storageReady || Promise.resolve();
+    ready.then(() => {
+      loadTasks();
+      setupEventListeners();
+      setupDragAndDrop();
+      renderKanban();
+    });
     
     // Inicializar FilesManager se existir
     if (typeof FilesManager !== 'undefined') {
@@ -559,14 +562,19 @@ const COOKanban = (() => {
 })();
 
 // Renderizar widget de decisões
+const decisionsReady = window.App?.storageReady || Promise.resolve();
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
+    decisionsReady.then(() => {
+      if (window.DecisionsWidget) {
+        DecisionsWidget.renderSummary('#decisionsSummary', { limit: 5 });
+      }
+    });
+  });
+} else {
+  decisionsReady.then(() => {
     if (window.DecisionsWidget) {
       DecisionsWidget.renderSummary('#decisionsSummary', { limit: 5 });
     }
   });
-} else {
-  if (window.DecisionsWidget) {
-    DecisionsWidget.renderSummary('#decisionsSummary', { limit: 5 });
-  }
 }

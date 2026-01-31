@@ -535,10 +535,12 @@ const CTOKanban = (() => {
   }
 
   // Auto-init quando DOM carregar
+  const ready = window.App?.storageReady || Promise.resolve();
+  const boot = () => ready.then(() => init());
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    init();
+    boot();
   }
 
   // Expor métodos públicos se necessário
@@ -592,18 +594,24 @@ const CTO = (() => {
     loadCounters();
   }
 
-  init();
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => init());
 })();
 
 // Renderizar widget de decisões
+const decisionsReady = window.App?.storageReady || Promise.resolve();
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
+    decisionsReady.then(() => {
+      if (window.DecisionsWidget) {
+        DecisionsWidget.renderSummary('#decisionsSummary', { limit: 5 });
+      }
+    });
+  });
+} else {
+  decisionsReady.then(() => {
     if (window.DecisionsWidget) {
       DecisionsWidget.renderSummary('#decisionsSummary', { limit: 5 });
     }
   });
-} else {
-  if (window.DecisionsWidget) {
-    DecisionsWidget.renderSummary('#decisionsSummary', { limit: 5 });
-  }
 }

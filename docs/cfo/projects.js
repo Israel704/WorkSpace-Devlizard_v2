@@ -373,6 +373,8 @@
   };
 
   document.addEventListener('DOMContentLoaded', async () => {
+    const ready = window.App?.storageReady || Promise.resolve();
+    await ready;
     await populateClientsSelect();
     bindEvents();
     renderProjects();

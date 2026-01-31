@@ -322,10 +322,12 @@
     renderHistory();
   };
 
+  const ready = window.App?.storageReady || Promise.resolve();
+  const boot = () => ready.then(() => init());
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    init();
+    boot();
   }
 })();
 
@@ -961,7 +963,8 @@
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initCosts);
+    const ready = window.App?.storageReady || Promise.resolve();
+    document.addEventListener("DOMContentLoaded", () => ready.then(() => initCosts()));
   } else {
     initCosts();
   }

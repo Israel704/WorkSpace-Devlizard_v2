@@ -574,6 +574,134 @@ window.App = (() => {
     }
   };
 
+  // ===================================================
+  // REMOTE STORAGE (GitHub-backed via API)
+  // ===================================================
+  const localJsonStore = {
+    getJson: (key, fallback = null) => {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return parsed === undefined ? fallback : parsed;
+      } catch (_) {
+        return fallback;
+      }
+    },
+    setJson: (key, value) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (_) {}
+      return value;
+    },
+  };
+
+  const RemoteStore = {
+    async getJson(key, fallback = null) {
+      const encoded = encodeURIComponent(String(key || ""));
+      try {
+        const data = await apiFetch(`${API_BASE}/storage/${encoded}`);
+        return data === undefined || data === null ? fallback : data;
+      } catch (e) {
+        return localJsonStore.getJson(key, fallback);
+      }
+    },
+    async setJson(key, value) {
+      const encoded = encodeURIComponent(String(key || ""));
+      try {
+        await apiFetch(`${API_BASE}/storage/${encoded}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value }),
+        });
+      } catch (e) {
+        localJsonStore.setJson(key, value);
+      }
+      return value;
+    },
+  };
+
+  window.RemoteStore = RemoteStore;
+
+  const rawSetItem = localStorage.setItem.bind(localStorage);
+  const rawRemoveItem = localStorage.removeItem.bind(localStorage);
+
+  const DATA_STORAGE_KEYS = [
+    "devlizard:ceo:decisions",
+    "devlizard:ceo:notes",
+    "devlizard:ceo:risks",
+    "devlizard:ceo:roadmap",
+    "ceo_roadmaps",
+    "ceo_reports_data",
+    "coo_reports_data",
+    "shared_reports_data",
+    "coo_kanban_tasks",
+    "coo_kanban_settings",
+    "cto_kanban_tasks",
+    "cto_kanban_settings",
+    "cto_intake_items",
+    "cto_debt_items",
+    "devlizard:cto:notes",
+    "cmo_promises",
+    "global_decisions",
+    "dl_projects_v1",
+    "dl_clients_v1",
+    "cfo_clients",
+    "cfo_projects",
+    "cfo_invested_yield",
+    "cfo_pricing_history",
+    "cfm_project_costs_v2"
+  ];
+
+  const isDataKey = (key) => DATA_STORAGE_KEYS.includes(String(key || ""));
+
+  const hydrateDataKeys = async () => {
+    for (const key of DATA_STORAGE_KEYS) {
+      try {
+        const data = await RemoteStore.getJson(key, null);
+        if (data === null || data === undefined) {
+          const localRaw = localStorage.getItem(key);
+          if (localRaw !== null && localRaw !== undefined) {
+            try {
+              const parsed = JSON.parse(String(localRaw));
+              await RemoteStore.setJson(key, parsed);
+            } catch (_) {
+              await RemoteStore.setJson(key, String(localRaw));
+            }
+          }
+          continue;
+        }
+        if (typeof data === "string") rawSetItem(key, data);
+        else rawSetItem(key, JSON.stringify(data));
+      } catch (_) {}
+    }
+  };
+
+  if (!window.__REMOTE_STORAGE_PATCHED) {
+    window.__REMOTE_STORAGE_PATCHED = true;
+    const originalSetItem = rawSetItem;
+    const originalRemoveItem = rawRemoveItem;
+
+    localStorage.setItem = (key, value) => {
+      originalSetItem(key, value);
+      if (!isDataKey(key)) return;
+      try {
+        const parsed = JSON.parse(String(value));
+        RemoteStore.setJson(key, parsed);
+      } catch (_) {
+        RemoteStore.setJson(key, value);
+      }
+    };
+
+    localStorage.removeItem = (key) => {
+      originalRemoveItem(key);
+      if (!isDataKey(key)) return;
+      RemoteStore.setJson(key, null);
+    };
+  }
+
+  const storageReady = hydrateDataKeys();
+
   const log = (contextOrMessage, messageOrData = null, maybeData = null) => {
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     const roleTag = state.role ? `[${state.role.toUpperCase()}]` : "";
@@ -664,6 +792,8 @@ window.App = (() => {
     safeHTML,
     apiFetch,
     getApiBase: () => API_BASE,
+    store: RemoteStore,
+    storageReady,
 
     // Init
     init,

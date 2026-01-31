@@ -191,7 +191,8 @@
 
     // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
-      startAutoSync();
+      const ready = window.App?.storageReady || Promise.resolve();
+      ready.then(() => startAutoSync());
     });
 
     // Cleanup

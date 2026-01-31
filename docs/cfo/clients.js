@@ -173,8 +173,11 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    bindEvents();
-    renderClients();
+    const ready = window.App?.storageReady || Promise.resolve();
+    ready.then(() => {
+      bindEvents();
+      renderClients();
+    });
   });
 
   // Expor para botões inline
