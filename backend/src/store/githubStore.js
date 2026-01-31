@@ -118,6 +118,45 @@ async function createUser({ email, password, role, name = null, avatar = null })
   return newUser;
 }
 
+async function ensureUsersFile(defaultUsers) {
+  if (!github || !github.createOrUpdateJson) {
+    return { ok: false, skipped: true, reason: 'github client unavailable' };
+  }
+
+  if (!process.env.GITHUB_TOKEN) {
+    return { ok: false, skipped: true, reason: 'missing GITHUB_TOKEN' };
+  }
+
+  let existing = null;
+  try {
+    existing = await _readUsers();
+  } catch (_) {
+    existing = null;
+  }
+
+  if (Array.isArray(existing) && existing.length > 0) {
+    return { ok: true, skipped: true, reason: 'users.json already exists' };
+  }
+
+  const createdAt = new Date().toISOString();
+  const users = [];
+  for (const user of defaultUsers || []) {
+    const hashed = await bcrypt.hash(user.password, 10);
+    users.push({
+      id: Date.now() + users.length,
+      email: user.email,
+      password: hashed,
+      role: user.role,
+      name: user.name || null,
+      avatar: user.avatar || null,
+      createdAt,
+    });
+  }
+
+  await _writeUsers(users, 'Bootstrap users.json');
+  return { ok: true, skipped: false, count: users.length };
+}
+
 // Clientes
 async function _readClients() {
   const res = await github.getJson(CLIENTS_PATH);
@@ -162,6 +201,7 @@ module.exports = {
   getUserById,
   updateUserById,
   createUser,
+  ensureUsersFile,
   addClient,
   getClients,
   addFile,

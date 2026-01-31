@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const githubStore = require('./store/githubStore');
 // ...existing code...
 
 // Importar rotas
@@ -138,6 +139,24 @@ async function startServer() {
   try {
     // Inicializar banco de dados
     await db.initialize();
+
+    // Bootstrap users.json (GitHub) se ainda nÃ£o existir
+    try {
+      const defaultUsers = [
+        { email: 'admin@devlizard.com', password: '123456', role: 'ceo' },
+        { email: 'coo@devlizard.com', password: 'coo2024', role: 'coo' },
+        { email: 'cfo@devlizard.com', password: 'cfo2024', role: 'cfo' },
+        { email: 'cto@devlizard.com', password: 'cto2024', role: 'cto' },
+        { email: 'cmo@devlizard.com', password: 'cmo2024', role: 'cmo' },
+        { email: 'comercial@devlizard.com', password: 'comercial2024', role: 'comercial' },
+      ];
+      const bootstrap = await githubStore.ensureUsersFile(defaultUsers);
+      if (!bootstrap?.skipped) {
+        console.log(`Bootstrap users.json: ${bootstrap?.count || 0} usuÃ¡rios criados`);
+      }
+    } catch (bootstrapErr) {
+      console.warn('Aviso: nÃ£o foi possÃ­vel bootstrap do users.json:', bootstrapErr.message || bootstrapErr);
+    }
     
     // Iniciar servidor
     app.listen(PORT, () => {
