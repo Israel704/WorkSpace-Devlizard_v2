@@ -75,8 +75,14 @@ app.get('/auth/login', (req, res) => {
 });
 
 // Compat: shared pages sem extensao
+
 app.get('/shared/pages/decisions', (req, res) => {
   res.sendFile(path.join(__dirname, '../../docs/shared/pages/decisions.html'));
+});
+
+// Compat: shared commercial-projects sem extensao
+app.get('/shared/pages/commercial-projects', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/commercial-projects.html'));
 });
 
 app.get('/shared/pages/roadmap-view', (req, res) => {
