@@ -61,8 +61,17 @@ app.use('/api/users', usersRoutes);
 app.use('/api/clients', clientsRoutes);
 
 
+
 app.use('/api/projects', projectsRoutes);
 app.use('/api/ops-tasks', opsTasksRoutes);
+
+// Compat: shared pages clients.html (evita erro de navegação)
+app.get('/shared/pages/clients', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/clients.html'));
+});
+app.get('/shared/pages/clients.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/clients.html'));
+});
 
 // Compat: shared pages index.html (mesmo não existindo, evita erro de navegação)
 app.get('/shared/pages/index', (req, res) => {
