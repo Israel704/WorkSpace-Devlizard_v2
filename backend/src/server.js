@@ -76,21 +76,20 @@ app.get('/auth/login', (req, res) => {
 
 // Compat: shared pages sem extensao
 
-app.get('/shared/pages/decisions', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/decisions.html'));
-});
 
-// Compat: shared commercial-projects sem extensao
-app.get('/shared/pages/commercial-projects', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/commercial-projects.html'));
-});
-
-app.get('/shared/pages/roadmap-view', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/roadmap-view.html'));
-});
-
-app.get('/shared/pages/profile', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/profile.html'));
+// Compat: shared pages sem extensao (.html)
+const sharedPages = [
+  'clients',
+  'commercial-projects',
+  'decisions',
+  'instructions',
+  'profile',
+  'roadmap-view',
+];
+sharedPages.forEach(page => {
+  app.get(`/shared/pages/${page}`, (req, res) => {
+    res.sendFile(path.join(__dirname, `../../docs/shared/pages/${page}.html`));
+  });
 });
 
 // Error handler global
