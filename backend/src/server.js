@@ -117,48 +117,18 @@ async function startServer() {
     // Iniciar servidor
     app.listen(PORT, () => {
       console.log('');
-      console.log('🦎 ========================================');
       console.log('🦎 DevLizard Backend API');
-      console.log('🦎 ========================================');
-      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log('------------------------------');
+      console.log(`Acesse: http://localhost:${PORT}`);
       console.log('');
-      console.log('📌 Endpoints disponíveis:');
-      console.log('   POST   /api/auth/login');
-      console.log('   GET    /api/ceo/notes');
-      console.log('   POST   /api/ceo/notes');
-      console.log('   PUT    /api/ceo/notes/:id');
-      console.log('   DELETE /api/ceo/notes/:id');
-      console.log('   GET    /api/ceo/decisions');
-      console.log('   POST   /api/ceo/decisions');
-      console.log('   PUT    /api/ceo/decisions/:id');
-      console.log('   DELETE /api/ceo/decisions/:id');
-      console.log('   GET    /api/ceo/risks');
-      console.log('   POST   /api/ceo/risks');
-      console.log('   PUT    /api/ceo/risks/:id');
-      console.log('   DELETE /api/ceo/risks/:id');
-      console.log('   GET    /api/ceo/ops-report');
-      console.log('   GET    /api/coo/tasks');
-      console.log('   POST   /api/coo/tasks');
-      console.log('   PUT    /api/coo/tasks/:id');
-      console.log('   PATCH  /api/coo/tasks/:id/move');
-      console.log('   DELETE /api/coo/tasks/:id');
-      console.log('   POST   /api/files/forward');
-      console.log('   GET    /api/files/inbox');
-      console.log('   GET    /api/files/:id/download');
-      console.log('   PATCH  /api/files/:id/read');
-      console.log('   DELETE /api/files/:id');
-      console.log('   GET    /api/users/me');
-      console.log('   PATCH  /api/users/me');
-      console.log('   POST   /api/users/me/avatar');
-      console.log('   POST   /api/proposals');
-      console.log('   GET    /api/proposals/sent');
-      console.log('   GET    /api/proposals/inbox');
-      console.log('   PATCH  /api/proposals/:id/decide');
-      console.log('   DELETE /api/proposals/:id');
-      console.log('');
-      console.log('🦎 ========================================');
-      console.log('');
+      console.log('Perfis de acesso:');
+      console.log('  CEO:        admin@devlizard.com / 123456');
+      console.log('  COO:        coo@devlizard.com / 123456');
+      console.log('  CFO:        cfo@devlizard.com / 123456');
+      console.log('  CTO:        cto@devlizard.com / 123456');
+      console.log('  CMO:        cmo@devlizard.com / 123456');
+      console.log('  Comercial:  comercial@devlizard.com / 123456');
+      console.log('------------------------------');
     });
     
   } catch (error) {
