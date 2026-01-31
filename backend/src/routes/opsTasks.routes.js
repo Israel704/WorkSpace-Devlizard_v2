@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const opsTasksStore = require('../store/opsTasksStore');
-const authRequired = require('../middleware/auth');
+const { authRequired } = require('../middleware/auth');
 
 // Listar todas as tarefas
 router.get('/', authRequired, async (req, res) => {

@@ -1,15 +1,9 @@
-// Compat: shared pages index.html (mesmo não existindo, evita erro de navegação)
-app.get('/shared/pages/index', (req, res) => {
-  res.redirect('/');
-});
-app.get('/shared/pages/index.html', (req, res) => {
-  res.redirect('/');
-});
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+// ...existing code...
 
 // Importar rotas
 const authRoutes = require('./routes/auth.routes');
@@ -66,8 +60,17 @@ app.use('/api/proposals', proposalsRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/clients', clientsRoutes);
 
+
 app.use('/api/projects', projectsRoutes);
 app.use('/api/ops-tasks', opsTasksRoutes);
+
+// Compat: shared pages index.html (mesmo não existindo, evita erro de navegação)
+app.get('/shared/pages/index', (req, res) => {
+  res.redirect('/');
+});
+app.get('/shared/pages/index.html', (req, res) => {
+  res.redirect('/');
+});
 
 // Servir uploads (avatars/arquivos)
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
