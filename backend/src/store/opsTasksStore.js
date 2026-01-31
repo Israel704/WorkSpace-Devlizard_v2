@@ -1,15 +1,15 @@
 // Store para tarefas operacionais (Kanban COO) usando GitHub como banco
-const github = require('../githubClient');
+const githubStore = require('../store/githubStore');
 
-const OPS_TASKS_PATH = 'data/ops_tasks.json';
+const STORAGE_KEY = 'dl_api_ops_tasks_v1';
 
 async function _readOpsTasks() {
-  const res = await github.getJson(OPS_TASKS_PATH);
-  return (res && res.json) ? res.json : [];
+  const res = await githubStore.getStorage(STORAGE_KEY, []);
+  return Array.isArray(res) ? res : [];
 }
 
 async function _writeOpsTasks(tasks, message) {
-  return github.createOrUpdateJson(OPS_TASKS_PATH, tasks, message || 'Update ops tasks');
+  return githubStore.setStorage(STORAGE_KEY, tasks, message || 'Update ops tasks');
 }
 
 async function getOpsTasks() {

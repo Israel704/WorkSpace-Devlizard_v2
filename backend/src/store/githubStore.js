@@ -26,6 +26,12 @@ const STORAGE_MAP = {
   'dl_projects_v1': 'data/shared/projects.json',
   'dl_proposals_v1': 'data/shared/proposals.json',
   'dl_clients_v1': CLIENTS_PATH,
+  'dl_api_ceo_notes_v1': 'data/api/ceo_notes.json',
+  'dl_api_ceo_decisions_v1': 'data/api/ceo_decisions.json',
+  'dl_api_ceo_risks_v1': 'data/api/ceo_risks.json',
+  'dl_api_ops_tasks_v1': 'data/api/ops_tasks.json',
+  'dl_api_files_messages_v1': 'data/api/messages.json',
+  'dl_api_cfo_revenue_v1': 'data/api/cfo_revenue.json',
   'cfo_clients': 'data/cfo/clients.json',
   'cfo_projects': 'data/cfo/projects.json',
   'cfo_invested_yield': 'data/cfo/yield.json',
@@ -85,6 +91,22 @@ async function getUserByEmailAndRole(email, role) {
   const users = await _readUsers();
   return users.find(u => u.email === email && u.role === role) || null;
 }
+async function getUsers() {
+  return await _readUsers();
+}
+async function getUserById(id) {
+  const users = await _readUsers();
+  return users.find(u => String(u.id) === String(id)) || null;
+}
+async function updateUserById(id, updates, message) {
+  const users = await _readUsers();
+  const index = users.findIndex(u => String(u.id) === String(id));
+  if (index < 0) return null;
+  const updated = { ...users[index], ...updates };
+  users[index] = updated;
+  await _writeUsers(users, message || `Update user ${id}`);
+  return updated;
+}
 async function createUser({ email, password, role, name = null, avatar = null }) {
   const users = await _readUsers();
   const exists = users.find(u => u.email === email && u.role === role);
@@ -136,6 +158,9 @@ async function getFiles() {
 
 module.exports = {
   getUserByEmailAndRole,
+  getUsers,
+  getUserById,
+  updateUserById,
   createUser,
   addClient,
   getClients,
