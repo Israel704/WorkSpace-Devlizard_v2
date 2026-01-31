@@ -390,7 +390,11 @@ window.App = (() => {
     const isSharedPage = window.location.pathname.toLowerCase().includes("/shared/pages/");
     const resolveHref = (href) => {
       if (!isSharedPage) return href;
+      // Se já está em /shared/pages/ e o href é relativo (ex: decisions.html), não alterar
+      if (!href.startsWith("../") && href.endsWith(".html")) return href;
+      // Se começa com ../shared/, manter
       if (href.startsWith("../shared/")) return href;
+      // Para outros casos, manter padrão antigo
       return `../../${role}/${href}`;
     };
     const html = items
