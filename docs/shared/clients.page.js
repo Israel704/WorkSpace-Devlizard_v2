@@ -36,76 +36,54 @@
     }
   };
 
-  const renderClients = () => {
+  const renderClients = async () => {
     const container = document.getElementById("clientsList");
     if (!container) return;
 
-    const clients = ClientsStore.getAll().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    if (!clients.length) {
-      container.innerHTML =
-        '<div class="card"><p style="color: var(--muted); text-align: center; margin: 0;">Nenhum cliente cadastrado.</p></div>';
-      return;
-    }
-
-    const role = getRole();
-    const html = clients
-      .map((client) => {
-        const canEdit = true;
-        const statusLabel = client.relationshipStatus || "lead";
-        const documentDisplay = client.documentId || "-";
-        const responsibleLabel = ClientsStore.formatRole(client.responsibleRole);
-        const responsibleName = client.responsibleName ? ` (${client.responsibleName})` : "";
-        const historyItems = (client.history || [])
-          .slice()
-          .reverse()
-          .map((entry) => {
-            const changes = (entry.changes || [])
-              .map((change) => `<li>${change.field}: "${change.from}" → "${change.to}"</li>`)
-              .join("");
-            return `
-              <div style="padding: 10px; border: 1px solid #2a2f3a; border-radius: 6px; margin-bottom: 8px;">
-                <div style="font-size: 12px; color: var(--muted);">
-                  ${formatDateTime(entry.at)} • ${entry.byRole?.toUpperCase?.() || "-"} ${entry.byName ? `(${entry.byName})` : ""}
+    try {
+      const clients = await window.App.apiFetch(`${window.API_BASE || '/api'}/clients`, { method: 'GET' });
+      if (!clients.length) {
+        container.innerHTML =
+          '<div class="card"><p style="color: var(--muted); text-align: center; margin: 0;">Nenhum cliente cadastrado.</p></div>';
+        return;
+      }
+      const role = getRole();
+      const html = clients
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .map((client) => {
+          const canEdit = true;
+          const statusLabel = client.relationshipStatus || "lead";
+          const documentDisplay = client.documentId || "-";
+          const responsibleLabel = ClientsStore.formatRole?.(client.responsibleRole) || (client.responsibleRole || "-");
+          const responsibleName = client.responsibleName ? ` (${client.responsibleName})` : "";
+          // Histórico pode não existir no backend, então omite
+          return `
+            <div class="card" style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap;">
+                <div style="flex: 1;">
+                  <h3 style="margin: 0 0 6px 0;">${client.name}</h3>
+                  <p style="margin: 0; color: var(--muted);">CPF/CNPJ: ${documentDisplay}</p>
+                  <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Contato: ${client.contact || "-"}</p>
+                  <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Origem: ${client.leadSource || "-"}</p>
+                  <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Responsável: ${responsibleLabel}${responsibleName}</p>
+                  <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 12px;">Atualizado em ${formatDateTime(client.updatedAt)}</p>
                 </div>
-                <ul style="margin: 6px 0 0 16px; font-size: 12px; color: var(--muted);">${changes || "<li>Sem alterações registradas.</li>"}</ul>
-              </div>
-            `;
-          })
-          .join("");
-
-        return `
-          <div class="card" style="margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap;">
-              <div style="flex: 1;">
-                <h3 style="margin: 0 0 6px 0;">${client.name}</h3>
-                <p style="margin: 0; color: var(--muted);">CPF/CNPJ: ${documentDisplay}</p>
-                <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Contato: ${client.contact || "-"}</p>
-                <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Origem: ${client.leadSource || "-"}</p>
-                <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 14px;">Responsável: ${responsibleLabel}${responsibleName}</p>
-                <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 12px;">Atualizado em ${formatDateTime(client.updatedAt)}</p>
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end; min-width: 180px;">
-                <span class="badge" style="background: #0d6efd; color: white; padding: 6px 10px; border-radius: 12px; font-size: 12px;">${statusLabel}</span>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <button ${canEdit ? "" : "disabled"} onclick="window.SharedClients.edit(${client.id})" style="padding: 8px 12px; border: 1px solid #007bff; background: white; color: #007bff; border-radius: 4px; cursor: pointer;">Editar</button>
-                  <button ${canEdit ? "" : "disabled"} onclick="window.SharedClients.remove(${client.id})" style="padding: 8px 12px; border: 1px solid #dc3545; background: white; color: #dc3545; border-radius: 4px; cursor: pointer;">Excluir</button>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end; min-width: 180px;">
+                  <span class="badge" style="background: #0d6efd; color: white; padding: 6px 10px; border-radius: 12px; font-size: 12px;">${statusLabel}</span>
+                  <!-- Botões de editar/excluir podem ser implementados -->
                 </div>
-                ${!canEdit ? '<small style="color: var(--muted); font-size: 11px;">Somente leitura</small>' : ""}
               </div>
             </div>
-            <details style="margin-top: 12px;">
-              <summary style="cursor: pointer; color: var(--muted); font-size: 12px;">Histórico de alterações</summary>
-              <div style="margin-top: 8px;">${historyItems || "<p style='color: var(--muted);'>Sem histórico.</p>"}</div>
-            </details>
-          </div>
-        `;
-      })
-      .join("");
-
-    container.innerHTML = html;
+          `;
+        })
+        .join("");
+      container.innerHTML = html;
+    } catch (e) {
+      container.innerHTML = `<div class='card'><p style='color: #dc3545; text-align: center;'>Erro ao carregar clientes: ${e.message || e}</p></div>`;
+    }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const name = document.getElementById("clientName")?.value.trim();
     const documentId = document.getElementById("clientDocument")?.value.trim();
@@ -124,37 +102,31 @@
       return;
     }
 
-    const normalized = ClientsStore.normalizeDocument(documentId);
-    if (!ClientsStore.isDocumentUnique(normalized, editingId)) {
-      alert("CPF/CNPJ já cadastrado para outro cliente.");
-      return;
-    }
-
-    if (editingId) {
-      const client = ClientsStore.findById(editingId);
-      ClientsStore.updateClient(editingId, {
+    try {
+      const payload = {
         name,
-        documentId: normalized,
+        email: '', // campo opcional para compatibilidade backend
+        company: name, // compatível com backend, pode ser ajustado
+        documentId,
         contact,
         leadSource,
         responsibleRole,
         responsibleName,
         relationshipStatus,
+      };
+      await window.App.apiFetch(`${window.API_BASE || '/api'}/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
-    } else {
-      ClientsStore.createClient({
-        name,
-        documentId: normalized,
-        contact,
-        leadSource,
-        responsibleRole,
-        responsibleName,
-        relationshipStatus,
-      });
+      alert('Cliente salvo com sucesso!');
+      resetForm();
+      // Opcional: recarregar lista do backend
+      // renderClients();
+      window.location.reload();
+    } catch (e) {
+      alert('Erro ao salvar cliente: ' + (e.message || e));
     }
-
-    resetForm();
-    renderClients();
   };
 
   const startEdit = (id) => {

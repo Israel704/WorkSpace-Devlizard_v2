@@ -1,7 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../db');
+// const db = require('../db');
+const githubStore = require('../store/githubStore');
 
 const router = express.Router();
 
@@ -17,11 +18,9 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Buscar usuário
-    const user = await db.get(
-      'SELECT * FROM users WHERE email = ? AND role = ?',
-      [email, role]
-    );
+
+    // Buscar usuário no GitHub
+    const user = await githubStore.getUserByEmailAndRole(email, role);
 
     if (!user) {
       return res.status(401).json({ 

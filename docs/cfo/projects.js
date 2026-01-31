@@ -68,38 +68,44 @@
     localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
   };
 
-  const populateClientsSelect = () => {
+  const populateClientsSelect = async () => {
     const select = document.getElementById('projectClient');
     const noClientsMessage = document.getElementById('noClientsMessage');
     if (!select) return;
 
-    const clients = loadClients();
     select.innerHTML = '';
-
-    if (!clients.length) {
+    try {
+      const clients = await window.App.apiFetch(`${window.API_BASE || '/api'}/clients`, { method: 'GET' });
+      if (!clients.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Cadastre um cliente primeiro';
+        select.appendChild(option);
+        select.disabled = true;
+        if (noClientsMessage) noClientsMessage.style.display = 'block';
+        return;
+      }
+      select.disabled = false;
+      if (noClientsMessage) noClientsMessage.style.display = 'none';
+      clients
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach((client) => {
+          const option = document.createElement('option');
+          option.value = client.id;
+          option.textContent = client.name;
+          select.appendChild(option);
+        });
+    } catch (e) {
       const option = document.createElement('option');
       option.value = '';
-      option.textContent = 'Cadastre um cliente primeiro';
+      option.textContent = 'Erro ao carregar clientes';
       select.appendChild(option);
       select.disabled = true;
       if (noClientsMessage) noClientsMessage.style.display = 'block';
-      return;
     }
-
-    select.disabled = false;
-    if (noClientsMessage) noClientsMessage.style.display = 'none';
-
-    clients
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .forEach((client) => {
-        const option = document.createElement('option');
-        option.value = client.id;
-        option.textContent = client.name;
-        select.appendChild(option);
-      });
   };
 
-  const resetForm = () => {
+  const resetForm = async () => {
     const form = document.getElementById('projectForm');
     form?.reset();
     editingProjectId = null;
@@ -108,7 +114,7 @@
     const cancelBtn = document.getElementById('cancelProjectEdit');
     if (cancelBtn) cancelBtn.style.display = 'none';
     toggleRentalFields();
-    populateClientsSelect();
+    await populateClientsSelect();
   };
 
   const handleSubmit = (event) => {
@@ -366,8 +372,8 @@
     document.getElementById('projectRentalMonths')?.addEventListener('input', calculateRentalTotal);
   };
 
-  document.addEventListener('DOMContentLoaded', () => {
-    populateClientsSelect();
+  document.addEventListener('DOMContentLoaded', async () => {
+    await populateClientsSelect();
     bindEvents();
     renderProjects();
   });

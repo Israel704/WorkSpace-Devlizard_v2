@@ -11,6 +11,8 @@ const cooRoutes = require('./routes/coo.routes');
 const filesRoutes = require('./routes/files.routes');
 const proposalsRoutes = require('./routes/proposals.routes');
 const usersRoutes = require('./routes/users.routes');
+const clientsRoutes = require('./routes/clients.routes');
+const projectsRoutes = require('./routes/projects.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,6 +55,8 @@ app.use('/api/coo', cooRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/proposals', proposalsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/clients', clientsRoutes);
+app.use('/api/projects', projectsRoutes);
 
 // Servir uploads (avatars/arquivos)
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
