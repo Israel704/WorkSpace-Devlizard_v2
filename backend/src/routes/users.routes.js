@@ -76,6 +76,20 @@ router.patch('/me', authRequired, async (req, res) => {
     const name = normalizeString(req.body.name);
     const email = normalizeString(req.body.email);
     const password = normalizeString(req.body.password);
+    let currentUser = null;
+
+    try {
+      currentUser = await githubStore.getUserById(userId);
+    } catch (_) {}
+
+    if (!currentUser) {
+      try {
+        currentUser = await db.get(
+          'SELECT id, email, role FROM users WHERE id = ?',
+          [userId]
+        );
+      } catch (_) {}
+    }
 
     const updates = [];
     const params = [];
@@ -88,20 +102,28 @@ router.patch('/me', authRequired, async (req, res) => {
     }
 
     if (email) {
-      try {
-        const users = await githubStore.getUsers();
-        const exists = users.find(u => String(u.id) !== String(userId) && u.email === email);
-        if (exists) {
+      if (currentUser && currentUser.email === email) {
+        // Mesmo email do usuário atual: não validar conflito
+      } else {
+        try {
+          const users = await githubStore.getUsers();
+          const exists = users.find(u =>
+            String(u.id) !== String(userId) &&
+            u.email === email &&
+            String(u.role || '').toLowerCase() === String(currentUser?.role || req.user?.role || '').toLowerCase()
+          );
+          if (exists) {
+            return res.status(409).json({ error: 'Login já está em uso' });
+          }
+        } catch (_) {}
+
+        const existing = await db.get(
+          'SELECT id FROM users WHERE email = ? AND role = ? AND id != ?',
+          [email, String(currentUser?.role || req.user?.role || '').toLowerCase(), userId]
+        );
+        if (existing) {
           return res.status(409).json({ error: 'Login já está em uso' });
         }
-      } catch (_) {}
-
-      const existing = await db.get(
-        'SELECT id FROM users WHERE email = ? AND id != ?',
-        [email, userId]
-      );
-      if (existing) {
-        return res.status(409).json({ error: 'Login já está em uso' });
       }
       updates.push('email = ?');
       params.push(email);

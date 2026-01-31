@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 const github = require('../githubClient');
 
 // Caminhos dos arquivos no repositório
@@ -7,6 +9,37 @@ const CLIENTS_PATH = 'data/clients.json';
 const FILES_PATH = 'data/files.json';
 const PROJECTS_PATH = 'data/projects.json';
 const STORAGE_ROOT = 'data/storage';
+const LOCAL_STORAGE_ROOT = path.join(__dirname, '..', '..', 'local_storage');
+
+function ensureLocalStorageDir() {
+  if (!fs.existsSync(LOCAL_STORAGE_ROOT)) {
+    fs.mkdirSync(LOCAL_STORAGE_ROOT, { recursive: true });
+  }
+}
+
+function resolveLocalStoragePath(key) {
+  const safeKey = encodeURIComponent(String(key || ''));
+  return path.join(LOCAL_STORAGE_ROOT, `${safeKey}.json`);
+}
+
+function readLocalJson(key, fallback = null) {
+  try {
+    ensureLocalStorageDir();
+    const filePath = resolveLocalStoragePath(key);
+    if (!fs.existsSync(filePath)) return fallback;
+    const raw = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(raw);
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function writeLocalJson(key, value) {
+  ensureLocalStorageDir();
+  const filePath = resolveLocalStoragePath(key);
+  fs.writeFileSync(filePath, JSON.stringify(value, null, 2), 'utf8');
+  return true;
+}
 
 const STORAGE_MAP = {
   'devlizard:ceo:decisions': 'data/ceo/decisions.json',
@@ -50,15 +83,33 @@ function resolveStoragePath(key) {
 }
 
 async function getStorage(key, fallback = null) {
+  if (!process.env.GITHUB_TOKEN) {
+    return readLocalJson(key, fallback);
+  }
+
   const path = resolveStoragePath(key);
-  const res = await github.getJson(path);
-  if (!res || res.json === undefined) return fallback;
-  return res.json;
+  try {
+    const res = await github.getJson(path);
+    if (!res || res.json === undefined) return fallback;
+    return res.json;
+  } catch (_) {
+    return readLocalJson(key, fallback);
+  }
 }
 
 async function setStorage(key, value, message) {
+  if (!process.env.GITHUB_TOKEN) {
+    writeLocalJson(key, value);
+    return { ok: true, local: true };
+  }
+
   const path = resolveStoragePath(key);
-  return github.createOrUpdateJson(path, value, message || `Update ${key}`);
+  try {
+    return github.createOrUpdateJson(path, value, message || `Update ${key}`);
+  } catch (_) {
+    writeLocalJson(key, value);
+    return { ok: true, local: true };
+  }
 }
 // Projetos
 async function _readProjects() {
