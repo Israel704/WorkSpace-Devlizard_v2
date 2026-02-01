@@ -54,6 +54,7 @@ const STORAGE_MAP = {
   'coo_kanban_settings': 'data/coo/kanban_settings.json',
   'cto_kanban_tasks': 'data/cto/kanban_tasks.json',
   'cto_kanban_settings': 'data/cto/kanban_settings.json',
+  'cto_priority_projects_v1': 'data/cto/priority_projects.json',
   'cmo_promises': 'data/cmo/promises.json',
   'global_decisions': 'data/shared/global_decisions.json',
   'dl_projects_v1': 'data/shared/projects.json',
