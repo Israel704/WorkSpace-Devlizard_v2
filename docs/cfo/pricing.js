@@ -259,6 +259,72 @@
     renderHistory();
   };
 
+  const sanitizeFileName = (value) => {
+    return String(value || "orcamento")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9_-]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "orcamento";
+  };
+
+  const buildQuoteText = (calc) => {
+    const acquisitionLabel = calc.data.acquisition === "Compra" ? "Total compra" : "Mensal aluguel";
+    const baseBeforeDiscount = calc.data.acquisition === "Compra" ? calc.totalBuy : calc.monthlyTotal;
+    const lines = [
+      "Orcamento DevLizard",
+      `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
+      "",
+      "Parametros",
+      `Tipo de projeto: ${calc.data.type}`,
+      `Complexidade: ${calc.data.complexity}`,
+      `Funcionalidades: ${calc.data.features}`,
+      `Devs: ${calc.data.devs}`,
+      `Modelo de aquisicao: ${calc.data.acquisition}`,
+      `Manutencao: ${calc.data.maintenance || "Nenhuma"}`,
+      `Desconto aplicado: ${calc.data.discount ? "Sim" : "Nao"}`,
+      "",
+      "Breakdown",
+      `Preco por funcionalidade: ${formatCurrency(BASE_PER_FEATURE)}`,
+      `Multiplicador do tipo: ${calc.typeMult}`,
+      `Multiplicador da complexidade: ${calc.complexityMult}`,
+      `Multiplicador por devs: ${calc.devMult}`,
+      `Subtotal: ${formatCurrency(calc.subtotal)}`,
+      `Manutencao: ${formatCurrency(calc.maintenanceValue)}`,
+      `Base antes do desconto: ${formatCurrency(baseBeforeDiscount)}`,
+      `Economia com desconto: ${formatCurrency(calc.discountSavings)}`,
+      "",
+      `${acquisitionLabel}: ${formatCurrency(calc.finalValue)}`,
+    ];
+
+    if (calc.data.acquisition === "Aluguel") {
+      lines.splice(lines.length - 1, 0, `Aluguel base mensal: ${formatCurrency(calc.monthlyBase)}`);
+      lines.splice(lines.length - 1, 0, `Manutencao mensal: ${formatCurrency(calc.monthlyMaintenance)}`);
+    }
+
+    return lines.join("\n");
+  };
+
+  const downloadQuote = (calc) => {
+    const fileName = `orcamento-${sanitizeFileName(calc.data.type)}-${new Date().toISOString().slice(0, 10)}.txt`;
+    const blob = new Blob([buildQuoteText(calc)], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownload = () => {
+    if (!lastResult) {
+      alert("Calcule primeiro para baixar o orcamento.");
+      return;
+    }
+    downloadQuote(lastResult);
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = readForm();
@@ -307,12 +373,14 @@
     const form = document.getElementById("pricingForm");
     const clearBtn = document.getElementById("clearBtn");
     const saveBtn = document.getElementById("saveBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
     const historyList = document.getElementById("historyList");
     const clearHistoryBtn = document.getElementById("clearHistory");
 
     if (form) form.addEventListener("submit", handleSubmit);
     if (clearBtn) clearBtn.addEventListener("click", handleClear);
     if (saveBtn) saveBtn.addEventListener("click", handleSave);
+    if (downloadBtn) downloadBtn.addEventListener("click", handleDownload);
     if (historyList) historyList.addEventListener("click", handleHistoryClick);
     if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", handleClearHistory);
 
