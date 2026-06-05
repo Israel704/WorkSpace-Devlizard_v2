@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>CTO • Cadastro de Projetos • DevLizard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../shared/css/global.css" />
+  <link rel="stylesheet" href="../shared/css/components.css" />
+  <link rel="stylesheet" href="../shared/css/roles.css" />
+</head>
+
+<body class="role-cto">
+  <div class="app">
+    <div id="sidebar"></div>
+
+    <main class="main">
+      <div id="header"></div>
+
+      <section class="content">
+        <div class="page-head" style="margin-bottom: 12px;">
+          <div class="page-head-left">
+            <h1>Cadastro de Projetos</h1>
+            <p style="color: var(--muted); margin-top: 8px;">
+              Crie projetos vinculados a clientes para análise técnica e precificação.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0;">Novo projeto</h3>
+          <form id="projectForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px;">
+            <div>
+              <label for="projectClient">Cliente *</label>
+              <select id="projectClient" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></select>
+              <small id="noClientsMessage" style="color: var(--muted); display: none;">Cadastre clientes antes.</small>
+            </div>
+            <div>
+              <label for="projectName">Nome do projeto *</label>
+              <input id="projectName" type="text" required placeholder="Projeto X" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+              <label for="projectDescription">Descrição funcional *</label>
+              <textarea id="projectDescription" rows="3" required placeholder="Fluxos, objetivos e escopo..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+            <div>
+              <label for="projectComplexity">Complexidade técnica *</label>
+              <select id="projectComplexity" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Selecione</option>
+                <option value="baixa">Baixa</option>
+                <option value="media">Média</option>
+                <option value="alta">Alta</option>
+              </select>
+              <small id="complexityCriteria" style="color: var(--muted); display: block; margin-top: 6px;"></small>
+            </div>
+            <div>
+              <label for="projectFeaturesCount">Quantidade de funcionalidades *</label>
+              <input id="projectFeaturesCount" type="number" min="1" required placeholder="Ex.: 18" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" />
+            </div>
+            <div>
+              <label>Categorias técnicas</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 6px;">
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" value="frontend" /> Front-end</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" value="backend" /> Back-end</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" value="infra" /> Infraestrutura</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" value="integracoes" /> Integrações</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" value="seguranca" /> Segurança</label>
+                <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" value="dados" /> Dados</label>
+              </div>
+            </div>
+            <div>
+              <label for="projectRisks">Riscos técnicos</label>
+              <textarea id="projectRisks" rows="3" placeholder="Dependências, gargalos, riscos..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+          </form>
+
+          <div style="margin-top: 16px;">
+            <h4 style="margin: 0 0 8px 0;">Funcionalidades por módulo</h4>
+            <div id="modulesList" style="display: grid; gap: 10px;"></div>
+            <button id="addModuleBtn" type="button" style="margin-top: 10px; padding: 10px 12px; background: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">+ Adicionar módulo</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center; margin-top: 16px;">
+            <button id="submitProject" type="submit" form="projectForm" style="padding: 12px 16px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Salvar projeto</button>
+            <button id="cancelProjectEdit" type="button" style="padding: 12px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: none;">Cancelar</button>
+          </div>
+        </div>
+
+        <div id="projectsList" style="margin-top: 16px;"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="cto.guard.js"></script>
+  <script src="../shared/layout.js"></script>
+  <script src="../shared/app.js"></script>
+  <script src="../shared/clients.store.js"></script>
+  <script src="../shared/projects.store.js"></script>
+  <script src="projects.js"></script>
+</body>
+</html>

@@ -3,14 +3,21 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const githubStore = require('./store/githubStore');
+// ...existing code...
 
 // Importar rotas
 const authRoutes = require('./routes/auth.routes');
 const ceoRoutes = require('./routes/ceo.routes');
 const cooRoutes = require('./routes/coo.routes');
+
 const filesRoutes = require('./routes/files.routes');
 const proposalsRoutes = require('./routes/proposals.routes');
 const usersRoutes = require('./routes/users.routes');
+const clientsRoutes = require('./routes/clients.routes');
+const projectsRoutes = require('./routes/projects.routes');
+const opsTasksRoutes = require('./routes/opsTasks.routes');
+const storageRoutes = require('./routes/storage.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,6 +60,29 @@ app.use('/api/coo', cooRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/proposals', proposalsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/clients', clientsRoutes);
+
+
+
+app.use('/api/projects', projectsRoutes);
+app.use('/api/ops-tasks', opsTasksRoutes);
+app.use('/api/storage', storageRoutes);
+
+// Compat: shared pages clients.html (evita erro de navegação)
+app.get('/shared/pages/clients', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/clients.html'));
+});
+app.get('/shared/pages/clients.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../docs/shared/pages/clients.html'));
+});
+
+// Compat: shared pages index.html (mesmo não existindo, evita erro de navegação)
+app.get('/shared/pages/index', (req, res) => {
+  res.redirect('/');
+});
+app.get('/shared/pages/index.html', (req, res) => {
+  res.redirect('/');
+});
 
 // Servir uploads (avatars/arquivos)
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
@@ -71,16 +101,21 @@ app.get('/auth/login', (req, res) => {
 });
 
 // Compat: shared pages sem extensao
-app.get('/shared/pages/decisions', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/decisions.html'));
-});
 
-app.get('/shared/pages/roadmap-view', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/roadmap-view.html'));
-});
 
-app.get('/shared/pages/profile', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../docs/shared/pages/profile.html'));
+// Compat: shared pages sem extensao (.html)
+const sharedPages = [
+  'clients',
+  'commercial-projects',
+  'decisions',
+  'instructions',
+  'profile',
+  'roadmap-view',
+];
+sharedPages.forEach(page => {
+  app.get(`/shared/pages/${page}`, (req, res) => {
+    res.sendFile(path.join(__dirname, `../../docs/shared/pages/${page}.html`));
+  });
 });
 
 // Error handler global
@@ -104,52 +139,40 @@ async function startServer() {
   try {
     // Inicializar banco de dados
     await db.initialize();
+
+    // Bootstrap users.json (GitHub) se ainda nÃ£o existir
+    try {
+      const defaultUsers = [
+        { email: 'admin@devlizard.com', password: '123456', role: 'ceo' },
+        { email: 'coo@devlizard.com', password: 'coo2024', role: 'coo' },
+        { email: 'cfo@devlizard.com', password: 'cfo2024', role: 'cfo' },
+        { email: 'cto@devlizard.com', password: 'cto2024', role: 'cto' },
+        { email: 'cmo@devlizard.com', password: 'cmo2024', role: 'cmo' },
+        { email: 'comercial@devlizard.com', password: 'comercial2024', role: 'comercial' },
+      ];
+      const bootstrap = await githubStore.ensureUsersFile(defaultUsers);
+      if (!bootstrap?.skipped) {
+        console.log(`Bootstrap users.json: ${bootstrap?.count || 0} usuÃ¡rios criados`);
+      }
+    } catch (bootstrapErr) {
+      console.warn('Aviso: nÃ£o foi possÃ­vel bootstrap do users.json:', bootstrapErr.message || bootstrapErr);
+    }
     
     // Iniciar servidor
     app.listen(PORT, () => {
       console.log('');
-      console.log('🦎 ========================================');
       console.log('🦎 DevLizard Backend API');
-      console.log('🦎 ========================================');
-      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log('------------------------------');
+      console.log(`Acesse: http://localhost:${PORT}`);
       console.log('');
-      console.log('📌 Endpoints disponíveis:');
-      console.log('   POST   /api/auth/login');
-      console.log('   GET    /api/ceo/notes');
-      console.log('   POST   /api/ceo/notes');
-      console.log('   PUT    /api/ceo/notes/:id');
-      console.log('   DELETE /api/ceo/notes/:id');
-      console.log('   GET    /api/ceo/decisions');
-      console.log('   POST   /api/ceo/decisions');
-      console.log('   PUT    /api/ceo/decisions/:id');
-      console.log('   DELETE /api/ceo/decisions/:id');
-      console.log('   GET    /api/ceo/risks');
-      console.log('   POST   /api/ceo/risks');
-      console.log('   PUT    /api/ceo/risks/:id');
-      console.log('   DELETE /api/ceo/risks/:id');
-      console.log('   GET    /api/ceo/ops-report');
-      console.log('   GET    /api/coo/tasks');
-      console.log('   POST   /api/coo/tasks');
-      console.log('   PUT    /api/coo/tasks/:id');
-      console.log('   PATCH  /api/coo/tasks/:id/move');
-      console.log('   DELETE /api/coo/tasks/:id');
-      console.log('   POST   /api/files/forward');
-      console.log('   GET    /api/files/inbox');
-      console.log('   GET    /api/files/:id/download');
-      console.log('   PATCH  /api/files/:id/read');
-      console.log('   DELETE /api/files/:id');
-      console.log('   GET    /api/users/me');
-      console.log('   PATCH  /api/users/me');
-      console.log('   POST   /api/users/me/avatar');
-      console.log('   POST   /api/proposals');
-      console.log('   GET    /api/proposals/sent');
-      console.log('   GET    /api/proposals/inbox');
-      console.log('   PATCH  /api/proposals/:id/decide');
-      console.log('   DELETE /api/proposals/:id');
-      console.log('');
-      console.log('🦎 ========================================');
-      console.log('');
+      console.log('Perfis de acesso:');
+      console.log('  CEO:        admin@devlizard.com / 123456');
+      console.log('  COO:        coo@devlizard.com / 123456');
+      console.log('  CFO:        cfo@devlizard.com / 123456');
+      console.log('  CTO:        cto@devlizard.com / 123456');
+      console.log('  CMO:        cmo@devlizard.com / 123456');
+      console.log('  Comercial:  comercial@devlizard.com / 123456');
+      console.log('------------------------------');
     });
     
   } catch (error) {

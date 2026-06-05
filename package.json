@@ -1,0 +1,8 @@
+{
+  "name": "devlizard-workspace",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && npm start",
+    "start:backend": "cd backend && npm start"
+  }
+}

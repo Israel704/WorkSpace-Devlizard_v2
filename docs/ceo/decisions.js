@@ -191,6 +191,9 @@
   if (searchEl) searchEl.addEventListener("input", () => render());
 
   // Boot
-  load();
-  render();
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => {
+    load();
+    render();
+  });
 })();

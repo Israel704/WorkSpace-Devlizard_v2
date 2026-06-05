@@ -292,4 +292,7 @@ const Debt = (() => {
 })();
 
 // Run on load
-document.addEventListener("DOMContentLoaded", Debt.init);
+document.addEventListener("DOMContentLoaded", () => {
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => Debt.init());
+});

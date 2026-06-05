@@ -145,7 +145,10 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    bindYieldForm();
-    updateDashboard();
+    const ready = window.App?.storageReady || Promise.resolve();
+    ready.then(() => {
+      bindYieldForm();
+      updateDashboard();
+    });
   });
 })();

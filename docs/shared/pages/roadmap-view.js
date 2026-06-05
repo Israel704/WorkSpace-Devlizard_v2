@@ -356,7 +356,10 @@ const RoadmapView = (() => {
   // INIT
   // ========================
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", () => {
+      const ready = window.App?.storageReady || Promise.resolve();
+      ready.then(() => init());
+    });
   } else {
     init();
   }

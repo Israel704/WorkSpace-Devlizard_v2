@@ -2,13 +2,16 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
+const githubStore = require('../store/githubStore');
 
 const router = express.Router();
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const password = String(req.body?.password || '').trim();
+    const role = String(req.body?.role || '').trim().toLowerCase();
 
     // Validação básica
     if (!email || !password || !role) {
@@ -17,11 +20,21 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Buscar usuário
-    const user = await db.get(
-      'SELECT * FROM users WHERE email = ? AND role = ?',
-      [email, role]
-    );
+
+    // Buscar usuário no GitHub
+    let user = null;
+    try {
+      user = await githubStore.getUserByEmailAndRole(email, role);
+    } catch (_) {
+      user = null;
+    }
+
+    if (!user) {
+      user = await db.get(
+        'SELECT id, email, role, name, avatar, password FROM users WHERE email = ? AND role = ?',
+        [email, role]
+      );
+    }
 
     if (!user) {
       return res.status(401).json({ 

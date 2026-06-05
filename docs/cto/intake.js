@@ -231,4 +231,7 @@ const Intake = (() => {
 })();
 
 // Run on load
-document.addEventListener("DOMContentLoaded", Intake.init);
+document.addEventListener("DOMContentLoaded", () => {
+  const ready = window.App?.storageReady || Promise.resolve();
+  ready.then(() => Intake.init());
+});

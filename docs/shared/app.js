@@ -1,4 +1,4 @@
-/* ======================================================
+﻿/* ======================================================
    ESTADO GLOBAL DA APLICAÇÃO
 
    Gerencia:
@@ -314,12 +314,13 @@ window.App = (() => {
     const menus = {
       ceo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
   { label: "Decisões", href: "decisions.html" },
   { label: "Riscos", href: "risks.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Roadmap Estratégico", href: "roadmap.html" },
   { label: "Propostas", href: "proposals.html" },
-  { label: "Relatórios", href: "reports.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Relatório Operacional", href: "ops-report.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
@@ -327,7 +328,9 @@ window.App = (() => {
 ],
       coo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Relatórios", href: "reports.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Gerenciar Decisões", href: "decisions-admin.html" },
@@ -341,32 +344,42 @@ window.App = (() => {
   { label: "Projetos", href: "projects.html" },
   { label: "Propostas", href: "proposals.html" },
   { label: "Precificação", href: "pricing.html" },
+  { label: "Precificação de Projetos", href: "pricing-projects.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cto: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
+  { label: "Cadastro de Projetos", href: "projects.html" },
+  { label: "Prioridades", href: "priority.html" },
   { label: "Tech Intake", href: "intake.html" },
   { label: "Debt & Quality", href: "debt.html" },
   { label: "Notas", href: "notes.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       cmo: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
   { label: "Roteiro de Promessas", href: "promises.html" },
   { label: "Status", href: "status.html" },
   { label: "Biblioteca", href: "library.html" },
   { label: "Propostas", href: "proposals.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Painel de Decisões", href: "../shared/pages/decisions.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
       comercial: [
   { label: "Visão Geral", href: "index.html" },
+  { label: "Clientes", href: "../shared/pages/clients.html" },
+  { label: "Fluxo Comercial", href: "../shared/pages/commercial-projects.html" },
   { label: "Roadmap (Leitura)", href: "../shared/pages/roadmap-view.html" },
   { label: "Configurações de Perfil", href: "../shared/pages/profile.html" },
 ],
@@ -374,10 +387,21 @@ window.App = (() => {
     };
 
     const items = menus[role] || [];
+    const isSharedPage = window.location.pathname.toLowerCase().includes("/shared/pages/");
+    const resolveHref = (href) => {
+      if (!isSharedPage) return href;
+      // Se já está em /shared/pages/ e o href é relativo (ex: decisions.html), não alterar
+      if (!href.startsWith("../") && href.endsWith(".html")) return href;
+      // Se começa com ../shared/, manter
+      if (href.startsWith("../shared/")) return href;
+      // Para outros casos, manter padrão antigo
+      return `../../${role}/${href}`;
+    };
     const html = items
       .map((item) => {
+        const resolvedHref = resolveHref(item.href);
         const active = item.href === current ? "active" : "";
-        return `<a href="${item.href}" class="${active}">${item.label}</a>`;
+        return `<a href="${resolvedHref}" class="${active}">${item.label}</a>`;
       })
       .join("");
     safeHTML(nav, html);
@@ -550,6 +574,135 @@ window.App = (() => {
     }
   };
 
+  // ===================================================
+  // REMOTE STORAGE (GitHub-backed via API)
+  // ===================================================
+  const localJsonStore = {
+    getJson: (key, fallback = null) => {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return parsed === undefined ? fallback : parsed;
+      } catch (_) {
+        return fallback;
+      }
+    },
+    setJson: (key, value) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (_) {}
+      return value;
+    },
+  };
+
+  const RemoteStore = {
+    async getJson(key, fallback = null) {
+      const encoded = encodeURIComponent(String(key || ""));
+      try {
+        const data = await apiFetch(`${API_BASE}/storage/${encoded}`);
+        return data === undefined || data === null ? fallback : data;
+      } catch (e) {
+        return localJsonStore.getJson(key, fallback);
+      }
+    },
+    async setJson(key, value) {
+      const encoded = encodeURIComponent(String(key || ""));
+      try {
+        await apiFetch(`${API_BASE}/storage/${encoded}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value }),
+        });
+      } catch (e) {
+        localJsonStore.setJson(key, value);
+      }
+      return value;
+    },
+  };
+
+  window.RemoteStore = RemoteStore;
+
+  const rawSetItem = localStorage.setItem.bind(localStorage);
+  const rawRemoveItem = localStorage.removeItem.bind(localStorage);
+
+  const DATA_STORAGE_KEYS = [
+    "devlizard:ceo:decisions",
+    "devlizard:ceo:notes",
+    "devlizard:ceo:risks",
+    "devlizard:ceo:roadmap",
+    "ceo_roadmaps",
+    "ceo_reports_data",
+    "coo_reports_data",
+    "shared_reports_data",
+    "coo_kanban_tasks",
+    "coo_kanban_settings",
+    "cto_kanban_tasks",
+    "cto_kanban_settings",
+    "cto_intake_items",
+    "cto_debt_items",
+    "cto_priority_projects_v1",
+    "devlizard:cto:notes",
+    "cmo_promises",
+    "global_decisions",
+    "dl_projects_v1",
+    "dl_clients_v1",
+    "cfo_clients",
+    "cfo_projects",
+    "cfo_invested_yield",
+    "cfo_pricing_history",
+    "cfm_project_costs_v2"
+  ];
+
+  const isDataKey = (key) => DATA_STORAGE_KEYS.includes(String(key || ""));
+
+  const hydrateDataKeys = async () => {
+    for (const key of DATA_STORAGE_KEYS) {
+      try {
+        const data = await RemoteStore.getJson(key, null);
+        if (data === null || data === undefined) {
+          const localRaw = localStorage.getItem(key);
+          if (localRaw !== null && localRaw !== undefined) {
+            try {
+              const parsed = JSON.parse(String(localRaw));
+              await RemoteStore.setJson(key, parsed);
+            } catch (_) {
+              await RemoteStore.setJson(key, String(localRaw));
+            }
+          }
+          continue;
+        }
+        if (typeof data === "string") rawSetItem(key, data);
+        else rawSetItem(key, JSON.stringify(data));
+      } catch (_) {}
+    }
+  };
+
+  if (!window.__REMOTE_STORAGE_PATCHED) {
+    window.__REMOTE_STORAGE_PATCHED = true;
+    const originalSetItem = rawSetItem;
+    const originalRemoveItem = rawRemoveItem;
+
+    localStorage.setItem = (key, value) => {
+      originalSetItem(key, value);
+      if (!isDataKey(key)) return;
+      try {
+        const parsed = JSON.parse(String(value));
+        RemoteStore.setJson(key, parsed);
+      } catch (_) {
+        RemoteStore.setJson(key, value);
+      }
+    };
+
+    localStorage.removeItem = (key) => {
+      originalRemoveItem(key);
+      if (!isDataKey(key)) return;
+      RemoteStore.setJson(key, null);
+    };
+  }
+
+  const storageReady = hydrateDataKeys();
+
   const log = (contextOrMessage, messageOrData = null, maybeData = null) => {
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     const roleTag = state.role ? `[${state.role.toUpperCase()}]` : "";
@@ -640,6 +793,8 @@ window.App = (() => {
     safeHTML,
     apiFetch,
     getApiBase: () => API_BASE,
+    store: RemoteStore,
+    storageReady,
 
     // Init
     init,
@@ -652,3 +807,5 @@ if (document.readyState === "loading") {
 } else {
   window.App.init();
 }
+
+

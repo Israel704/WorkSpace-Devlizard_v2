@@ -386,6 +386,8 @@
 // =====================
 
 (function initPromisesPage() {
+  const ready = window.App?.storageReady || Promise.resolve();
+  const run = () => {
   const form = document.getElementById("promiseForm");
   const listContainer = document.getElementById("promisesList");
 
@@ -548,4 +550,6 @@
   });
 
   window.CMOPromises.syncWithProposals().finally(renderList);
+  };
+  ready.then(run);
 })();

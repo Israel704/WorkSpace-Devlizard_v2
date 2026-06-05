@@ -13,10 +13,9 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database(DB_PATH, (err) => {
         if (err) {
-          console.error('❌ Erro ao conectar ao banco de dados:', err);
+          console.error('Erro ao conectar ao banco de dados:', err);
           reject(err);
         } else {
-          console.log('✅ Conectado ao banco de dados SQLite');
           resolve();
         }
       });
@@ -33,56 +32,82 @@ class Database {
   createTables() {
     return new Promise((resolve, reject) => {
       this.db.serialize(() => {
-        // Tabela de usuários
         this.db.run(`
           CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
+            email TEXT NOT NULL,
             password TEXT NOT NULL,
+            role TEXT NOT NULL,
             name TEXT,
             avatar TEXT,
-            role TEXT NOT NULL,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt INTEGER DEFAULT (strftime('%s','now'))
           )
         `);
 
-        // Tabela de notas do CEO
+        this.db.run(`
+          CREATE TABLE IF NOT EXISTS proposals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            fromRole TEXT NOT NULL,
+            toRole TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            category TEXT,
+            decisionComment TEXT,
+            decidedAt INTEGER,
+            createdAt INTEGER DEFAULT (strftime('%s','now')),
+            updatedAt INTEGER
+          )
+        `);
+
+        this.db.run(`
+          CREATE TABLE IF NOT EXISTS ops_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            status TEXT NOT NULL DEFAULT 'todo',
+            priority TEXT,
+            owner TEXT,
+            dueDate TEXT,
+            createdByRole TEXT,
+            createdAt INTEGER,
+            updatedAt INTEGER
+          )
+        `);
+
         this.db.run(`
           CREATE TABLE IF NOT EXISTS ceo_notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             text TEXT NOT NULL,
-            ownerRole TEXT DEFAULT 'ceo',
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            ownerRole TEXT,
+            createdAt INTEGER DEFAULT (strftime('%s','now')),
+            updatedAt INTEGER
           )
         `);
 
-        // Tabela de decisões do CEO
         this.db.run(`
           CREATE TABLE IF NOT EXISTS ceo_decisions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             text TEXT NOT NULL,
-            ownerRole TEXT DEFAULT 'ceo',
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            ownerRole TEXT,
+            createdAt INTEGER DEFAULT (strftime('%s','now')),
+            updatedAt INTEGER
           )
         `);
 
-        // Tabela de riscos do CEO
         this.db.run(`
           CREATE TABLE IF NOT EXISTS ceo_risks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             text TEXT NOT NULL,
-            ownerRole TEXT DEFAULT 'ceo',
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            ownerRole TEXT,
+            createdAt INTEGER DEFAULT (strftime('%s','now')),
+            updatedAt INTEGER
           )
         `);
 
-        // Tabela de mensagens/arquivos
         this.db.run(`
           CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -92,61 +117,30 @@ class Database {
             originalName TEXT,
             storedName TEXT,
             mimeType TEXT,
-            size INTEGER,
+            size INTEGER DEFAULT 0,
             read INTEGER DEFAULT 0,
-            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            createdAt INTEGER DEFAULT (strftime('%s','now')),
+            updatedAt INTEGER
           )
         `);
 
-        // Tabela de tarefas operacionais do COO
         this.db.run(`
-          CREATE TABLE IF NOT EXISTS ops_tasks (
+          CREATE TABLE IF NOT EXISTS revenue (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
+            date TEXT,
+            value REAL,
             description TEXT,
-            status TEXT NOT NULL DEFAULT 'todo',
-            priority TEXT DEFAULT 'medium',
-            owner TEXT,
-            dueDate TEXT,
-            createdByRole TEXT DEFAULT 'coo',
-            createdAt INTEGER DEFAULT (strftime('%s', 'now')),
-            updatedAt INTEGER DEFAULT (strftime('%s', 'now'))
+            createdAt INTEGER DEFAULT (strftime('%s','now'))
           )
-        `);
-
-        // Tabela de propostas entre C-levels
-        this.db.run(`
-          CREATE TABLE IF NOT EXISTS proposals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT NOT NULL,
-            fromRole TEXT NOT NULL,
-            toRole TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'pending',
-            decisionComment TEXT,
-            createdAt INTEGER DEFAULT (strftime('%s', 'now')),
-            decidedAt INTEGER
-          )
-        `);
-
-        // Criar índice para status na tabela ops_tasks
-        this.db.run(`
-          CREATE INDEX IF NOT EXISTS idx_ops_tasks_status ON ops_tasks(status)
-        `);
-
-        // Criar índices para a tabela proposals
-        this.db.run(`
-          CREATE INDEX IF NOT EXISTS idx_proposals_toRole ON proposals(toRole)
         `);
 
         this.db.run(`
           CREATE INDEX IF NOT EXISTS idx_proposals_status ON proposals(status)
         `, (err) => {
           if (err) {
-            console.error('❌ Erro ao criar tabelas:', err);
+            console.error('Erro ao criar tabelas:', err);
             reject(err);
           } else {
-            console.log('✅ Tabelas criadas/verificadas com sucesso');
             resolve();
           }
         });
@@ -199,7 +193,6 @@ class Database {
 
   async seedData() {
     return new Promise((resolve, reject) => {
-      // Definir usuários padrão para cada role
       const defaultUsers = [
         { email: 'admin@devlizard.com', password: '123456', role: 'ceo' },
         { email: 'coo@devlizard.com', password: 'coo2024', role: 'coo' },
@@ -209,16 +202,14 @@ class Database {
         { email: 'comercial@devlizard.com', password: 'comercial2024', role: 'comercial' },
       ];
 
-      // Verificar e criar usuários
       const createUsersRecursively = async (index) => {
         if (index >= defaultUsers.length) {
-          console.log('✅ Todos os usuários padrão foram verificados/criados');
           resolve();
           return;
         }
 
         const user = defaultUsers[index];
-        
+
         this.db.get('SELECT id FROM users WHERE email = ? AND role = ?', [user.email, user.role], async (err, row) => {
           if (err) {
             reject(err);
@@ -228,16 +219,14 @@ class Database {
           if (!row) {
             try {
               const hashedPassword = await bcrypt.hash(user.password, 10);
-              
               this.db.run(
                 'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
                 [user.email, hashedPassword, user.role],
-                (err) => {
-                  if (err) {
-                    console.error(`❌ Erro ao criar usuário ${user.role}:`, err);
-                    reject(err);
+                (insertErr) => {
+                  if (insertErr) {
+                    console.error(`Erro ao criar usuário ${user.role}:`, insertErr);
+                    reject(insertErr);
                   } else {
-                    console.log(`✅ Usuário ${user.role} criado: ${user.email} / ${user.password}`);
                     createUsersRecursively(index + 1);
                   }
                 }
@@ -246,7 +235,6 @@ class Database {
               reject(error);
             }
           } else {
-            console.log(`✅ Usuário ${user.role} já existe: ${user.email}`);
             createUsersRecursively(index + 1);
           }
         });
@@ -256,7 +244,6 @@ class Database {
     });
   }
 
-  // Métodos auxiliares para queries
   run(sql, params = []) {
     return new Promise((resolve, reject) => {
       this.db.run(sql, params, function(err) {
@@ -285,7 +272,6 @@ class Database {
   }
 }
 
-// Singleton instance
 const database = new Database();
 
 module.exports = database;
